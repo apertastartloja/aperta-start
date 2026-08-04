@@ -1,0 +1,56 @@
+import type { Category } from "@/types";
+
+export const mockCategories: Category[] = [
+  {
+    id: "cat-1",
+    name: "Suportes",
+    slug: "suportes",
+    description: "Suportes para controles, headsets e periféricos do seu setup.",
+    parentId: null,
+    order: 1,
+    featured: true,
+  },
+  {
+    id: "cat-2",
+    name: "Luminárias",
+    slug: "luminarias",
+    description: "Luminárias e itens de iluminação para o ambiente gamer.",
+    parentId: null,
+    order: 2,
+    featured: true,
+  },
+  {
+    id: "cat-3",
+    name: "Caixas e Organizadores",
+    slug: "caixas-e-organizadores",
+    description: "Caixas temáticas para organizar cabos, jogos e acessórios.",
+    parentId: null,
+    order: 3,
+    featured: true,
+  },
+  {
+    id: "cat-4",
+    name: "Action Figures",
+    slug: "action-figures",
+    description: "Colecionáveis para exibir sua paixão pelos games.",
+    parentId: null,
+    order: 4,
+    featured: true,
+  },
+  {
+    id: "cat-5",
+    name: "Chaveiros",
+    slug: "chaveiros",
+    description: "Chaveiros retrô para levar o game para todo lugar.",
+    parentId: null,
+    order: 5,
+    featured: false,
+  },
+
+  { id: "cat-1-1", name: "Suporte de Controle", slug: "suporte-de-controle", parentId: "cat-1", order: 1 },
+  { id: "cat-1-2", name: "Suporte de Headset", slug: "suporte-de-headset", parentId: "cat-1", order: 2 },
+  { id: "cat-2-1", name: "Luminárias Decorativas", slug: "luminarias-decorativas", parentId: "cat-2", order: 1 },
+  { id: "cat-2-2", name: "Painéis de LED", slug: "paineis-de-led", parentId: "cat-2", order: 2 },
+  { id: "cat-3-1", name: "Porta-Trecos", slug: "porta-trecos", parentId: "cat-3", order: 1 },
+  { id: "cat-4-1", name: "Figures Clássicos", slug: "figures-classicos", parentId: "cat-4", order: 1 },
+];

@@ -1,0 +1,257 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Aperta Start — Design System
+ * Todos os tokens (cor, tipografia, espaçamento, raio, sombra) vivem aqui.
+ * Nunca usar HEX/cores fixas dentro de componentes.
+ */
+
+@theme inline {
+  /* Tipografia */
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+
+  /* Raio */
+  --radius-sm: var(--radius-s);
+  --radius-md: var(--radius-m);
+  --radius-lg: var(--radius-l);
+  --radius-xl: var(--radius-x);
+  --radius-2xl: calc(var(--radius-x) + 8px);
+  --radius-3xl: calc(var(--radius-x) + 16px);
+
+  /* Espaçamento base 4px */
+  --spacing: 0.25rem;
+
+  /* Cores */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--danger-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Sombras */
+  --shadow-light: var(--elevation-light);
+  --shadow-medium: var(--elevation-medium);
+  --shadow-large: var(--elevation-large);
+  --shadow-hover: var(--elevation-hover);
+}
+
+:root {
+  /* Raio */
+  --radius-s: 6px;
+  --radius-m: 10px;
+  --radius-l: 16px;
+  --radius-x: 24px;
+  --radius: var(--radius-m);
+
+  /* Paleta oficial Aperta Start */
+  --background: #faf6f3;
+  --foreground: #19253b;
+  --surface: #ffffff;
+  --surface-foreground: #19253b;
+  --card: #ffffff;
+  --card-foreground: #19253b;
+  --popover: #ffffff;
+  --popover-foreground: #19253b;
+  --primary: #19253b;
+  --primary-foreground: #ffffff;
+  --secondary: #2a2a2a;
+  --secondary-foreground: #faf6f3;
+  --muted: #f1ece6;
+  --muted-foreground: #6b7280;
+  --accent: #ffc933;
+  --accent-foreground: #19253b;
+  --brand: #7c3aed;
+  --brand-foreground: #ffffff;
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --warning: #ffc933;
+  --warning-foreground: #19253b;
+  --danger: #e94b4b;
+  --danger-foreground: #ffffff;
+  --info: #2563eb;
+  --info-foreground: #ffffff;
+  --border: #e7e1da;
+  --input: #e7e1da;
+  --ring: #ffc933;
+
+  --chart-1: #19253b;
+  --chart-2: #ffc933;
+  --chart-3: #16a34a;
+  --chart-4: #7c3aed;
+  --chart-5: #e94b4b;
+
+  --sidebar: #19253b;
+  --sidebar-foreground: #faf6f3;
+  --sidebar-primary: #ffc933;
+  --sidebar-primary-foreground: #19253b;
+  --sidebar-accent: #223051;
+  --sidebar-accent-foreground: #faf6f3;
+  --sidebar-border: rgb(255 255 255 / 12%);
+  --sidebar-ring: #ffc933;
+
+  /* Elevação */
+  --elevation-light: 0 1px 2px rgb(25 37 59 / 0.06);
+  --elevation-medium: 0 4px 14px rgb(25 37 59 / 0.08);
+  --elevation-large: 0 14px 40px rgb(25 37 59 / 0.12);
+  --elevation-hover: 0 18px 44px rgb(25 37 59 / 0.16);
+}
+
+.dark {
+  --background: #10182a;
+  --foreground: #faf6f3;
+  --surface: #19253b;
+  --surface-foreground: #faf6f3;
+  --card: #19253b;
+  --card-foreground: #faf6f3;
+  --popover: #19253b;
+  --popover-foreground: #faf6f3;
+  --primary: #ffc933;
+  --primary-foreground: #19253b;
+  --secondary: #2a2a2a;
+  --secondary-foreground: #faf6f3;
+  --muted: #223051;
+  --muted-foreground: #a2adc2;
+  --accent: #ffc933;
+  --accent-foreground: #19253b;
+  --brand: #8b5cf6;
+  --brand-foreground: #ffffff;
+  --success: #22c55e;
+  --success-foreground: #10182a;
+  --warning: #ffc933;
+  --warning-foreground: #19253b;
+  --danger: #e94b4b;
+  --danger-foreground: #ffffff;
+  --info: #60a5fa;
+  --info-foreground: #10182a;
+  --border: rgb(255 255 255 / 12%);
+  --input: rgb(255 255 255 / 16%);
+  --ring: #ffc933;
+
+  --sidebar: #19253b;
+  --sidebar-foreground: #faf6f3;
+  --sidebar-primary: #ffc933;
+  --sidebar-primary-foreground: #19253b;
+  --sidebar-accent: #223051;
+  --sidebar-accent-foreground: #faf6f3;
+  --sidebar-border: rgb(255 255 255 / 12%);
+  --sidebar-ring: #ffc933;
+
+  --elevation-light: 0 1px 2px rgb(0 0 0 / 0.4);
+  --elevation-medium: 0 4px 12px rgb(0 0 0 / 0.45);
+  --elevation-large: 0 12px 32px rgb(0 0 0 / 0.55);
+  --elevation-hover: 0 16px 40px rgb(0 0 0 / 0.6);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Escala tipográfica — usar sempre estas utilities */
+@utility text-display {
+  font-size: clamp(2.75rem, 4vw, 4rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+@utility text-h1 {
+  font-size: clamp(2.25rem, 3vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  font-weight: 800;
+}
+@utility text-h2 {
+  font-size: clamp(1.75rem, 2.2vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+@utility text-h3 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+}
+@utility text-h4 {
+  font-size: 1.185rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+@utility text-body {
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 400;
+}
+@utility text-small {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  font-weight: 400;
+}
+@utility text-caption {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+@utility text-button {
+  font-size: 0.9375rem;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  font-weight: 600;
+}
