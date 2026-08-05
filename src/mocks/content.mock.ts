@@ -4,7 +4,8 @@ import type { Banner, Testimonial } from "@/types";
 export const mockBanners: Banner[] = [
   {
     id: "ban-1",
-    title: "Organize seu setup. Eleve seu game.",
+    title: "Organize\nseu setup.",
+    highlightText: "Eleve seu game.",
     subtitle: "Acessórios e decoração gamer desenhados para quem ama jogar.",
     image: heroSetup,
     ctaLabel: "Ver produtos",
@@ -15,7 +16,8 @@ export const mockBanners: Banner[] = [
   },
   {
     id: "ban-2",
-    title: "Novo drop de luminárias.",
+    title: "Novo drop\nde luminárias.",
+    highlightText: "Ilumine seu espaço.",
     subtitle: "Ilumine seu ambiente com peças exclusivas Aperta Start.",
     image: heroSetup,
     ctaLabel: "Conferir agora",
@@ -26,7 +28,8 @@ export const mockBanners: Banner[] = [
   },
   {
     id: "ban-3",
-    title: "Kits completos com desconto.",
+    title: "Kits completos\ncom desconto.",
+    highlightText: "Monte o seu.",
     subtitle: "Monte seu setup pagando menos em combos selecionados.",
     image: heroSetup,
     ctaLabel: "Ver kits",

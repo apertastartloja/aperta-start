@@ -1,21 +1,40 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Mail, Twitch, Youtube } from "lucide-react";
-import logo from "@/assets/aperta-start-logo.png.asset.json";
+import { Logo } from "@/components/common/logo";
 import { Container } from "@/components/common/container";
-import { APP, ROUTES } from "@/constants";
+import { APP } from "@/constants";
 
 const columns = [
   {
     title: "Institucional",
-    links: ["Sobre nós", "Perguntas frequentes", "Política de privacidade", "Trocas e devoluções", "Contato"],
+    links: [
+      { label: "Sobre nós", href: "/sobre" },
+      { label: "Perguntas frequentes", href: "/contato" },
+      { label: "Política de privacidade", href: "/politicas" },
+      { label: "Trocas e devoluções", href: "/politicas" },
+      { label: "Contato", href: "/contato" },
+    ],
   },
   {
     title: "Ajuda",
-    links: ["Minha conta", "Meus pedidos", "Formas de pagamento", "Prazo de entrega", "Rastreamento"],
+    links: [
+      { label: "Minha conta", href: "/minha-conta" },
+      { label: "Meus pedidos", href: "/minha-conta" },
+      { label: "Formas de pagamento", href: "/checkout" },
+      { label: "Prazo de entrega", href: "/contato" },
+      { label: "Rastreamento", href: "/minha-conta" },
+    ],
   },
   {
     title: "Categorias",
-    links: ["Suportes", "Luminárias", "Caixas e Organizadores", "Action Figures", "Chaveiros", "Todos os produtos"],
+    links: [
+      { label: "Suportes", href: "/produtos" },
+      { label: "Luminárias", href: "/produtos" },
+      { label: "Caixas e Organizadores", href: "/produtos" },
+      { label: "Action Figures", href: "/produtos" },
+      { label: "Chaveiros", href: "/produtos" },
+      { label: "Todos os produtos", href: "/produtos" },
+    ],
   },
 ];
 
@@ -26,13 +45,13 @@ export function Footer() {
     <footer className="bg-primary text-primary-foreground">
       <Container className="grid gap-10 py-16 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
         <div className="space-y-5">
-          <img src={logo.url} alt={APP.name} width={200} height={74} loading="lazy" className="h-10 w-auto" />
+          <Logo size="lg" variant="light" />
           <p className="text-small max-w-xs opacity-75">{APP.tagline}</p>
           <div className="flex items-center gap-3">
             {[Instagram, Youtube, Twitch, Facebook].map((SocialIcon, index) => (
               <span
                 key={index}
-                className="grid size-9 place-items-center rounded-md bg-primary-foreground/10 transition-colors hover:bg-accent hover:text-accent-foreground"
+                className="grid size-9 place-items-center rounded-md bg-primary-foreground/10 transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer"
               >
                 <SocialIcon className="size-4" aria-hidden />
               </span>
@@ -44,10 +63,10 @@ export function Footer() {
           <div key={column.title} className="space-y-3">
             <p className="text-h4 text-accent">{column.title}</p>
             <ul className="space-y-2">
-              {column.links.map((label) => (
-                <li key={label}>
-                  <Link to={ROUTES.home} className="text-small opacity-75 transition-opacity hover:opacity-100">
-                    {label}
+              {column.links.map((link) => (
+                <li key={link.label}>
+                  <Link to={link.href as any} className="text-small opacity-75 transition-opacity hover:opacity-100">
+                    {link.label}
                   </Link>
                 </li>
               ))}
@@ -67,7 +86,7 @@ export function Footer() {
               </li>
             ))}
           </ul>
-          <p className="text-small flex items-center gap-2 opacity-75">
+          <p className="text-small flex items-center gap-2 opacity-75 pt-2">
             <Mail className="size-4" aria-hidden /> {APP.supportEmail}
           </p>
         </div>

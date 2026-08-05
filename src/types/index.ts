@@ -34,6 +34,11 @@ export interface ProductImage {
   alt: string;
 }
 
+export interface ProductSpec {
+  key: string;
+  value: string;
+}
+
 export interface Product {
   id: ID;
   name: string;
@@ -52,8 +57,28 @@ export interface Product {
   stock: number;
   variants?: ProductVariant[];
   tags: string[];
+  status?: "active" | "draft" | "archived";
+  seoTitle?: string;
+  seoDescription?: string;
+  /** IDs de produtos manuamente relacionados */
+  relatedProductIds?: ID[];
+  /** ID do produto para Order Bump exibido no mini-carrinho */
+  orderBumpProductId?: ID | null;
+  /** Mensagem personalizada do Order Bump (ex: "Adicione por apenas +R$ 29,90") */
+  orderBumpMessage?: string;
+  /** Especificações técnicas em pares chave→valor */
+  specs?: ProductSpec[];
+  /** Peso em kg para cálculo de frete */
+  shippingWeight?: number;
+  /** Comprimento em cm para cálculo de frete */
+  shippingLength?: number;
+  /** Largura em cm para cálculo de frete */
+  shippingWidth?: number;
+  /** Altura em cm para cálculo de frete */
+  shippingHeight?: number;
   createdAt: ISODate;
 }
+
 
 export interface Collection {
   id: ID;
@@ -78,6 +103,7 @@ export interface Kit {
 export interface Banner {
   id: ID;
   title: string;
+  highlightText?: string;
   subtitle?: string;
   image: string;
   ctaLabel?: string;

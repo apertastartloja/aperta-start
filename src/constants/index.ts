@@ -8,7 +8,7 @@ export const APP = {
 /** Rotas centralizadas — as telas serão criadas nas próximas etapas. */
 export const ROUTES = {
   home: "/",
-  shop: "/loja",
+  shop: "/produtos",
   product: "/produto",
   cart: "/carrinho",
   checkout: "/checkout",
@@ -26,15 +26,13 @@ export const SHIPPING = { freeAbove: 199, flatRate: 19.9 } as const;
 
 export const PIX_DISCOUNT = 0.05;
 
-/** Menu principal do header. */
 export const MAIN_MENU = [
-  { label: "Início", href: ROUTES.home },
-  { label: "Lançamentos", href: ROUTES.home },
-  { label: "Mais vendidos", href: ROUTES.home },
-  { label: "Promoções", href: ROUTES.home },
-  { label: "Kits", href: ROUTES.home },
-  { label: "Sobre nós", href: ROUTES.home },
-  { label: "Contato", href: ROUTES.home },
+  { label: "Início", href: "/" },
+  { label: "Catálogo", href: "/produtos" },
+  { label: "Lançamentos", href: "/produtos" },
+  { label: "Sobre nós", href: "/sobre" },
+  { label: "Contato", href: "/contato" },
+  { label: "Checkout", href: "/checkout" },
 ] as const;
 
 export const PAGINATION = { perPage: 12 } as const;

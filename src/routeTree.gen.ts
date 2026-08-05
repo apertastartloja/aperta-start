@@ -10,33 +10,450 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as EntrarRouteImport } from './routes/entrar'
+import { Route as FavoritosRouteImport } from './routes/favoritos'
+import { Route as MinhaContaRouteImport } from './routes/minha-conta'
+import { Route as ObrigadoRouteImport } from './routes/obrigado'
+import { Route as PoliticasRouteImport } from './routes/politicas'
+import { Route as ProdutosRouteImport } from './routes/produtos'
+import { Route as SobreRouteImport } from './routes/sobre'
+import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
+import { Route as PainelAdminIndexRouteImport } from './routes/painel/admin/index'
+import { Route as PainelAdminClientesRouteImport } from './routes/painel/admin/clientes'
+import { Route as PainelAdminConfiguracoesRouteImport } from './routes/painel/admin/configuracoes'
+import { Route as PainelAdminDashboardRouteImport } from './routes/painel/admin/dashboard'
+import { Route as PainelAdminEmailsRouteImport } from './routes/painel/admin/emails'
+import { Route as PainelAdminEntregasRouteImport } from './routes/painel/admin/entregas'
+import { Route as PainelAdminEstoqueRouteImport } from './routes/painel/admin/estoque'
+import { Route as PainelAdminFinanceiroRouteImport } from './routes/painel/admin/financeiro'
+import { Route as PainelAdminMinhaContaRouteImport } from './routes/painel/admin/minha-conta'
+import { Route as PainelAdminPedidosRouteImport } from './routes/painel/admin/pedidos'
+import { Route as PainelAdminRelatoriosRouteImport } from './routes/painel/admin/relatorios'
+import { Route as PainelAdminMarketingIndexRouteImport } from './routes/painel/admin/marketing/index'
+import { Route as PainelAdminMarketingBannersRouteImport } from './routes/painel/admin/marketing/banners'
+import { Route as PainelAdminMarketingCuponsRouteImport } from './routes/painel/admin/marketing/cupons'
+import { Route as PainelAdminMarketingNewsletterRouteImport } from './routes/painel/admin/marketing/newsletter'
+import { Route as PainelAdminProdutosIndexRouteImport } from './routes/painel/admin/produtos/index'
+import { Route as PainelAdminProdutosCategoriasRouteImport } from './routes/painel/admin/produtos/categorias'
+import { Route as PainelAdminProdutosColecoesRouteImport } from './routes/painel/admin/produtos/colecoes'
+import { Route as PainelAdminProdutosListaRouteImport } from './routes/painel/admin/produtos/lista'
+import { Route as PainelAdminProdutosNovoRouteImport } from './routes/painel/admin/produtos/novo'
+import { Route as PainelAdminProdutosIdEditRouteImport } from './routes/painel/admin/produtos/$id.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContatoRoute = ContatoRouteImport.update({
+  id: '/contato',
+  path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntrarRoute = EntrarRouteImport.update({
+  id: '/entrar',
+  path: '/entrar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FavoritosRoute = FavoritosRouteImport.update({
+  id: '/favoritos',
+  path: '/favoritos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MinhaContaRoute = MinhaContaRouteImport.update({
+  id: '/minha-conta',
+  path: '/minha-conta',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ObrigadoRoute = ObrigadoRouteImport.update({
+  id: '/obrigado',
+  path: '/obrigado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticasRoute = PoliticasRouteImport.update({
+  id: '/politicas',
+  path: '/politicas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProdutosRoute = ProdutosRouteImport.update({
+  id: '/produtos',
+  path: '/produtos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProdutoSlugRoute = ProdutoSlugRouteImport.update({
+  id: '/produto/$slug',
+  path: '/produto/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminIndexRoute = PainelAdminIndexRouteImport.update({
+  id: '/painel/admin/',
+  path: '/painel/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminClientesRoute = PainelAdminClientesRouteImport.update({
+  id: '/painel/admin/clientes',
+  path: '/painel/admin/clientes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminConfiguracoesRoute =
+  PainelAdminConfiguracoesRouteImport.update({
+    id: '/painel/admin/configuracoes',
+    path: '/painel/admin/configuracoes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PainelAdminDashboardRoute = PainelAdminDashboardRouteImport.update({
+  id: '/painel/admin/dashboard',
+  path: '/painel/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminEmailsRoute = PainelAdminEmailsRouteImport.update({
+  id: '/painel/admin/emails',
+  path: '/painel/admin/emails',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminEntregasRoute = PainelAdminEntregasRouteImport.update({
+  id: '/painel/admin/entregas',
+  path: '/painel/admin/entregas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminEstoqueRoute = PainelAdminEstoqueRouteImport.update({
+  id: '/painel/admin/estoque',
+  path: '/painel/admin/estoque',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminFinanceiroRoute = PainelAdminFinanceiroRouteImport.update({
+  id: '/painel/admin/financeiro',
+  path: '/painel/admin/financeiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminMinhaContaRoute = PainelAdminMinhaContaRouteImport.update({
+  id: '/painel/admin/minha-conta',
+  path: '/painel/admin/minha-conta',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminPedidosRoute = PainelAdminPedidosRouteImport.update({
+  id: '/painel/admin/pedidos',
+  path: '/painel/admin/pedidos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminRelatoriosRoute = PainelAdminRelatoriosRouteImport.update({
+  id: '/painel/admin/relatorios',
+  path: '/painel/admin/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminMarketingIndexRoute =
+  PainelAdminMarketingIndexRouteImport.update({
+    id: '/painel/admin/marketing/',
+    path: '/painel/admin/marketing/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PainelAdminMarketingBannersRoute =
+  PainelAdminMarketingBannersRouteImport.update({
+    id: '/painel/admin/marketing/banners',
+    path: '/painel/admin/marketing/banners',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PainelAdminMarketingCuponsRoute =
+  PainelAdminMarketingCuponsRouteImport.update({
+    id: '/painel/admin/marketing/cupons',
+    path: '/painel/admin/marketing/cupons',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PainelAdminMarketingNewsletterRoute =
+  PainelAdminMarketingNewsletterRouteImport.update({
+    id: '/painel/admin/marketing/newsletter',
+    path: '/painel/admin/marketing/newsletter',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PainelAdminProdutosIndexRoute =
+  PainelAdminProdutosIndexRouteImport.update({
+    id: '/painel/admin/produtos/',
+    path: '/painel/admin/produtos/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PainelAdminProdutosCategoriasRoute =
+  PainelAdminProdutosCategoriasRouteImport.update({
+    id: '/painel/admin/produtos/categorias',
+    path: '/painel/admin/produtos/categorias',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PainelAdminProdutosColecoesRoute =
+  PainelAdminProdutosColecoesRouteImport.update({
+    id: '/painel/admin/produtos/colecoes',
+    path: '/painel/admin/produtos/colecoes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PainelAdminProdutosListaRoute =
+  PainelAdminProdutosListaRouteImport.update({
+    id: '/painel/admin/produtos/lista',
+    path: '/painel/admin/produtos/lista',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PainelAdminProdutosNovoRoute = PainelAdminProdutosNovoRouteImport.update({
+  id: '/painel/admin/produtos/novo',
+  path: '/painel/admin/produtos/novo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelAdminProdutosIdEditRoute =
+  PainelAdminProdutosIdEditRouteImport.update({
+    id: '/painel/admin/produtos/$id/edit',
+    path: '/painel/admin/produtos/$id/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/contato': typeof ContatoRoute
+  '/entrar': typeof EntrarRoute
+  '/favoritos': typeof FavoritosRoute
+  '/minha-conta': typeof MinhaContaRoute
+  '/obrigado': typeof ObrigadoRoute
+  '/politicas': typeof PoliticasRoute
+  '/produtos': typeof ProdutosRoute
+  '/sobre': typeof SobreRoute
+  '/produto/$slug': typeof ProdutoSlugRoute
+  '/painel/admin/clientes': typeof PainelAdminClientesRoute
+  '/painel/admin/configuracoes': typeof PainelAdminConfiguracoesRoute
+  '/painel/admin/dashboard': typeof PainelAdminDashboardRoute
+  '/painel/admin/emails': typeof PainelAdminEmailsRoute
+  '/painel/admin/entregas': typeof PainelAdminEntregasRoute
+  '/painel/admin/estoque': typeof PainelAdminEstoqueRoute
+  '/painel/admin/financeiro': typeof PainelAdminFinanceiroRoute
+  '/painel/admin/minha-conta': typeof PainelAdminMinhaContaRoute
+  '/painel/admin/pedidos': typeof PainelAdminPedidosRoute
+  '/painel/admin/relatorios': typeof PainelAdminRelatoriosRoute
+  '/painel/admin/': typeof PainelAdminIndexRoute
+  '/painel/admin/marketing/banners': typeof PainelAdminMarketingBannersRoute
+  '/painel/admin/marketing/cupons': typeof PainelAdminMarketingCuponsRoute
+  '/painel/admin/marketing/newsletter': typeof PainelAdminMarketingNewsletterRoute
+  '/painel/admin/produtos/categorias': typeof PainelAdminProdutosCategoriasRoute
+  '/painel/admin/produtos/colecoes': typeof PainelAdminProdutosColecoesRoute
+  '/painel/admin/produtos/lista': typeof PainelAdminProdutosListaRoute
+  '/painel/admin/produtos/novo': typeof PainelAdminProdutosNovoRoute
+  '/painel/admin/marketing/': typeof PainelAdminMarketingIndexRoute
+  '/painel/admin/produtos/': typeof PainelAdminProdutosIndexRoute
+  '/painel/admin/produtos/$id/edit': typeof PainelAdminProdutosIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/contato': typeof ContatoRoute
+  '/entrar': typeof EntrarRoute
+  '/favoritos': typeof FavoritosRoute
+  '/minha-conta': typeof MinhaContaRoute
+  '/obrigado': typeof ObrigadoRoute
+  '/politicas': typeof PoliticasRoute
+  '/produtos': typeof ProdutosRoute
+  '/sobre': typeof SobreRoute
+  '/produto/$slug': typeof ProdutoSlugRoute
+  '/painel/admin/clientes': typeof PainelAdminClientesRoute
+  '/painel/admin/configuracoes': typeof PainelAdminConfiguracoesRoute
+  '/painel/admin/dashboard': typeof PainelAdminDashboardRoute
+  '/painel/admin/emails': typeof PainelAdminEmailsRoute
+  '/painel/admin/entregas': typeof PainelAdminEntregasRoute
+  '/painel/admin/estoque': typeof PainelAdminEstoqueRoute
+  '/painel/admin/financeiro': typeof PainelAdminFinanceiroRoute
+  '/painel/admin/minha-conta': typeof PainelAdminMinhaContaRoute
+  '/painel/admin/pedidos': typeof PainelAdminPedidosRoute
+  '/painel/admin/relatorios': typeof PainelAdminRelatoriosRoute
+  '/painel/admin': typeof PainelAdminIndexRoute
+  '/painel/admin/marketing/banners': typeof PainelAdminMarketingBannersRoute
+  '/painel/admin/marketing/cupons': typeof PainelAdminMarketingCuponsRoute
+  '/painel/admin/marketing/newsletter': typeof PainelAdminMarketingNewsletterRoute
+  '/painel/admin/produtos/categorias': typeof PainelAdminProdutosCategoriasRoute
+  '/painel/admin/produtos/colecoes': typeof PainelAdminProdutosColecoesRoute
+  '/painel/admin/produtos/lista': typeof PainelAdminProdutosListaRoute
+  '/painel/admin/produtos/novo': typeof PainelAdminProdutosNovoRoute
+  '/painel/admin/marketing': typeof PainelAdminMarketingIndexRoute
+  '/painel/admin/produtos': typeof PainelAdminProdutosIndexRoute
+  '/painel/admin/produtos/$id/edit': typeof PainelAdminProdutosIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/contato': typeof ContatoRoute
+  '/entrar': typeof EntrarRoute
+  '/favoritos': typeof FavoritosRoute
+  '/minha-conta': typeof MinhaContaRoute
+  '/obrigado': typeof ObrigadoRoute
+  '/politicas': typeof PoliticasRoute
+  '/produtos': typeof ProdutosRoute
+  '/sobre': typeof SobreRoute
+  '/produto/$slug': typeof ProdutoSlugRoute
+  '/painel/admin/clientes': typeof PainelAdminClientesRoute
+  '/painel/admin/configuracoes': typeof PainelAdminConfiguracoesRoute
+  '/painel/admin/dashboard': typeof PainelAdminDashboardRoute
+  '/painel/admin/emails': typeof PainelAdminEmailsRoute
+  '/painel/admin/entregas': typeof PainelAdminEntregasRoute
+  '/painel/admin/estoque': typeof PainelAdminEstoqueRoute
+  '/painel/admin/financeiro': typeof PainelAdminFinanceiroRoute
+  '/painel/admin/minha-conta': typeof PainelAdminMinhaContaRoute
+  '/painel/admin/pedidos': typeof PainelAdminPedidosRoute
+  '/painel/admin/relatorios': typeof PainelAdminRelatoriosRoute
+  '/painel/admin/': typeof PainelAdminIndexRoute
+  '/painel/admin/marketing/banners': typeof PainelAdminMarketingBannersRoute
+  '/painel/admin/marketing/cupons': typeof PainelAdminMarketingCuponsRoute
+  '/painel/admin/marketing/newsletter': typeof PainelAdminMarketingNewsletterRoute
+  '/painel/admin/produtos/categorias': typeof PainelAdminProdutosCategoriasRoute
+  '/painel/admin/produtos/colecoes': typeof PainelAdminProdutosColecoesRoute
+  '/painel/admin/produtos/lista': typeof PainelAdminProdutosListaRoute
+  '/painel/admin/produtos/novo': typeof PainelAdminProdutosNovoRoute
+  '/painel/admin/marketing/': typeof PainelAdminMarketingIndexRoute
+  '/painel/admin/produtos/': typeof PainelAdminProdutosIndexRoute
+  '/painel/admin/produtos/$id/edit': typeof PainelAdminProdutosIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/checkout'
+    | '/contato'
+    | '/entrar'
+    | '/favoritos'
+    | '/minha-conta'
+    | '/obrigado'
+    | '/politicas'
+    | '/produtos'
+    | '/sobre'
+    | '/produto/$slug'
+    | '/painel/admin/clientes'
+    | '/painel/admin/configuracoes'
+    | '/painel/admin/dashboard'
+    | '/painel/admin/emails'
+    | '/painel/admin/entregas'
+    | '/painel/admin/estoque'
+    | '/painel/admin/financeiro'
+    | '/painel/admin/minha-conta'
+    | '/painel/admin/pedidos'
+    | '/painel/admin/relatorios'
+    | '/painel/admin/'
+    | '/painel/admin/marketing/banners'
+    | '/painel/admin/marketing/cupons'
+    | '/painel/admin/marketing/newsletter'
+    | '/painel/admin/produtos/categorias'
+    | '/painel/admin/produtos/colecoes'
+    | '/painel/admin/produtos/lista'
+    | '/painel/admin/produtos/novo'
+    | '/painel/admin/marketing/'
+    | '/painel/admin/produtos/'
+    | '/painel/admin/produtos/$id/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/checkout'
+    | '/contato'
+    | '/entrar'
+    | '/favoritos'
+    | '/minha-conta'
+    | '/obrigado'
+    | '/politicas'
+    | '/produtos'
+    | '/sobre'
+    | '/produto/$slug'
+    | '/painel/admin/clientes'
+    | '/painel/admin/configuracoes'
+    | '/painel/admin/dashboard'
+    | '/painel/admin/emails'
+    | '/painel/admin/entregas'
+    | '/painel/admin/estoque'
+    | '/painel/admin/financeiro'
+    | '/painel/admin/minha-conta'
+    | '/painel/admin/pedidos'
+    | '/painel/admin/relatorios'
+    | '/painel/admin'
+    | '/painel/admin/marketing/banners'
+    | '/painel/admin/marketing/cupons'
+    | '/painel/admin/marketing/newsletter'
+    | '/painel/admin/produtos/categorias'
+    | '/painel/admin/produtos/colecoes'
+    | '/painel/admin/produtos/lista'
+    | '/painel/admin/produtos/novo'
+    | '/painel/admin/marketing'
+    | '/painel/admin/produtos'
+    | '/painel/admin/produtos/$id/edit'
+  id:
+    | '__root__'
+    | '/'
+    | '/checkout'
+    | '/contato'
+    | '/entrar'
+    | '/favoritos'
+    | '/minha-conta'
+    | '/obrigado'
+    | '/politicas'
+    | '/produtos'
+    | '/sobre'
+    | '/produto/$slug'
+    | '/painel/admin/clientes'
+    | '/painel/admin/configuracoes'
+    | '/painel/admin/dashboard'
+    | '/painel/admin/emails'
+    | '/painel/admin/entregas'
+    | '/painel/admin/estoque'
+    | '/painel/admin/financeiro'
+    | '/painel/admin/minha-conta'
+    | '/painel/admin/pedidos'
+    | '/painel/admin/relatorios'
+    | '/painel/admin/'
+    | '/painel/admin/marketing/banners'
+    | '/painel/admin/marketing/cupons'
+    | '/painel/admin/marketing/newsletter'
+    | '/painel/admin/produtos/categorias'
+    | '/painel/admin/produtos/colecoes'
+    | '/painel/admin/produtos/lista'
+    | '/painel/admin/produtos/novo'
+    | '/painel/admin/marketing/'
+    | '/painel/admin/produtos/'
+    | '/painel/admin/produtos/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CheckoutRoute: typeof CheckoutRoute
+  ContatoRoute: typeof ContatoRoute
+  EntrarRoute: typeof EntrarRoute
+  FavoritosRoute: typeof FavoritosRoute
+  MinhaContaRoute: typeof MinhaContaRoute
+  ObrigadoRoute: typeof ObrigadoRoute
+  PoliticasRoute: typeof PoliticasRoute
+  ProdutosRoute: typeof ProdutosRoute
+  SobreRoute: typeof SobreRoute
+  ProdutoSlugRoute: typeof ProdutoSlugRoute
+  PainelAdminClientesRoute: typeof PainelAdminClientesRoute
+  PainelAdminConfiguracoesRoute: typeof PainelAdminConfiguracoesRoute
+  PainelAdminDashboardRoute: typeof PainelAdminDashboardRoute
+  PainelAdminEmailsRoute: typeof PainelAdminEmailsRoute
+  PainelAdminEntregasRoute: typeof PainelAdminEntregasRoute
+  PainelAdminEstoqueRoute: typeof PainelAdminEstoqueRoute
+  PainelAdminFinanceiroRoute: typeof PainelAdminFinanceiroRoute
+  PainelAdminMinhaContaRoute: typeof PainelAdminMinhaContaRoute
+  PainelAdminPedidosRoute: typeof PainelAdminPedidosRoute
+  PainelAdminRelatoriosRoute: typeof PainelAdminRelatoriosRoute
+  PainelAdminIndexRoute: typeof PainelAdminIndexRoute
+  PainelAdminMarketingBannersRoute: typeof PainelAdminMarketingBannersRoute
+  PainelAdminMarketingCuponsRoute: typeof PainelAdminMarketingCuponsRoute
+  PainelAdminMarketingNewsletterRoute: typeof PainelAdminMarketingNewsletterRoute
+  PainelAdminProdutosCategoriasRoute: typeof PainelAdminProdutosCategoriasRoute
+  PainelAdminProdutosColecoesRoute: typeof PainelAdminProdutosColecoesRoute
+  PainelAdminProdutosListaRoute: typeof PainelAdminProdutosListaRoute
+  PainelAdminProdutosNovoRoute: typeof PainelAdminProdutosNovoRoute
+  PainelAdminMarketingIndexRoute: typeof PainelAdminMarketingIndexRoute
+  PainelAdminProdutosIndexRoute: typeof PainelAdminProdutosIndexRoute
+  PainelAdminProdutosIdEditRoute: typeof PainelAdminProdutosIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +465,259 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contato': {
+      id: '/contato'
+      path: '/contato'
+      fullPath: '/contato'
+      preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entrar': {
+      id: '/entrar'
+      path: '/entrar'
+      fullPath: '/entrar'
+      preLoaderRoute: typeof EntrarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favoritos': {
+      id: '/favoritos'
+      path: '/favoritos'
+      fullPath: '/favoritos'
+      preLoaderRoute: typeof FavoritosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/minha-conta': {
+      id: '/minha-conta'
+      path: '/minha-conta'
+      fullPath: '/minha-conta'
+      preLoaderRoute: typeof MinhaContaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/obrigado': {
+      id: '/obrigado'
+      path: '/obrigado'
+      fullPath: '/obrigado'
+      preLoaderRoute: typeof ObrigadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politicas': {
+      id: '/politicas'
+      path: '/politicas'
+      fullPath: '/politicas'
+      preLoaderRoute: typeof PoliticasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produtos': {
+      id: '/produtos'
+      path: '/produtos'
+      fullPath: '/produtos'
+      preLoaderRoute: typeof ProdutosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produto/$slug': {
+      id: '/produto/$slug'
+      path: '/produto/$slug'
+      fullPath: '/produto/$slug'
+      preLoaderRoute: typeof ProdutoSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/': {
+      id: '/painel/admin/'
+      path: '/painel/admin'
+      fullPath: '/painel/admin/'
+      preLoaderRoute: typeof PainelAdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/clientes': {
+      id: '/painel/admin/clientes'
+      path: '/painel/admin/clientes'
+      fullPath: '/painel/admin/clientes'
+      preLoaderRoute: typeof PainelAdminClientesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/configuracoes': {
+      id: '/painel/admin/configuracoes'
+      path: '/painel/admin/configuracoes'
+      fullPath: '/painel/admin/configuracoes'
+      preLoaderRoute: typeof PainelAdminConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/dashboard': {
+      id: '/painel/admin/dashboard'
+      path: '/painel/admin/dashboard'
+      fullPath: '/painel/admin/dashboard'
+      preLoaderRoute: typeof PainelAdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/emails': {
+      id: '/painel/admin/emails'
+      path: '/painel/admin/emails'
+      fullPath: '/painel/admin/emails'
+      preLoaderRoute: typeof PainelAdminEmailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/entregas': {
+      id: '/painel/admin/entregas'
+      path: '/painel/admin/entregas'
+      fullPath: '/painel/admin/entregas'
+      preLoaderRoute: typeof PainelAdminEntregasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/estoque': {
+      id: '/painel/admin/estoque'
+      path: '/painel/admin/estoque'
+      fullPath: '/painel/admin/estoque'
+      preLoaderRoute: typeof PainelAdminEstoqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/financeiro': {
+      id: '/painel/admin/financeiro'
+      path: '/painel/admin/financeiro'
+      fullPath: '/painel/admin/financeiro'
+      preLoaderRoute: typeof PainelAdminFinanceiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/minha-conta': {
+      id: '/painel/admin/minha-conta'
+      path: '/painel/admin/minha-conta'
+      fullPath: '/painel/admin/minha-conta'
+      preLoaderRoute: typeof PainelAdminMinhaContaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/pedidos': {
+      id: '/painel/admin/pedidos'
+      path: '/painel/admin/pedidos'
+      fullPath: '/painel/admin/pedidos'
+      preLoaderRoute: typeof PainelAdminPedidosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/relatorios': {
+      id: '/painel/admin/relatorios'
+      path: '/painel/admin/relatorios'
+      fullPath: '/painel/admin/relatorios'
+      preLoaderRoute: typeof PainelAdminRelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/marketing/': {
+      id: '/painel/admin/marketing/'
+      path: '/painel/admin/marketing'
+      fullPath: '/painel/admin/marketing/'
+      preLoaderRoute: typeof PainelAdminMarketingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/marketing/banners': {
+      id: '/painel/admin/marketing/banners'
+      path: '/painel/admin/marketing/banners'
+      fullPath: '/painel/admin/marketing/banners'
+      preLoaderRoute: typeof PainelAdminMarketingBannersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/marketing/cupons': {
+      id: '/painel/admin/marketing/cupons'
+      path: '/painel/admin/marketing/cupons'
+      fullPath: '/painel/admin/marketing/cupons'
+      preLoaderRoute: typeof PainelAdminMarketingCuponsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/marketing/newsletter': {
+      id: '/painel/admin/marketing/newsletter'
+      path: '/painel/admin/marketing/newsletter'
+      fullPath: '/painel/admin/marketing/newsletter'
+      preLoaderRoute: typeof PainelAdminMarketingNewsletterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/produtos/': {
+      id: '/painel/admin/produtos/'
+      path: '/painel/admin/produtos'
+      fullPath: '/painel/admin/produtos/'
+      preLoaderRoute: typeof PainelAdminProdutosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/produtos/categorias': {
+      id: '/painel/admin/produtos/categorias'
+      path: '/painel/admin/produtos/categorias'
+      fullPath: '/painel/admin/produtos/categorias'
+      preLoaderRoute: typeof PainelAdminProdutosCategoriasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/produtos/colecoes': {
+      id: '/painel/admin/produtos/colecoes'
+      path: '/painel/admin/produtos/colecoes'
+      fullPath: '/painel/admin/produtos/colecoes'
+      preLoaderRoute: typeof PainelAdminProdutosColecoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/produtos/lista': {
+      id: '/painel/admin/produtos/lista'
+      path: '/painel/admin/produtos/lista'
+      fullPath: '/painel/admin/produtos/lista'
+      preLoaderRoute: typeof PainelAdminProdutosListaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/produtos/novo': {
+      id: '/painel/admin/produtos/novo'
+      path: '/painel/admin/produtos/novo'
+      fullPath: '/painel/admin/produtos/novo'
+      preLoaderRoute: typeof PainelAdminProdutosNovoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel/admin/produtos/$id/edit': {
+      id: '/painel/admin/produtos/$id/edit'
+      path: '/painel/admin/produtos/$id/edit'
+      fullPath: '/painel/admin/produtos/$id/edit'
+      preLoaderRoute: typeof PainelAdminProdutosIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CheckoutRoute: CheckoutRoute,
+  ContatoRoute: ContatoRoute,
+  EntrarRoute: EntrarRoute,
+  FavoritosRoute: FavoritosRoute,
+  MinhaContaRoute: MinhaContaRoute,
+  ObrigadoRoute: ObrigadoRoute,
+  PoliticasRoute: PoliticasRoute,
+  ProdutosRoute: ProdutosRoute,
+  SobreRoute: SobreRoute,
+  ProdutoSlugRoute: ProdutoSlugRoute,
+  PainelAdminClientesRoute: PainelAdminClientesRoute,
+  PainelAdminConfiguracoesRoute: PainelAdminConfiguracoesRoute,
+  PainelAdminDashboardRoute: PainelAdminDashboardRoute,
+  PainelAdminEmailsRoute: PainelAdminEmailsRoute,
+  PainelAdminEntregasRoute: PainelAdminEntregasRoute,
+  PainelAdminEstoqueRoute: PainelAdminEstoqueRoute,
+  PainelAdminFinanceiroRoute: PainelAdminFinanceiroRoute,
+  PainelAdminMinhaContaRoute: PainelAdminMinhaContaRoute,
+  PainelAdminPedidosRoute: PainelAdminPedidosRoute,
+  PainelAdminRelatoriosRoute: PainelAdminRelatoriosRoute,
+  PainelAdminIndexRoute: PainelAdminIndexRoute,
+  PainelAdminMarketingBannersRoute: PainelAdminMarketingBannersRoute,
+  PainelAdminMarketingCuponsRoute: PainelAdminMarketingCuponsRoute,
+  PainelAdminMarketingNewsletterRoute: PainelAdminMarketingNewsletterRoute,
+  PainelAdminProdutosCategoriasRoute: PainelAdminProdutosCategoriasRoute,
+  PainelAdminProdutosColecoesRoute: PainelAdminProdutosColecoesRoute,
+  PainelAdminProdutosListaRoute: PainelAdminProdutosListaRoute,
+  PainelAdminProdutosNovoRoute: PainelAdminProdutosNovoRoute,
+  PainelAdminMarketingIndexRoute: PainelAdminMarketingIndexRoute,
+  PainelAdminProdutosIndexRoute: PainelAdminProdutosIndexRoute,
+  PainelAdminProdutosIdEditRoute: PainelAdminProdutosIdEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

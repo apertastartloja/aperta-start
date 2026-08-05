@@ -15,19 +15,30 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+      <div className="max-w-md w-full text-center space-y-6 rounded-3xl border border-border bg-surface p-8 shadow-large">
+        <span className="inline-block rounded-full bg-danger/10 px-4 py-1.5 text-caption font-black text-danger uppercase tracking-widest">
+          Game Over
+        </span>
+        <h1 className="text-7xl font-black text-foreground tracking-tighter">404</h1>
+        <div className="space-y-2">
+          <h2 className="text-h3 font-extrabold text-foreground">Fase Não Encontrada</h2>
+          <p className="text-small text-muted-foreground">
+            A página que você estava tentando acessar não existe, foi movida ou caiu em uma armadilha.
+          </p>
+        </div>
+        <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-small font-extrabold text-accent-foreground shadow-medium hover:brightness-105 transition-all"
           >
-            Go home
+            ⚡ Respawn na Home
+          </Link>
+          <Link
+            to="/produtos"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-6 py-3 text-small font-bold text-foreground hover:bg-muted transition-all"
+          >
+            Ver Catálogo
           </Link>
         </div>
       </div>
@@ -104,7 +115,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "shortcut icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
 

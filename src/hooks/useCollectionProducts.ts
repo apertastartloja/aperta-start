@@ -8,8 +8,8 @@ export function useCollectionProducts(slug: string) {
   return useQuery<Product[]>({
     queryKey: [...queryKeys.collections.all, slug, "products"],
     queryFn: async () => {
-      const collection = await CollectionService.getBySlug(slug);
-      return ProductService.getManyByIds(collection.productIds);
+      const res = await ProductService.list({ collectionSlug: slug, perPage: 100 });
+      return res.data;
     },
     enabled: Boolean(slug),
   });

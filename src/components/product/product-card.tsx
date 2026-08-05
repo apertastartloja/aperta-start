@@ -49,8 +49,7 @@ export function ProductCard({ product, className, compact = false }: ProductCard
 
       <CardContent className={cn("flex flex-col gap-3", compact ? "p-4" : "p-5")}>
         <div className="space-y-1.5">
-          {/* Preparado para abrir a página do produto em etapas futuras. */}
-          <Link to={ROUTES.home} className="after:absolute after:inset-0">
+          <Link to="/produto/$slug" params={{ slug: product.slug }} className="after:absolute after:inset-0">
             <h3 className="text-h4 line-clamp-2 min-h-[2.7em] text-foreground transition-colors group-hover:text-accent">
               {product.name}
             </h3>
