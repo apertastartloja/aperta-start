@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Mail, Sparkles } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import mascot from "@/assets/products/action-figure.jpg";
@@ -7,7 +7,7 @@ import { Container } from "@/components/common/container";
 import { newsletterSchema, type NewsletterValues } from "@/components/forms/schemas";
 import { useNewsletterContent } from "@/hooks/useContent";
 
-/** Faixa de captação de e-mail redesenhada em estilo campanha premium. */
+/** Faixa de captação de e-mail em estilo azul premium. */
 export function Newsletter() {
   const { data: content } = useNewsletterContent();
   const form = useForm<NewsletterValues>({
@@ -23,24 +23,18 @@ export function Newsletter() {
   return (
     <section aria-labelledby="newsletter-title" className="py-12 bg-background">
       <Container>
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#4c1d95] via-[#7c3aed] to-[#3b0764] p-8 sm:p-12 text-white shadow-large border border-purple-500/20">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#000B1F] via-[#081838] to-[#030a18] p-8 sm:p-12 text-white shadow-large border border-white/10">
           {/* Luz ambiente sutil de fundo (Ambient Glow) */}
           <div
-            className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-accent/15 blur-3xl"
+            className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-accent/10 blur-3xl"
             aria-hidden
           />
           <div
-            className="pointer-events-none absolute -right-24 -bottom-24 h-96 w-96 rounded-full bg-purple-400/20 blur-3xl"
+            className="pointer-events-none absolute -right-24 -bottom-24 h-96 w-96 rounded-full bg-[#000B1F]/30 blur-3xl"
             aria-hidden
           />
 
           <div className="relative z-10 mx-auto max-w-3xl text-center space-y-6">
-            {/* Badge em destaque */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent border border-white/15 backdrop-blur-md">
-              <Sparkles className="size-3.5 text-accent" />
-              <span>Ofertas & Lançamentos Exclusivos</span>
-            </div>
-
             {/* Título e Subtítulo centralizados */}
             <div className="space-y-3">
               <h2 id="newsletter-title" className="text-h1 font-extrabold tracking-tight text-white">
@@ -55,7 +49,7 @@ export function Newsletter() {
             <div className="pt-2 flex flex-col items-center justify-center gap-6">
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="flex h-14 w-full max-w-md items-center overflow-hidden rounded-2xl bg-white/15 p-1.5 ring-1 ring-white/30 backdrop-blur-md shadow-medium transition-all focus-within:ring-accent"
+                className="flex h-14 w-full max-w-md items-center overflow-hidden rounded-2xl bg-white/10 p-1.5 ring-1 ring-white/20 backdrop-blur-md shadow-medium transition-all focus-within:ring-accent"
               >
                 <div className="flex items-center gap-2 px-3 text-white/70">
                   <Mail className="size-5 shrink-0" />

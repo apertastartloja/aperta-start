@@ -100,12 +100,9 @@ export function Footer() {
       </Container>
 
       <div className="border-t border-white/10 bg-black/20">
-        <Container className="text-small flex flex-col items-center justify-between gap-3 py-6 text-white/60 md:flex-row">
+        <Container className="text-small flex items-center justify-center py-6 text-white/60 text-center">
           <p>
             © {new Date().getFullYear()} {APP.name}. Todos os direitos reservados.
-          </p>
-          <p className="flex items-center gap-1">
-            Desenvolvido com <span className="text-accent">♥</span> para gamers
           </p>
         </Container>
       </div>
