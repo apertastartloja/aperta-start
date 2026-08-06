@@ -14,6 +14,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as FavoritosRouteImport } from './routes/favoritos'
+import { Route as LojaRouteImport } from './routes/loja'
 import { Route as MinhaContaRouteImport } from './routes/minha-conta'
 import { Route as ObrigadoRouteImport } from './routes/obrigado'
 import { Route as PoliticasRouteImport } from './routes/politicas'
@@ -65,6 +66,11 @@ const EntrarRoute = EntrarRouteImport.update({
 const FavoritosRoute = FavoritosRouteImport.update({
   id: '/favoritos',
   path: '/favoritos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaRoute = LojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MinhaContaRoute = MinhaContaRouteImport.update({
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/entrar': typeof EntrarRoute
   '/favoritos': typeof FavoritosRoute
+  '/loja': typeof LojaRoute
   '/minha-conta': typeof MinhaContaRoute
   '/obrigado': typeof ObrigadoRoute
   '/politicas': typeof PoliticasRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/entrar': typeof EntrarRoute
   '/favoritos': typeof FavoritosRoute
+  '/loja': typeof LojaRoute
   '/minha-conta': typeof MinhaContaRoute
   '/obrigado': typeof ObrigadoRoute
   '/politicas': typeof PoliticasRoute
@@ -288,6 +296,7 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/entrar': typeof EntrarRoute
   '/favoritos': typeof FavoritosRoute
+  '/loja': typeof LojaRoute
   '/minha-conta': typeof MinhaContaRoute
   '/obrigado': typeof ObrigadoRoute
   '/politicas': typeof PoliticasRoute
@@ -324,6 +333,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/entrar'
     | '/favoritos'
+    | '/loja'
     | '/minha-conta'
     | '/obrigado'
     | '/politicas'
@@ -358,6 +368,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/entrar'
     | '/favoritos'
+    | '/loja'
     | '/minha-conta'
     | '/obrigado'
     | '/politicas'
@@ -392,6 +403,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/entrar'
     | '/favoritos'
+    | '/loja'
     | '/minha-conta'
     | '/obrigado'
     | '/politicas'
@@ -427,6 +439,7 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   EntrarRoute: typeof EntrarRoute
   FavoritosRoute: typeof FavoritosRoute
+  LojaRoute: typeof LojaRoute
   MinhaContaRoute: typeof MinhaContaRoute
   ObrigadoRoute: typeof ObrigadoRoute
   PoliticasRoute: typeof PoliticasRoute
@@ -491,6 +504,13 @@ declare module '@tanstack/react-router' {
       path: '/favoritos'
       fullPath: '/favoritos'
       preLoaderRoute: typeof FavoritosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja': {
+      id: '/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof LojaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/minha-conta': {
@@ -691,6 +711,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   EntrarRoute: EntrarRoute,
   FavoritosRoute: FavoritosRoute,
+  LojaRoute: LojaRoute,
   MinhaContaRoute: MinhaContaRoute,
   ObrigadoRoute: ObrigadoRoute,
   PoliticasRoute: PoliticasRoute,
@@ -722,13 +743,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
