@@ -16,6 +16,7 @@ import {
   Ticket,
 } from "lucide-react";
 import { useCartContext } from "@/contexts/cart-context";
+import { Container } from "@/components/common/container";
 import { QuantitySelector } from "@/components/product/quantity-selector";
 import { mockProducts } from "@/mocks/products.mock";
 import { formatCurrency } from "@/utils/format";
@@ -96,7 +97,7 @@ function CheckoutPage() {
     <div className="min-h-screen bg-background text-foreground antialiased selection:bg-accent selection:text-accent-foreground">
       {/* Checkout Header */}
       <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <Container className="flex items-center justify-between py-4">
           <Link to="/" className="flex items-center gap-2">
             <span className="rounded-lg bg-primary px-2.5 py-1 font-black text-primary-foreground tracking-wider text-h4">
               APERTA<span className="text-accent">START</span>
@@ -155,11 +156,12 @@ function CheckoutPage() {
             <Lock className="h-4 w-4" />
             <span>Ambiente 100% Seguro</span>
           </div>
-        </div>
+        </Container>
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="py-8">
+        <Container>
         {cart.items.length === 0 && !isOrderComplete ? (
           /* Empty Cart View */
           <div className="mx-auto max-w-lg rounded-2xl border border-border bg-surface p-8 text-center space-y-4 shadow-light">
@@ -607,6 +609,7 @@ function CheckoutPage() {
             </div>
           </div>
         )}
+        </Container>
       </main>
 
       {/* Order Success Modal */}

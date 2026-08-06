@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Sparkles, ShieldCheck, Heart, Users, Award, ChevronRight, ArrowRight } from "lucide-react";
 import { MainLayout } from "@/components/layout/main-layout";
+import { Container } from "@/components/common/container";
 import { APP } from "@/constants";
 
 export const Route = createFileRoute("/sobre")({
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/sobre")({
 function AboutPage() {
   return (
     <MainLayout>
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-16">
+      <Container className="py-8 space-y-16">
         {/* Breadcrumb */}
         <nav className="flex items-center text-small text-muted-foreground">
           <Link to="/" className="transition-colors hover:text-foreground">
@@ -121,7 +122,7 @@ function AboutPage() {
             </Link>
           </div>
         </div>
-      </div>
+      </Container>
     </MainLayout>
   );
 }

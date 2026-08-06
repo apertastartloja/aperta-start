@@ -50,7 +50,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       <div className="flex flex-1 flex-col min-w-0">
         <AdminHeader onMobileToggle={() => setMobileOpen((prev) => !prev)} />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          {children}
+          <div className="mx-auto w-full max-w-[1200px] space-y-6">
+            {children}
+          </div>
         </main>
       </div>
     </div>

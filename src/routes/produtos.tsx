@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { ProductCard } from "@/components/product/product-card";
+import { Container } from "@/components/common/container";
 import { mockProducts } from "@/mocks/products.mock";
 import { mockCategories } from "@/mocks/categories.mock";
 
@@ -82,7 +83,7 @@ function ProductsCatalogPage() {
 
   return (
     <MainLayout>
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <Container className="py-6">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center text-small text-muted-foreground">
           <Link to="/" className="transition-colors hover:text-foreground">
@@ -281,7 +282,7 @@ function ProductsCatalogPage() {
             )}
           </main>
         </div>
-      </div>
+      </Container>
 
       {/* Mobile Filter Modal */}
       {isMobileFiltersOpen && (

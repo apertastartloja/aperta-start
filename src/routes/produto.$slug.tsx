@@ -13,6 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { MainLayout } from "@/components/layout/main-layout";
+import { Container } from "@/components/common/container";
 import { ProductPrice } from "@/components/product/product-price";
 import { ProductBadge } from "@/components/product/product-badge";
 import { ProductGrid } from "@/components/product/product-grid";
@@ -157,7 +158,7 @@ function ProductDetailPage() {
 
   return (
     <MainLayout>
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <Container className="py-6 space-y-8">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center text-small text-muted-foreground">
           <Link to="/" className="transition-colors hover:text-foreground">
@@ -594,7 +595,7 @@ function ProductDetailPage() {
             <ProductGrid products={relatedProducts} columns={4} />
           </div>
         )}
-      </div>
+      </Container>
     </MainLayout>
   );
 }

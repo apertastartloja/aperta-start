@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Package, Trophy, ShieldCheck, RefreshCw } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useRef, useState } from "react";
+import { Container } from "@/components/common/container";
 import {
   Carousel,
   CarouselContent,
@@ -109,7 +110,7 @@ export function HeroCarousel() {
                     <div className="absolute inset-0 bg-gradient-to-b from-[#060B14]/30 via-transparent to-[#060B14]/70 z-10 pointer-events-none" />
 
                     {/* Text Content Area */}
-                    <div className="relative z-20 mx-auto flex h-full w-full max-w-[1440px] flex-col justify-center px-6 sm:px-10 lg:px-14 pb-4">
+                    <Container className="relative z-20 flex h-full flex-col justify-center pb-4">
                       <div className="max-w-xl">
                         {/* Title — white + yellow highlight */}
                         <h1 className="text-[1.5rem] sm:text-[1.75rem] lg:text-[2rem] xl:text-[2.5rem] font-bold tracking-tight text-white leading-[1.1] font-sans">
@@ -143,7 +144,7 @@ export function HeroCarousel() {
                           </Link>
                         ) : null}
                       </div>
-                    </div>
+                    </Container>
                   </div>
                 </CarouselItem>
               );
@@ -172,7 +173,7 @@ export function HeroCarousel() {
 
       {/* ── Benefits Bar ──────────────────────────────────── */}
       <div className="relative z-30 w-full bg-[#091122]/90 backdrop-blur-sm border-t border-white/8">
-        <div className="mx-auto max-w-[1440px] flex items-center justify-between px-6 sm:px-10 lg:px-14 py-2.5">
+        <Container className="flex items-center justify-between py-2.5">
           {HERO_BENEFITS.map(({ icon: Icon, title, subtitle }, index) => (
             <div
               key={title}
@@ -194,7 +195,7 @@ export function HeroCarousel() {
               </div>
             </div>
           ))}
-        </div>
+        </Container>
       </div>
     </section>
   );

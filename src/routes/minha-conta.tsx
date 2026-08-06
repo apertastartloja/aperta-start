@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { MainLayout } from "@/components/layout/main-layout";
+import { Container } from "@/components/common/container";
 import { useAuthContext } from "@/contexts/auth-context";
 import { formatCurrency } from "@/utils/format";
 import { toast } from "sonner";
@@ -79,7 +80,7 @@ function AccountPage() {
 
   return (
     <MainLayout>
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <Container className="py-6">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center text-small text-muted-foreground">
           <Link to="/" className="transition-colors hover:text-foreground">
@@ -289,7 +290,7 @@ function AccountPage() {
             )}
           </main>
         </div>
-      </div>
+      </Container>
 
       {/* Tracking Modal */}
       {selectedTrackingOrder && (

@@ -12,6 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { MainLayout } from "@/components/layout/main-layout";
+import { Container } from "@/components/common/container";
 import { APP } from "@/constants";
 import { toast } from "sonner";
 
@@ -63,7 +64,7 @@ function ContactPage() {
 
   return (
     <MainLayout>
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-12">
+      <Container className="py-8 space-y-12">
         {/* Breadcrumb */}
         <nav className="flex items-center text-small text-muted-foreground">
           <Link to="/" className="transition-colors hover:text-foreground">
@@ -238,7 +239,7 @@ function ContactPage() {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </MainLayout>
   );
 }

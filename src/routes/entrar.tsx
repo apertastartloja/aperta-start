@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Lock, Mail, User as UserIcon, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { MainLayout } from "@/components/layout/main-layout";
+import { Container } from "@/components/common/container";
 import { useAuthContext } from "@/contexts/auth-context";
 
 export const Route = createFileRoute("/entrar")({
@@ -45,7 +46,7 @@ function AuthPage() {
 
   return (
     <MainLayout>
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <Container className="py-12">
         <div className="mx-auto max-w-md space-y-8">
           {/* Header */}
           <div className="text-center space-y-2">
@@ -206,7 +207,7 @@ function AuthPage() {
             <span>Dados protegidos por criptografia SSL de 256 bits</span>
           </div>
         </div>
-      </div>
+      </Container>
     </MainLayout>
   );
 }
