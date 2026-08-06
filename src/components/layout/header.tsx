@@ -5,6 +5,7 @@ import { Logo } from "@/components/common/logo";
 import { Container } from "@/components/common/container";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
+import { useAuthContext } from "@/contexts/auth-context";
 import { MiniCart } from "./mini-cart";
 import { MobileMenu } from "./mobile-menu";
 import { Navigation } from "./navigation";
@@ -24,6 +25,8 @@ import { cn } from "@/lib/utils";
  */
 export function Header() {
   const { totals, openMiniCart } = useCart();
+  const { user, isAuthenticated } = useAuthContext();
+  const firstName = user?.name ? user.name.split(" ")[0] : "";
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -99,7 +102,7 @@ export function Header() {
 
             <div className="ml-auto lg:ml-0 flex items-center gap-4 sm:gap-6 shrink-0">
               <Link
-                to="/entrar"
+                to={isAuthenticated ? "/minha-conta" : "/entrar"}
                 className="hidden items-center gap-2 text-primary-foreground transition-colors hover:text-accent lg:flex"
               >
                 <User
@@ -107,7 +110,9 @@ export function Header() {
                   aria-hidden
                 />
                 <span className="leading-tight">
-                  <span className="text-small block font-semibold">Entrar</span>
+                  <span className="text-small block font-semibold truncate max-w-[120px]">
+                    {isAuthenticated ? `Olá, ${firstName || "Usuário"}!` : "Entrar"}
+                  </span>
                   <span
                     className={cn(
                       "block text-[12px] opacity-75 overflow-hidden transition-all duration-300",
