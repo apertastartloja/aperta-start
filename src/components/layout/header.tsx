@@ -140,8 +140,8 @@ export function Header() {
         {/* Menu de navegação por categorias */}
         <div
           className={cn(
-            "hidden lg:block overflow-hidden transition-all duration-300 ease-in-out bg-background border-b border-border shadow-xs will-change-[max-height,opacity]",
-            isScrolled ? "max-h-0 opacity-0 pointer-events-none" : "max-h-16 opacity-100"
+            "hidden lg:block transition-all duration-300 ease-in-out bg-background border-b border-border shadow-xs will-change-[max-height,opacity]",
+            isScrolled ? "max-h-0 opacity-0 pointer-events-none overflow-hidden" : "max-h-16 opacity-100 overflow-visible"
           )}
         >
           <Navigation />
