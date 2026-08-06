@@ -28,12 +28,12 @@ const columns = [
   {
     title: "Categorias",
     links: [
-      { label: "Suportes", href: "/produtos" },
-      { label: "Luminárias", href: "/produtos" },
-      { label: "Caixas e Organizadores", href: "/produtos" },
-      { label: "Action Figures", href: "/produtos" },
-      { label: "Chaveiros", href: "/produtos" },
-      { label: "Todos os produtos", href: "/produtos" },
+      { label: "Suportes", href: "/loja" },
+      { label: "Luminárias", href: "/loja" },
+      { label: "Caixas e Organizadores", href: "/loja" },
+      { label: "Action Figures", href: "/loja" },
+      { label: "Chaveiros", href: "/loja" },
+      { label: "Todos os produtos", href: "/loja" },
     ],
   },
 ];

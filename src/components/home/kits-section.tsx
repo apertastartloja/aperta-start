@@ -58,7 +58,7 @@ export function KitsSection() {
                     className="mt-auto"
                   />
                   <Link
-                    to={ROUTES.home}
+                    to={ROUTES.shop}
                     className="text-button inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#000B1F] to-[#081838] text-white font-bold shadow-xs transition-all duration-300 after:absolute after:inset-0 hover:brightness-125 hover:shadow-medium cursor-pointer"
                   >
                     Ver kit

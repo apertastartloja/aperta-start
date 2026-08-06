@@ -5,10 +5,11 @@ export const APP = {
   supportEmail: "ola@apertastart.com.br",
 } as const;
 
-/** Rotas centralizadas — as telas serão criadas nas próximas etapas. */
+/** Rotas centralizadas. */
 export const ROUTES = {
   home: "/",
-  shop: "/produtos",
+  shop: "/loja",
+  products: "/loja",
   product: "/produto",
   cart: "/carrinho",
   checkout: "/checkout",
@@ -28,8 +29,8 @@ export const PIX_DISCOUNT = 0.05;
 
 export const MAIN_MENU = [
   { label: "Início", href: "/" },
-  { label: "Catálogo", href: "/produtos" },
-  { label: "Lançamentos", href: "/produtos" },
+  { label: "Loja", href: "/loja" },
+  { label: "Lançamentos", href: "/loja" },
   { label: "Sobre nós", href: "/sobre" },
   { label: "Contato", href: "/contato" },
   { label: "Checkout", href: "/checkout" },

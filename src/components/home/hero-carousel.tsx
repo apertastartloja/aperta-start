@@ -136,7 +136,7 @@ export function HeroCarousel() {
                         {/* CTA Button */}
                         {banner.ctaLabel ? (
                           <Link
-                            to={banner.ctaHref || "/produtos"}
+                            to={banner.ctaHref || "/loja"}
                             className="inline-flex h-9 lg:h-10 items-center gap-2 rounded-lg bg-[#FFC107] px-5 text-[13px] font-bold text-slate-950 shadow-lg shadow-amber-500/10 transition-all hover:bg-[#FFB700] hover:scale-[1.02] active:scale-[0.98] w-fit"
                           >
                             <span>{banner.ctaLabel}</span>

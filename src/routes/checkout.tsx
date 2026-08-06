@@ -173,10 +173,10 @@ function CheckoutPage() {
               Você ainda não adicionou nenhum item para finalizar a compra.
             </p>
             <Link
-              to="/produtos"
+              to="/loja"
               className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-small font-bold text-accent-foreground shadow-medium hover:brightness-105"
             >
-              Explorar Catálogo de Produtos
+              Explorar Loja de Produtos
             </Link>
           </div>
         ) : (

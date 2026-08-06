@@ -99,7 +99,7 @@ export function MiniCart() {
             Navegue pelos produtos e adicione os melhores itens gamer ao seu carrinho.
           </p>
           <Button asChild onClick={closeMiniCart} variant="outline" className="mt-2">
-            <Link to="/produtos">Explorar Catálogo</Link>
+            <Link to="/loja">Explorar Loja</Link>
           </Button>
         </div>
       ) : (

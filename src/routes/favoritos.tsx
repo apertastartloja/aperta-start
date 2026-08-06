@@ -152,11 +152,11 @@ function WishlistPage() {
                   </p>
                 </div>
                 <Link
-                  to="/produtos"
+                  to="/loja"
                   className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-small font-bold text-primary-foreground shadow-sm hover:bg-primary/90 transition-all"
                 >
                   <ArrowLeft className="size-4" />
-                  Explorar Catálogo
+                  Explorar Loja
                 </Link>
               </div>
 
@@ -173,7 +173,7 @@ function WishlistPage() {
                       </p>
                     </div>
                     <Link
-                      to="/produtos"
+                      to="/loja"
                       className="text-small font-semibold text-primary hover:underline flex items-center gap-1"
                     >
                       Ver todos <ChevronRight className="size-4" />

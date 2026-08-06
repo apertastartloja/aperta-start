@@ -114,7 +114,7 @@ function AboutPage() {
           </p>
           <div className="pt-2">
             <Link
-              to="/produtos"
+              to="/loja"
               className="inline-flex items-center gap-2 rounded-xl bg-accent px-8 py-3.5 text-small font-extrabold text-accent-foreground shadow-medium hover:brightness-105 transition-all"
             >
               Explorar Todos os Produtos

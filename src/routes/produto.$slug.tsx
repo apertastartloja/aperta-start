@@ -148,7 +148,7 @@ function ProductDetailPage() {
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <h1 className="text-h2 font-extrabold text-foreground">Produto não encontrado</h1>
           <p className="text-muted-foreground">O produto que você está procurando não existe ou foi removido.</p>
-          <Link to="/produtos" className="rounded-xl bg-primary px-6 py-3 font-bold text-primary-foreground">
+          <Link to="/loja" className="rounded-xl bg-primary px-6 py-3 font-bold text-primary-foreground">
             Ver todos os produtos
           </Link>
         </div>
@@ -165,8 +165,8 @@ function ProductDetailPage() {
             Início
           </Link>
           <ChevronRight className="mx-2 h-4 w-4 text-muted-foreground/60" />
-          <Link to="/produtos" className="transition-colors hover:text-foreground">
-            Produtos
+          <Link to="/loja" className="transition-colors hover:text-foreground">
+            Loja
           </Link>
           <ChevronRight className="mx-2 h-4 w-4 text-muted-foreground/60" />
           <span className="font-medium text-foreground truncate max-w-[200px] sm:max-w-xs">
@@ -588,7 +588,7 @@ function ProductDetailPage() {
                 <h2 className="text-h3 text-foreground font-extrabold">Produtos Relacionados</h2>
                 <p className="text-small text-muted-foreground">Outros itens incríveis para complementar seu setup.</p>
               </div>
-              <Link to="/produtos" className="text-small font-bold text-brand hover:underline flex items-center gap-1">
+              <Link to="/loja" className="text-small font-bold text-brand hover:underline flex items-center gap-1">
                 Ver todos <ChevronRight className="h-4 w-4" />
               </Link>
             </div>

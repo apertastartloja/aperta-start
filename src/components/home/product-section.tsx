@@ -36,7 +36,7 @@ export function ProductSection({
             {description ? <p className="text-small text-muted-foreground">{description}</p> : null}
           </div>
           <Link
-            to={ROUTES.home}
+            to={ROUTES.shop}
             className="text-small shrink-0 font-bold text-primary underline-offset-4 hover:underline"
           >
             Ver todos

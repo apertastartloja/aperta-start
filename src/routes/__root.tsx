@@ -35,10 +35,10 @@ function NotFoundComponent() {
             ⚡ Respawn na Home
           </Link>
           <Link
-            to="/produtos"
+            to="/loja"
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-6 py-3 text-small font-bold text-foreground hover:bg-muted transition-all"
           >
-            Ver Catálogo
+            Ver Loja
           </Link>
         </div>
       </div>
