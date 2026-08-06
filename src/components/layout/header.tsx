@@ -69,8 +69,8 @@ export function Header() {
         {/* Barra principal */}
         <div
           className={cn(
-            "bg-primary text-primary-foreground transition-all duration-300 ease-in-out border-b border-white/10 will-change-[height,box-shadow,background]",
-            isScrolled ? "shadow-large bg-primary/95 backdrop-blur-md" : "shadow-medium"
+            "bg-gradient-to-b from-[#000B1F] via-[#071533] to-[#040e24] text-primary-foreground transition-all duration-300 ease-in-out border-b border-white/10 will-change-[height,box-shadow,background]",
+            isScrolled ? "shadow-large bg-[#000B1F]/95 backdrop-blur-md" : "shadow-medium"
           )}
         >
           <Container

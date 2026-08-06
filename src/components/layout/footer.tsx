@@ -42,16 +42,16 @@ const payments = ["Visa", "Master", "Elo", "Amex", "Pix", "Boleto"];
 
 export function Footer() {
   return (
-    <footer className="bg-primary text-primary-foreground">
+    <footer className="relative overflow-hidden bg-gradient-to-b from-[#000B1F] via-[#05132d] to-[#020714] text-white border-t border-white/10 shadow-large">
       <Container className="grid gap-10 py-16 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
         <div className="space-y-5">
           <Logo size="lg" variant="light" />
-          <p className="text-small max-w-xs opacity-75">{APP.tagline}</p>
+          <p className="text-small max-w-xs text-white/75 leading-relaxed">{APP.tagline}</p>
           <div className="flex items-center gap-3">
             {[Instagram, Youtube, Twitch, Facebook].map((SocialIcon, index) => (
               <span
                 key={index}
-                className="grid size-9 place-items-center rounded-md bg-primary-foreground/10 transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                className="grid size-9 place-items-center rounded-xl bg-white/5 border border-white/10 text-white/80 transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:border-accent hover:scale-105 cursor-pointer shadow-xs"
               >
                 <SocialIcon className="size-4" aria-hidden />
               </span>
@@ -60,12 +60,17 @@ export function Footer() {
         </div>
 
         {columns.map((column) => (
-          <div key={column.title} className="space-y-3">
-            <p className="text-h4 text-accent">{column.title}</p>
-            <ul className="space-y-2">
+          <div key={column.title} className="space-y-4">
+            <p className="text-h4 text-[#FFC933] font-bold tracking-wide drop-shadow-[0_0_8px_rgba(255,201,51,0.25)]">
+              {column.title}
+            </p>
+            <ul className="space-y-2.5">
               {column.links.map((link) => (
                 <li key={link.label}>
-                  <Link to={link.href as any} className="text-small opacity-75 transition-opacity hover:opacity-100">
+                  <Link
+                    to={link.href as any}
+                    className="text-small text-white/70 transition-all duration-200 hover:text-white hover:translate-x-1 inline-block"
+                  >
                     {link.label}
                   </Link>
                 </li>
@@ -74,30 +79,34 @@ export function Footer() {
           </div>
         ))}
 
-        <div className="space-y-3">
-          <p className="text-h4 text-accent">Formas de pagamento</p>
+        <div className="space-y-4">
+          <p className="text-h4 text-[#FFC933] font-bold tracking-wide drop-shadow-[0_0_8px_rgba(255,201,51,0.25)]">
+            Formas de pagamento
+          </p>
           <ul className="flex flex-wrap gap-2">
             {payments.map((payment) => (
               <li
                 key={payment}
-                className="text-[11px] grid h-8 min-w-14 place-items-center rounded-sm bg-primary-foreground px-2 font-bold text-primary"
+                className="text-[11px] grid h-8 min-w-14 place-items-center rounded-lg border border-white/15 bg-white/10 px-2.5 font-bold text-white shadow-xs backdrop-blur-xs"
               >
                 {payment}
               </li>
             ))}
           </ul>
-          <p className="text-small flex items-center gap-2 opacity-75 pt-2">
-            <Mail className="size-4" aria-hidden /> {APP.supportEmail}
+          <p className="text-small flex items-center gap-2 text-white/75 pt-2">
+            <Mail className="size-4 text-accent" aria-hidden /> {APP.supportEmail}
           </p>
         </div>
       </Container>
 
-      <div className="border-t border-primary-foreground/10">
-        <Container className="text-small flex flex-col items-center justify-between gap-3 py-6 opacity-70 md:flex-row">
+      <div className="border-t border-white/10 bg-black/20">
+        <Container className="text-small flex flex-col items-center justify-between gap-3 py-6 text-white/60 md:flex-row">
           <p>
             © {new Date().getFullYear()} {APP.name}. Todos os direitos reservados.
           </p>
-          <p>Desenvolvido com ♥ para gamers</p>
+          <p className="flex items-center gap-1">
+            Desenvolvido com <span className="text-accent">♥</span> para gamers
+          </p>
         </Container>
       </div>
     </footer>

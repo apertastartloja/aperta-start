@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Mail, Sparkles } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import mascot from "@/assets/products/action-figure.jpg";
@@ -7,7 +7,7 @@ import { Container } from "@/components/common/container";
 import { newsletterSchema, type NewsletterValues } from "@/components/forms/schemas";
 import { useNewsletterContent } from "@/hooks/useContent";
 
-/** Faixa de captação de e-mail (seção 9 da Home). */
+/** Faixa de captação de e-mail redesenhada em estilo campanha premium. */
 export function Newsletter() {
   const { data: content } = useNewsletterContent();
   const form = useForm<NewsletterValues>({
@@ -21,46 +21,79 @@ export function Newsletter() {
   };
 
   return (
-    <section aria-labelledby="newsletter-title" className="overflow-hidden bg-brand text-brand-foreground">
-      <Container className="relative flex items-center justify-between gap-10 py-12">
-        <div className="max-w-xl space-y-4">
-          <h2 id="newsletter-title" className="text-h2">
-            {content?.title ?? "Promoções & Novidades"}
-          </h2>
-          <p className="text-small opacity-90">
-            {content?.subtitle ?? "Assine e receba ofertas exclusivas!"}
-          </p>
+    <section aria-labelledby="newsletter-title" className="py-12 bg-background">
+      <Container>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#4c1d95] via-[#7c3aed] to-[#3b0764] p-8 sm:p-12 text-white shadow-large border border-purple-500/20">
+          {/* Luz ambiente sutil de fundo (Ambient Glow) */}
+          <div
+            className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-accent/15 blur-3xl"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -right-24 -bottom-24 h-96 w-96 rounded-full bg-purple-400/20 blur-3xl"
+            aria-hidden
+          />
 
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex h-12 w-full max-w-md items-center overflow-hidden rounded-md bg-brand-foreground/12 pl-4 pr-1.5 ring-1 ring-brand-foreground/25"
-          >
-            <input
-              {...form.register("email")}
-              type="email"
-              placeholder={content?.placeholder ?? "Seu melhor e-mail"}
-              aria-label="Seu melhor e-mail"
-              className="text-small h-full flex-1 bg-transparent text-brand-foreground outline-none placeholder:text-brand-foreground/70"
-            />
-            <button
-              type="submit"
-              aria-label={content?.ctaLabel ?? "Assinar"}
-              className="grid size-9 shrink-0 place-items-center rounded-sm bg-accent text-accent-foreground transition-opacity hover:opacity-90"
-            >
-              <ArrowRight className="size-4" />
-            </button>
-          </form>
+          <div className="relative z-10 mx-auto max-w-3xl text-center space-y-6">
+            {/* Badge em destaque */}
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent border border-white/15 backdrop-blur-md">
+              <Sparkles className="size-3.5 text-accent" />
+              <span>Ofertas & Lançamentos Exclusivos</span>
+            </div>
+
+            {/* Título e Subtítulo centralizados */}
+            <div className="space-y-3">
+              <h2 id="newsletter-title" className="text-h1 font-extrabold tracking-tight text-white">
+                {content?.title ?? "Fique por dentro das novidades do Setup Gamer"}
+              </h2>
+              <p className="text-body max-w-xl mx-auto text-white/80 font-medium">
+                {content?.subtitle ?? "Assine nossa newsletter para receber cupons de desconto, lançamentos antecipados e conteúdos sobre decoração gamer!"}
+              </p>
+            </div>
+
+            {/* Bloco centralizado único: Formulário + Prova social com mascote */}
+            <div className="pt-2 flex flex-col items-center justify-center gap-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="flex h-14 w-full max-w-md items-center overflow-hidden rounded-2xl bg-white/15 p-1.5 ring-1 ring-white/30 backdrop-blur-md shadow-medium transition-all focus-within:ring-accent"
+              >
+                <div className="flex items-center gap-2 px-3 text-white/70">
+                  <Mail className="size-5 shrink-0" />
+                </div>
+                <input
+                  {...form.register("email")}
+                  type="email"
+                  placeholder={content?.placeholder ?? "Digite seu melhor e-mail..."}
+                  aria-label="Seu melhor e-mail"
+                  className="text-small h-full flex-1 bg-transparent text-white outline-none placeholder:text-white/60"
+                />
+                <button
+                  type="submit"
+                  aria-label={content?.ctaLabel ?? "Assinar"}
+                  className="flex h-11 items-center gap-2 rounded-xl bg-accent px-5 font-bold text-accent-foreground shadow-sm transition-all hover:brightness-110 hover:shadow-accent/20 cursor-pointer shrink-0"
+                >
+                  <span>{content?.ctaLabel ?? "Inscrever-se"}</span>
+                  <ArrowRight className="size-4" />
+                </button>
+              </form>
+
+              {/* Personagem e prova social integrados no mesmo bloco */}
+              <div className="flex items-center gap-3 pt-2">
+                <img
+                  src={mascot}
+                  alt="Mascote Aperta Start"
+                  loading="lazy"
+                  width={60}
+                  height={60}
+                  className="size-12 rounded-full object-cover ring-2 ring-accent/60 shadow-md"
+                />
+                <span className="text-xs text-white/75 font-semibold tracking-wide">
+                  Junte-se a +10.000 apaixonados por setups incríveis!
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <img
-          src={mascot}
-          alt=""
-          aria-hidden
-          loading="lazy"
-          width={800}
-          height={800}
-          className="hidden size-44 shrink-0 rounded-full object-cover ring-8 ring-brand-foreground/10 lg:block"
-        />
       </Container>
     </section>
   );
