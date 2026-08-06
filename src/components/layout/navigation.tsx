@@ -36,8 +36,8 @@ export function Navigation() {
   const { data: categories = [] } = useCategoryTree();
 
   return (
-    <nav aria-label="Navegação principal" className="bg-primary text-primary-foreground">
-      <Container className="flex h-14 items-center gap-10">
+    <nav aria-label="Navegação principal" className="bg-background text-foreground">
+      <Container className="flex h-14 items-center justify-center gap-10">
         <div className="group relative">
           <button
             type="button"
@@ -55,7 +55,7 @@ export function Navigation() {
             <li key={item.label}>
               <Link
                 to={item.href}
-                className="text-small font-medium text-primary-foreground/85 transition-colors hover:text-accent"
+                className="text-small font-semibold text-primary transition-colors hover:text-primary/75"
               >
                 {item.label}
               </Link>

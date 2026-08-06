@@ -72,7 +72,7 @@ export function Header() {
         >
           <Container
             className={cn(
-              "flex items-center gap-4 sm:gap-8 transition-all duration-300 ease-in-out",
+              "flex items-center justify-between lg:justify-center gap-4 sm:gap-8 lg:gap-10 transition-all duration-300 ease-in-out",
               isScrolled ? "h-14 sm:h-16" : "h-20 sm:h-24"
             )}
           >
@@ -95,9 +95,9 @@ export function Header() {
               <Logo size="lg" variant="light" />
             </div>
 
-            <Search className="hidden flex-1 lg:block" />
+            <Search className="hidden flex-1 max-w-xl lg:block" />
 
-            <div className="ml-auto flex items-center gap-4 sm:gap-6 shrink-0">
+            <div className="ml-auto lg:ml-0 flex items-center gap-4 sm:gap-6 shrink-0">
               <Link
                 to="/entrar"
                 className="hidden items-center gap-2 text-primary-foreground transition-colors hover:text-accent lg:flex"
@@ -140,7 +140,7 @@ export function Header() {
         {/* Menu de navegação por categorias */}
         <div
           className={cn(
-            "hidden lg:block overflow-hidden transition-all duration-300 ease-in-out bg-surface border-b border-border shadow-xs will-change-[max-height,opacity]",
+            "hidden lg:block overflow-hidden transition-all duration-300 ease-in-out bg-background border-b border-border shadow-xs will-change-[max-height,opacity]",
             isScrolled ? "max-h-0 opacity-0 pointer-events-none" : "max-h-16 opacity-100"
           )}
         >
