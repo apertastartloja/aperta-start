@@ -426,7 +426,7 @@ export const EmailTemplateService = {
   async listAll(): Promise<EmailTemplate[]> {
     try {
       const { data, error } = await supabase.from("email_templates").select("*");
-      if (!error && data) {
+      if (!error && data && data.length > 0) {
         const fetched = data.map((t) => ({
           id: t.id,
           key: t.key,
@@ -438,10 +438,11 @@ export const EmailTemplateService = {
           blocks: t.blocks || [],
           updatedAt: t.updated_at || new Date().toISOString(),
         }));
+        localTemplatesStore = fetched;
         return fetched;
       }
     } catch {
-      // Fallback
+      // Fallback to default system templates
     }
     return delay(clone(localTemplatesStore));
   },
