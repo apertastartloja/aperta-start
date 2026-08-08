@@ -26,6 +26,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/resend/, ""),
       },
+      "/api/mercadopago": {
+        target: "https://api.mercadopago.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/mercadopago/, ""),
+      },
     },
   },
 });
