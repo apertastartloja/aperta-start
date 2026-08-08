@@ -1,7 +1,7 @@
 import type { Order } from "@/types";
 import { formatCurrency, formatDate } from "@/utils/format";
 
-const DEFAULT_RESEND_KEY = "re_" + "9nApvB1w_3zz5aXAdYrrh7T1Jo8Tq1BeZ";
+const DEFAULT_RESEND_KEY = "re_" + "ZxKSfrVV_4cmxrZPv53ZchQuMN3xmoJMV";
 const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY || DEFAULT_RESEND_KEY;
 const FROM_EMAIL = import.meta.env.VITE_RESEND_FROM_EMAIL || "Aperta Start <contato@apertastart.com.br>";
 
