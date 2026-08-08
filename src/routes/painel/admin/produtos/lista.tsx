@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { AdminLayout } from "@/components/admin";
 import { ProductService } from "@/services/product.service";
 import { CategoryService } from "@/services/category.service";
+import { SupplierService } from "@/services/supplier.service";
 import type { Product } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +64,11 @@ function ProdutosListaPage() {
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: () => CategoryService.list(),
+  });
+
+  const { data: suppliers = [] } = useQuery({
+    queryKey: ["suppliers"],
+    queryFn: () => SupplierService.listAll(),
   });
 
   const products = paginatedData?.data || [];
@@ -403,9 +409,17 @@ function ProdutosListaPage() {
                           </div>
                         </td>
 
-                        {/* Category */}
+                        {/* Category & Supplier */}
                         <td className="py-3.5 px-4 text-small text-muted-foreground font-medium">
-                          {categoryName}
+                          <div>{categoryName}</div>
+                          {(() => {
+                            const supplier = suppliers.find((s) => s.id === product.supplierId);
+                            return supplier ? (
+                              <div className="text-[11px] text-brand font-bold flex items-center gap-1 mt-0.5">
+                                🏢 {supplier.name}
+                              </div>
+                            ) : null;
+                          })()}
                         </td>
 
                         {/* Price */}

@@ -22,13 +22,15 @@ import {
   ShoppingBag,
   Weight,
   Ruler,
+  Building2,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ProductService } from "@/services/product.service";
 import { CategoryService, CollectionService } from "@/services/category.service";
+import { SupplierService } from "@/services/supplier.service";
 import { StorageService } from "@/services/storage.service";
-import type { Product, ProductBadgeType, ProductImage, ProductVariant, ProductSpec } from "@/types";
+import type { Product, ProductBadgeType, ProductImage, ProductVariant, ProductSpec, Supplier } from "@/types";
 import { cn } from "@/lib/utils";
 import { RelatedProductsPicker } from "./related-products-picker";
 
@@ -59,6 +61,11 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
     queryFn: () => CollectionService.list(),
   });
 
+  const { data: suppliers = [], refetch: refetchSuppliers } = useQuery({
+    queryKey: ["suppliers"],
+    queryFn: () => SupplierService.listAll(),
+  });
+
   const { data: allProductsData } = useQuery({
     queryKey: ["products", "all-for-bump"],
     queryFn: () => ProductService.list({ perPage: 200, includeInactive: true }),
@@ -72,9 +79,21 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
   const [description, setDescription] = useState(initialData?.description || "");
   const [shortDescription, setShortDescription] = useState(initialData?.shortDescription || "");
   const [price, setPrice] = useState<number | string>(initialData?.price ?? "");
+  const [costPrice, setCostPrice] = useState<number | string>(initialData?.costPrice ?? "");
+  const [supplierId, setSupplierId] = useState<string>(initialData?.supplierId || "");
   const [compareAtPrice, setCompareAtPrice] = useState<number | string>(initialData?.compareAtPrice ?? "");
   const [stock, setStock] = useState<number | string>(initialData?.stock ?? 10);
   const [categoryId, setCategoryId] = useState<string>(initialData?.categoryId || "");
+
+  // Quick Supplier Creation Modal State
+  const [isQuickSupplierOpen, setIsQuickSupplierOpen] = useState(false);
+  const [isSavingQuickSupplier, setIsSavingQuickSupplier] = useState(false);
+  const [quickSupplierData, setQuickSupplierData] = useState({
+    name: "",
+    companyName: "",
+    email: "",
+    whatsapp: "",
+  });
   const [selectedCollectionIds, setSelectedCollectionIds] = useState<string[]>(initialData?.collectionIds || []);
   const [selectedBadges, setSelectedBadges] = useState<ProductBadgeType[]>(initialData?.badges || []);
   const [tagsInput, setTagsInput] = useState<string>(initialData?.tags?.join(", ") || "");
@@ -276,7 +295,8 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
         relatedProductIds,
         orderBumpProductId: orderBumpProductId || null,
         orderBumpMessage: orderBumpMessage.trim() || undefined,
-        specs,
+        supplierId: supplierId || undefined,
+        costPrice: costPrice !== "" ? Number(costPrice) : undefined,
         shippingWeight: shippingWeight !== "" ? Number(shippingWeight) : undefined,
         shippingLength: shippingLength !== "" ? Number(shippingLength) : undefined,
         shippingWidth: shippingWidth !== "" ? Number(shippingWidth) : undefined,
@@ -298,6 +318,36 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
       toast.error(err?.message || "Erro ao salvar produto no Supabase.");
     },
   });
+
+  const handleSaveQuickSupplier = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickSupplierData.name.trim()) {
+      toast.error("Informe o Nome Fantasia do fornecedor.");
+      return;
+    }
+
+    setIsSavingQuickSupplier(true);
+    try {
+      const created = await SupplierService.create({
+        name: quickSupplierData.name.trim(),
+        companyName: quickSupplierData.companyName.trim() || undefined,
+        email: quickSupplierData.email.trim() || "contato@fornecedor.com.br",
+        whatsapp: quickSupplierData.whatsapp.replace(/\D/g, "") || undefined,
+        status: "active",
+        leadTimeDays: 3,
+      });
+
+      await refetchSuppliers();
+      setSupplierId(created.id);
+      setIsQuickSupplierOpen(false);
+      setQuickSupplierData({ name: "", companyName: "", email: "", whatsapp: "" });
+      toast.success(`Fornecedor "${created.name}" cadastrado e selecionado!`);
+    } catch (err) {
+      toast.error("Erro ao cadastrar fornecedor rápido.");
+    } finally {
+      setIsSavingQuickSupplier(false);
+    }
+  };
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-12">
@@ -719,6 +769,27 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
                 <p className="text-[11px] text-muted-foreground">Exibe o preço riscado para simular oferta</p>
               </div>
 
+              {/* Preço de Custo */}
+              <div className="space-y-1.5 pt-2 border-t border-border">
+                <label className="text-caption font-bold text-foreground">
+                  Preço de Custo / Aquisição (R$)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-muted-foreground text-small">
+                    R$
+                  </span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="120.00"
+                    value={costPrice}
+                    onChange={(e) => setCostPrice(e.target.value)}
+                    className="w-full rounded-xl border border-input bg-background pl-10 pr-4 py-2.5 text-small font-bold text-foreground focus:border-ring focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground">Valor pago ao fornecedor para cálculo de margem</p>
+              </div>
+
               <div className="space-y-1.5 pt-2 border-t border-border">
                 <label className="text-caption font-bold text-foreground">Estoque Total</label>
                 <input
@@ -738,12 +809,38 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
             </div>
           </div>
 
-          {/* Categorização */}
+          {/* Categorização e Fornecedor */}
           <div className="rounded-3xl border border-border bg-surface p-6 shadow-medium space-y-5">
-            <h3 className="text-h4 font-black text-foreground">Categorização</h3>
+            <h3 className="text-h4 font-black text-foreground">Categorização & Fornecedor</h3>
 
             <div className="space-y-4">
+              {/* Fornecedor Responsável */}
               <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-caption font-bold text-foreground">Fornecedor Responsável</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsQuickSupplierOpen(true)}
+                    className="text-[11px] font-extrabold text-brand hover:underline cursor-pointer flex items-center gap-1"
+                  >
+                    <Plus className="size-3" /> + Novo Fornecedor
+                  </button>
+                </div>
+                <select
+                  value={supplierId}
+                  onChange={(e) => setSupplierId(e.target.value)}
+                  className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-small font-bold text-foreground focus:outline-none cursor-pointer"
+                >
+                  <option value="">Nenhum fornecedor vinculado</option>
+                  {suppliers.map((sup) => (
+                    <option key={sup.id} value={sup.id}>
+                      {sup.name} {sup.companyName ? `(${sup.companyName})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5 pt-2 border-t border-border">
                 <label className="text-caption font-bold text-foreground">Categoria Principal</label>
                 <select
                   value={categoryId}
@@ -1047,6 +1144,108 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
         </div>
 
       </div>
+
+      {/* QUICK SUPPLIER CREATION MODAL */}
+      {isQuickSupplierOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-3xl border border-border bg-surface p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2 text-small font-black text-foreground">
+                <Building2 className="size-4 text-brand" /> Cadastro Rápido de Fornecedor
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQuickSupplierOpen(false)}
+                className="text-muted-foreground hover:text-foreground font-black text-small cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveQuickSupplier} className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-caption font-bold text-muted-foreground">
+                  Nome Fantasia / Fornecedor *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Hero 3D Studio"
+                  value={quickSupplierData.name}
+                  onChange={(e) =>
+                    setQuickSupplierData({ ...quickSupplierData, name: e.target.value })
+                  }
+                  className="w-full rounded-xl border border-input bg-background p-2.5 text-small text-foreground"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-caption font-bold text-muted-foreground">Razão Social</label>
+                <input
+                  type="text"
+                  placeholder="Ex: Hero Impressão 3D LTDA"
+                  value={quickSupplierData.companyName}
+                  onChange={(e) =>
+                    setQuickSupplierData({ ...quickSupplierData, companyName: e.target.value })
+                  }
+                  className="w-full rounded-xl border border-input bg-background p-2.5 text-small text-foreground"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <label className="text-caption font-bold text-muted-foreground">E-mail *</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="contato@empresa.com"
+                    value={quickSupplierData.email}
+                    onChange={(e) =>
+                      setQuickSupplierData({ ...quickSupplierData, email: e.target.value })
+                    }
+                    className="w-full rounded-xl border border-input bg-background p-2.5 text-small text-foreground"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-caption font-bold text-muted-foreground">WhatsApp</label>
+                  <input
+                    type="text"
+                    placeholder="11987654321"
+                    value={quickSupplierData.whatsapp}
+                    onChange={(e) =>
+                      setQuickSupplierData({ ...quickSupplierData, whatsapp: e.target.value })
+                    }
+                    className="w-full rounded-xl border border-input bg-background p-2.5 text-small text-foreground font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setIsQuickSupplierOpen(false)}
+                  className="rounded-xl border border-input bg-background px-4 py-2 text-small font-bold text-foreground hover:bg-muted cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingQuickSupplier}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-small font-extrabold text-brand-foreground shadow-xs hover:brightness-105 transition-all cursor-pointer"
+                >
+                  {isSavingQuickSupplier ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Building2 className="size-4" />
+                  )}
+                  Salvar e Selecionar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
   FolderTree,
   Layers,
   Boxes,
+  Building2,
   Users,
   Megaphone,
   Image,
@@ -66,6 +67,11 @@ const menuItems: MenuItem[] = [
     title: "Estoque",
     href: "/painel/admin/estoque",
     icon: Boxes,
+  },
+  {
+    title: "Fornecedores",
+    href: "/painel/admin/fornecedores",
+    icon: Building2,
   },
   {
     title: "Clientes",

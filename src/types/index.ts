@@ -75,8 +75,30 @@ export interface Product {
   /** Largura em cm para cálculo de frete */
   shippingWidth?: number;
   /** Altura em cm para cálculo de frete */
-  shippingHeight?: number;
+  /** ID do Fornecedor vinculado ao produto */
+  supplierId?: ID;
+  /** Preço de custo / aquisição R$ */
+  costPrice?: number;
   createdAt: ISODate;
+}
+
+export type SupplierStatus = "active" | "inactive" | "suspended";
+
+export interface Supplier {
+  id: ID;
+  name: string; // Nome Fantasia
+  companyName?: string; // Razão Social
+  cpfCnpj?: string;
+  contactName?: string; // Nome do contato comercial
+  email: string;
+  phone?: string;
+  whatsapp?: string;
+  productCategories?: string[]; // Ex: ["Impressão 3D", "Videogames", "Acessórios Gamer"]
+  leadTimeDays?: number; // Prazo médio em dias
+  status: SupplierStatus;
+  notes?: string;
+  createdAt: ISODate;
+  updatedAt?: ISODate;
 }
 
 

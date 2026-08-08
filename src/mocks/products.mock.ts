@@ -18,6 +18,8 @@ interface Seed {
   categoryId: string;
   collectionIds: string[];
   price: number;
+  costPrice?: number;
+  supplierId?: string;
   compareAtPrice?: number | null;
   rating: number;
   reviewsCount: number;
@@ -35,6 +37,8 @@ const seeds: Seed[] = [
     categoryId: "cat-1-1",
     collectionIds: ["col-destaques", "col-mais-vendidos"],
     price: 69.9,
+    costPrice: 28.0,
+    supplierId: "sup-1",
     compareAtPrice: 89.9,
     rating: 4.9,
     reviewsCount: 214,
