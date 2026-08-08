@@ -13,7 +13,7 @@ export const BannerService = {
         .select("*")
         .order("order", { ascending: true });
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         const fetched: Banner[] = data.map((b) => ({
           id: b.id,
           title: b.title,
@@ -27,9 +27,7 @@ export const BannerService = {
           active: b.active ?? true,
         }));
         
-        const existingIds = new Set(fetched.map((b) => b.id));
-        const missingLocal = localBannersStore.filter((b) => !existingIds.has(b.id));
-        localBannersStore = [...fetched, ...missingLocal];
+        localBannersStore = fetched;
         return localBannersStore;
       }
     } catch (err) {

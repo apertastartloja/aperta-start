@@ -18,7 +18,7 @@ export const CategoryService = {
         .select("*")
         .order("order", { ascending: true });
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         const fetched = data.map((item) => ({
           id: item.id,
           name: item.name,
@@ -124,7 +124,7 @@ export const CollectionService = {
   async list(): Promise<Collection[]> {
     try {
       const { data, error } = await supabase.from("collections").select("*");
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         const fetched = data.map((item) => ({
           id: item.id,
           name: item.name,

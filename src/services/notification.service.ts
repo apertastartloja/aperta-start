@@ -21,7 +21,7 @@ export const NotificationService = {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         return data.map((n) => ({
           id: n.id,
           type: n.type,

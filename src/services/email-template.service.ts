@@ -426,7 +426,7 @@ export const EmailTemplateService = {
   async listAll(): Promise<EmailTemplate[]> {
     try {
       const { data, error } = await supabase.from("email_templates").select("*");
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         const fetched = data.map((t) => ({
           id: t.id,
           key: t.key,

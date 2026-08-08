@@ -17,7 +17,7 @@ export const UserService = {
     try {
       // Check Supabase auth users / profiles table
       const { data, error } = await supabase.from("profiles").select("*");
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         const fetched: User[] = data.map((item) => ({
           id: item.id,
           name: item.name || item.full_name || "Cliente sem nome",
@@ -28,9 +28,7 @@ export const UserService = {
           createdAt: item.created_at || new Date().toISOString(),
         }));
 
-        const existingIds = new Set(fetched.map((u) => u.id));
-        const missingLocal = localUsersStore.filter((u) => !existingIds.has(u.id));
-        localUsersStore = [...fetched, ...missingLocal];
+        localUsersStore = fetched;
         return localUsersStore;
       }
     } catch (err) {

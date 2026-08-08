@@ -116,10 +116,45 @@ let localCarriersStore: CarrierConfig[] = clone(initialCarriers);
 
 export const ShippingService = {
   async listRules(): Promise<ShippingRule[]> {
+    try {
+      const { data, error } = await supabase.from("shipping_rules").select("*");
+      if (!error && data) {
+        const fetched: ShippingRule[] = data.map((item) => ({
+          id: item.id,
+          region: item.region,
+          states: item.states || [],
+          fixedPrice: Number(item.fixed_price),
+          freeShippingMinAmount: item.free_shipping_min_amount ? Number(item.free_shipping_min_amount) : null,
+          minDays: item.min_days || 1,
+          maxDays: item.max_days || 5,
+          active: Boolean(item.active),
+        }));
+        localRulesStore = fetched;
+        return localRulesStore;
+      }
+    } catch (err) {
+      console.warn("Aviso ao buscar regras de frete do Supabase:", err);
+    }
     return delay(clone(localRulesStore));
   },
 
   async listCarriers(): Promise<CarrierConfig[]> {
+    try {
+      const { data, error } = await supabase.from("carriers").select("*");
+      if (!error && data) {
+        const fetched: CarrierConfig[] = data.map((item) => ({
+          id: item.id,
+          name: item.name,
+          code: item.code,
+          active: Boolean(item.active),
+          description: item.description || "",
+        }));
+        localCarriersStore = fetched;
+        return localCarriersStore;
+      }
+    } catch (err) {
+      console.warn("Aviso ao buscar transportadoras do Supabase:", err);
+    }
     return delay(clone(localCarriersStore));
   },
 
@@ -129,17 +164,54 @@ export const ShippingService = {
 
     const updated = { ...localRulesStore[idx]!, ...patch };
     localRulesStore[idx] = updated;
+
+    try {
+      await supabase.from("shipping_rules").upsert({
+        id,
+        region: updated.region,
+        states: updated.states,
+        fixed_price: updated.fixedPrice,
+        free_shipping_min_amount: updated.freeShippingMinAmount,
+        min_days: updated.minDays,
+        max_days: updated.maxDays,
+        active: updated.active,
+      });
+    } catch {
+      // Fallback
+    }
+
     return delay(clone(updated));
   },
 
   async createRule(input: Omit<ShippingRule, "id">): Promise<ShippingRule> {
     const newId = `rule-${Date.now()}`;
     const newRule = { ...input, id: newId };
+
+    try {
+      await supabase.from("shipping_rules").insert({
+        id: newRule.id,
+        region: newRule.region,
+        states: newRule.states,
+        fixed_price: newRule.fixedPrice,
+        free_shipping_min_amount: newRule.freeShippingMinAmount,
+        min_days: newRule.minDays,
+        max_days: newRule.maxDays,
+        active: newRule.active,
+      });
+    } catch {
+      // Fallback
+    }
+
     localRulesStore.push(newRule);
     return delay(clone(newRule));
   },
 
   async deleteRule(id: string): Promise<boolean> {
+    try {
+      await supabase.from("shipping_rules").delete().eq("id", id);
+    } catch {
+      // Fallback
+    }
     localRulesStore = localRulesStore.filter((r) => r.id !== id);
     return delay(true);
   },
@@ -150,6 +222,19 @@ export const ShippingService = {
 
     const updated = { ...localCarriersStore[idx]!, active: !localCarriersStore[idx]!.active };
     localCarriersStore[idx] = updated;
+
+    try {
+      await supabase.from("carriers").upsert({
+        id: updated.id,
+        name: updated.name,
+        code: updated.code,
+        active: updated.active,
+        description: updated.description,
+      });
+    } catch {
+      // Fallback
+    }
+
     return delay(clone(updated));
   },
 };

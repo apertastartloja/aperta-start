@@ -23,7 +23,7 @@ export const OrderService = {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         const fetched: Order[] = data.map((item) => ({
           id: item.id,
           code: item.code,
@@ -44,9 +44,7 @@ export const OrderService = {
           customerPhone: item.customer_phone ?? undefined,
         }));
         
-        const existingIds = new Set(fetched.map((o) => o.id));
-        const missingLocal = localOrdersStore.filter((o) => !existingIds.has(o.id));
-        localOrdersStore = [...fetched, ...missingLocal];
+        localOrdersStore = fetched;
         return localOrdersStore;
       }
     } catch (err) {

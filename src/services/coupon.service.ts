@@ -65,7 +65,7 @@ export const CouponService = {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         const fetched: Coupon[] = data.map((item) => ({
           id: item.id,
           code: item.code,
@@ -80,9 +80,7 @@ export const CouponService = {
           createdAt: item.created_at ?? new Date().toISOString(),
         }));
         
-        const existingIds = new Set(fetched.map((c) => c.id));
-        const missingLocal = localCouponsStore.filter((c) => !existingIds.has(c.id));
-        localCouponsStore = [...fetched, ...missingLocal];
+        localCouponsStore = fetched;
         return localCouponsStore;
       }
     } catch (err) {
