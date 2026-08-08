@@ -3,7 +3,7 @@ import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 import { queryKeys } from "@/lib/query-keys";
-import { CartService } from "@/services";
+import { CartService, CouponService } from "@/services";
 import type { Cart, CartItem, CartTotals } from "@/types";
 
 interface CartContextValue {
@@ -66,10 +66,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     onSuccess: sync,
   });
 
+  const { data: activeCoupon } = useQuery({
+    queryKey: ["coupon", cart.couponCode],
+    queryFn: () => (cart.couponCode ? CouponService.getByCode(cart.couponCode) : null),
+    enabled: Boolean(cart.couponCode),
+  });
+
   const value = useMemo<CartContextValue>(
     () => ({
       cart,
-      totals: CartService.totals(cart),
+      totals: CartService.totals(cart, activeCoupon),
       isLoading,
       isMiniCartOpen,
       openMiniCart: () => setMiniCartOpen(true),
@@ -80,7 +86,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       clear: () => clear.mutate(),
       applyCoupon: (code) => applyCoupon.mutate(code),
     }),
-    [cart, isLoading, isMiniCartOpen, addItem, updateQuantity, removeItem, clear, applyCoupon],
+    [cart, activeCoupon, isLoading, isMiniCartOpen, addItem, updateQuantity, removeItem, clear, applyCoupon],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
