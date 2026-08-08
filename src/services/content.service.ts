@@ -15,35 +15,11 @@ import type {
 } from "@/types";
 import { clone, delay } from "./base.service";
 
+import { BannerService } from "./banner.service";
+
 export const ContentService = {
   async banners(placement?: Banner["placement"]): Promise<Banner[]> {
-    try {
-      let query = supabase.from("banners").select("*").eq("active", true).order("order", { ascending: true });
-      if (placement) {
-        query = query.eq("placement", placement);
-      }
-      const { data, error } = await query;
-      if (!error && data && data.length > 0) {
-        return data.map((b) => ({
-          id: b.id,
-          title: b.title,
-          subtitle: b.subtitle ?? undefined,
-          image: b.image,
-          ctaLabel: b.cta_label ?? undefined,
-          ctaHref: b.cta_href ?? undefined,
-          placement: b.placement,
-          order: b.order ?? 0,
-          active: b.active ?? true,
-        }));
-      }
-    } catch {
-      // Fallback
-    }
-
-    const items = clone(mockBanners)
-      .filter((b) => b.active && (!placement || b.placement === placement))
-      .sort((a, b) => a.order - b.order);
-    return delay(items);
+    return BannerService.listActive(placement);
   },
 
   async testimonials(limit?: number): Promise<Testimonial[]> {

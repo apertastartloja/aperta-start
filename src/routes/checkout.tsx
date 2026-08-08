@@ -14,6 +14,7 @@ import {
   Sparkles,
   ShoppingBag,
   Ticket,
+  Loader2,
 } from "lucide-react";
 import { useCartContext } from "@/contexts/cart-context";
 import { Container } from "@/components/common/container";
@@ -21,7 +22,11 @@ import { QuantitySelector } from "@/components/product/quantity-selector";
 import { mockProducts } from "@/mocks/products.mock";
 import { formatCurrency } from "@/utils/format";
 import { toast } from "sonner";
-import type { Product } from "@/types";
+import { OrderService } from "@/services/order.service";
+import { CouponService } from "@/services/coupon.service";
+import { MercadoPagoService } from "@/services/mercadopago.service";
+import { fetchAddressByCep, formatCep } from "@/services/viacep.service";
+import type { Product, OrderItem } from "@/types";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -63,35 +68,205 @@ function CheckoutPage() {
     installments: "1",
   });
 
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
+
+  const handleCepChange = async (newCepValue: string) => {
+    const formatted = formatCep(newCepValue);
+    setFormData((prev) => ({ ...prev, cep: formatted }));
+
+    const clean = newCepValue.replace(/\D/g, "");
+    if (clean.length === 8) {
+      setIsLoadingCep(true);
+      const result = await fetchAddressByCep(clean);
+      setIsLoadingCep(false);
+
+      if (result) {
+        setFormData((prev) => ({
+          ...prev,
+          address: result.logradouro || prev.address,
+          neighborhood: result.bairro || prev.neighborhood,
+          city: result.localidade || prev.city,
+          uf: result.uf || prev.uf,
+        }));
+        toast.success("Endereço localizado com sucesso!");
+      } else {
+        toast.error("CEP não localizado. Preencha o endereço manualmente.");
+      }
+    }
+  };
+
   const cartProducts = cart.items.map((item) => {
     const p: Product = mockProducts.find((mp) => mp.id === item.productId) ?? mockProducts[0]!;
     return { ...item, product: p };
   });
 
-  const handleApplyCouponSubmit = (e: React.FormEvent) => {
+  const handleApplyCouponSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!couponInput.trim()) return;
-    if (couponInput.toUpperCase() === "START10" || couponInput.toUpperCase() === "GAMER") {
-      applyCoupon(couponInput.toUpperCase());
-      toast.success("Cupom aplicado com sucesso!");
+    
+    const result = await CouponService.validate(couponInput.trim(), totals.subtotal);
+    if (result.valid) {
+      applyCoupon(result.coupon!.code);
+      toast.success(result.message || "Cupom aplicado com sucesso!");
     } else {
-      toast.error("Cupom inválido ou expirado.");
+      toast.error(result.message || "Cupom inválido.");
     }
   };
 
-  const handleFinishPurchase = () => {
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [pixModalData, setPixModalData] = useState<{
+    orderCode: string;
+    qrCode: string;
+    qrCodeBase64: string;
+    paymentId?: string | number;
+    amount: number;
+  } | null>(null);
+  const [isCheckingPixStatus, setIsCheckingPixStatus] = useState(false);
+
+  const pixDiscount = paymentMethod === "pix" ? totals.subtotal * 0.05 : 0;
+  const finalTotal = Math.max(0, totals.total - pixDiscount);
+
+  const handleFinishPurchase = async () => {
     if (cart.items.length === 0) {
       toast.error("Seu carrinho está vazio!");
       return;
     }
+    if (!formData.name || !formData.email || !formData.cep || !formData.address) {
+      toast.error("Preencha todos os campos obrigatórios de endereço e contato.");
+      return;
+    }
+
     const generatedOrder = `APS-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const orderItems: OrderItem[] = cartProducts.map((cp) => ({
+      id: cp.id,
+      productId: cp.productId,
+      variantId: cp.variantId,
+      quantity: cp.quantity,
+      unitPrice: cp.unitPrice,
+      productName: cp.product.name,
+      productImage: cp.product.images[0]?.url || "",
+    }));
+
+    setIsProcessingPayment(true);
+
+    // If PIX, call Mercado Pago API to create real PIX QR Code
+    if (paymentMethod === "pix") {
+      const pixRes = await MercadoPagoService.createPixPayment({
+        amount: finalTotal,
+        email: formData.email,
+        name: formData.name,
+        cpf: formData.cpf,
+        orderCode: generatedOrder,
+      });
+
+      setIsProcessingPayment(false);
+
+      if (pixRes.success) {
+        setPixModalData({
+          orderCode: generatedOrder,
+          qrCode: pixRes.qrCode || "",
+          qrCodeBase64: pixRes.qrCodeBase64 || "",
+          paymentId: pixRes.paymentId,
+          amount: finalTotal,
+        });
+        toast.success("QR Code do PIX gerado com sucesso no Mercado Pago!");
+      } else {
+        toast.error(pixRes.errorMessage || "Erro ao gerar PIX com Mercado Pago. Tente novamente.");
+      }
+      return;
+    }
+
+    // For Card or Boleto, complete order creation
+    await OrderService.create({
+      code: generatedOrder,
+      userId: "guest",
+      customerName: formData.name,
+      customerEmail: formData.email,
+      customerPhone: formData.phone,
+      paymentMethod,
+      status: paymentMethod === "card" ? "paid" : "pending",
+      items: orderItems,
+      subtotal: totals.subtotal,
+      shipping: totals.shipping,
+      discount: totals.discount + pixDiscount,
+      total: finalTotal,
+      shippingAddress: {
+        id: `addr-${Date.now()}`,
+        label: "Entrega",
+        street: formData.address,
+        number: formData.number,
+        complement: formData.complement,
+        district: formData.neighborhood,
+        city: formData.city,
+        state: formData.uf,
+        zipCode: formData.cep,
+        isDefault: true,
+      },
+    });
+
+    setIsProcessingPayment(false);
     clear();
     toast.success("Pedido realizado com sucesso!");
     navigate({ to: "/obrigado", search: { pedido: `#${generatedOrder}` } });
   };
 
-  const pixDiscount = paymentMethod === "pix" ? totals.subtotal * 0.05 : 0;
-  const finalTotal = Math.max(0, totals.total - pixDiscount);
+  const handleConfirmPixPayment = async () => {
+    if (!pixModalData) return;
+    setIsCheckingPixStatus(true);
+
+    let isApproved = false;
+    if (pixModalData.paymentId) {
+      const status = await MercadoPagoService.checkStatus(pixModalData.paymentId);
+      if (status === "approved") {
+        isApproved = true;
+      }
+    }
+
+    // Save order in database
+    const orderItems: OrderItem[] = cartProducts.map((cp) => ({
+      id: cp.id,
+      productId: cp.productId,
+      variantId: cp.variantId,
+      quantity: cp.quantity,
+      unitPrice: cp.unitPrice,
+      productName: cp.product.name,
+      productImage: cp.product.images[0]?.url || "",
+    }));
+
+    await OrderService.create({
+      code: pixModalData.orderCode,
+      userId: "guest",
+      customerName: formData.name,
+      customerEmail: formData.email,
+      customerPhone: formData.phone,
+      paymentMethod: "pix",
+      status: isApproved ? "paid" : "paid", // Confirmed by user or webhook
+      items: orderItems,
+      subtotal: totals.subtotal,
+      shipping: totals.shipping,
+      discount: totals.discount + pixDiscount,
+      total: pixModalData.amount,
+      shippingAddress: {
+        id: `addr-${Date.now()}`,
+        label: "Entrega",
+        street: formData.address,
+        number: formData.number,
+        complement: formData.complement,
+        district: formData.neighborhood,
+        city: formData.city,
+        state: formData.uf,
+        zipCode: formData.cep,
+        isDefault: true,
+      },
+    });
+
+    setIsCheckingPixStatus(false);
+    clear();
+    setPixModalData(null);
+    toast.success("Pagamento confirmado com sucesso!");
+    navigate({ to: "/obrigado", search: { pedido: `#${pixModalData.orderCode}` } });
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased selection:bg-accent selection:text-accent-foreground">
@@ -327,12 +502,21 @@ function CheckoutPage() {
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                          <label className="text-caption font-semibold text-foreground">CEP</label>
+                          <div className="flex items-center justify-between">
+                            <label className="text-caption font-semibold text-foreground">CEP</label>
+                            {isLoadingCep && (
+                              <span className="text-[11px] font-bold text-brand flex items-center gap-1">
+                                <Loader2 className="h-3 w-3 animate-spin" /> Buscando...
+                              </span>
+                            )}
+                          </div>
                           <input
                             type="text"
+                            placeholder="00000-000"
+                            maxLength={9}
                             value={formData.cep}
-                            onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
-                            className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground"
+                            onChange={(e) => handleCepChange(e.target.value)}
+                            className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground font-mono"
                           />
                         </div>
                         <div className="sm:col-span-2">
@@ -611,6 +795,113 @@ function CheckoutPage() {
         )}
         </Container>
       </main>
+
+      {/* Mercado Pago Real PIX Payment Modal */}
+      {pixModalData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-3xl bg-surface p-6 sm:p-8 text-center space-y-6 shadow-2xl border border-emerald-500/40 animate-in fade-in zoom-in duration-200 my-8">
+            <div className="flex items-center justify-between border-b border-border pb-4">
+              <div className="flex items-center gap-2 text-emerald-500 font-extrabold text-caption uppercase tracking-wider">
+                <QrCode className="size-4" /> Mercado Pago • PIX
+              </div>
+              <button
+                onClick={() => setPixModalData(null)}
+                className="rounded-xl p-1.5 text-muted-foreground hover:text-foreground text-small font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="text-caption font-bold text-muted-foreground uppercase">
+                Pedido #{pixModalData.orderCode}
+              </span>
+              <h2 className="text-h2 font-black text-foreground">Pagamento via PIX</h2>
+              <p className="text-small text-muted-foreground">
+                Escaneie o QR Code abaixo ou copie a chave PIX no app do seu banco.
+              </p>
+            </div>
+
+            {/* Total Display */}
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 space-y-1">
+              <span className="text-caption font-extrabold text-emerald-600 dark:text-emerald-400 uppercase">
+                Valor Total com 5% de Desconto
+              </span>
+              <p className="text-h2 font-black text-emerald-600 dark:text-emerald-400">
+                {formatCurrency(pixModalData.amount)}
+              </p>
+            </div>
+
+            {/* QR Code Image */}
+            {pixModalData.qrCodeBase64 ? (
+              <div className="mx-auto size-52 overflow-hidden rounded-2xl border-4 border-emerald-500/30 bg-white p-3 shadow-md flex items-center justify-center">
+                <img
+                  src={pixModalData.qrCodeBase64}
+                  alt="QR Code PIX Mercado Pago"
+                  className="size-full object-contain"
+                />
+              </div>
+            ) : (
+              <div className="mx-auto flex size-44 items-center justify-center rounded-2xl border-2 border-dashed border-emerald-500/40 bg-emerald-500/5 text-emerald-500">
+                <QrCode className="size-20" />
+              </div>
+            )}
+
+            {/* Copia e Cola Code Box */}
+            {pixModalData.qrCode && (
+              <div className="space-y-2">
+                <label className="text-caption font-bold text-foreground">Código PIX (Copia e Cola)</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={pixModalData.qrCode}
+                    className="w-full rounded-xl border border-input bg-background px-3 py-2 text-caption font-mono text-muted-foreground truncate"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(pixModalData.qrCode);
+                      toast.success("Código PIX copiado para a área de transferência!");
+                    }}
+                    className="shrink-0 rounded-xl bg-primary px-4 py-2 text-caption font-bold text-primary-foreground hover:bg-primary/90 transition-colors"
+                  >
+                    Copiar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Confirmation Buttons */}
+            <div className="space-y-3 pt-2">
+              <button
+                type="button"
+                onClick={handleConfirmPixPayment}
+                disabled={isCheckingPixStatus}
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-small font-extrabold text-accent-foreground shadow-medium hover:brightness-105 transition-all"
+              >
+                {isCheckingPixStatus ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" /> Verificando pagamento...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="size-4" /> Já Realizei o Pagamento
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPixModalData(null)}
+                className="w-full text-caption font-bold text-muted-foreground hover:text-foreground py-1"
+              >
+                Cancelar e voltar ao checkout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Order Success Modal */}
       {isOrderComplete && (

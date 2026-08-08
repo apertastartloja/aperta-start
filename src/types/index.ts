@@ -113,6 +113,22 @@ export interface Banner {
   active: boolean;
 }
 
+export type CouponDiscountType = "percentage" | "fixed";
+
+export interface Coupon {
+  id: ID;
+  code: string;
+  type: CouponDiscountType;
+  value: number;
+  minOrderValue?: number;
+  maxDiscount?: number;
+  expiresAt?: ISODate;
+  usageLimit?: number;
+  usageCount: number;
+  active: boolean;
+  createdAt: ISODate;
+}
+
 export interface Testimonial {
   id: ID;
   author: string;
@@ -194,6 +210,12 @@ export interface Order {
   total: number;
   createdAt: ISODate;
   shippingAddress: Address;
+  trackingCode?: string;
+  carrier?: string;
+  paymentMethod?: "pix" | "card" | "boleto";
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
 }
 
 export interface WishlistItem {

@@ -22,6 +22,8 @@ import { WishlistButton } from "@/components/product/wishlist-button";
 import { useCartContext } from "@/contexts/cart-context";
 import { ProductService } from "@/services/product.service";
 import { formatCurrency } from "@/utils/format";
+import { fetchAddressByCep, formatCep } from "@/services/viacep.service";
+import { MelhorEnvioService } from "@/services/melhorenvio.service";
 import { toast } from "sonner";
 import type { Product } from "@/types";
 
@@ -108,21 +110,42 @@ function ProductDetailPage() {
     navigate({ to: "/checkout" });
   };
 
-  const handleCalculateShipping = (e: React.FormEvent) => {
+  const handleCalculateShipping = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!cep || cep.replace(/\D/g, "").length < 8) {
+    const cleanCep = cep.replace(/\D/g, "");
+    if (!cleanCep || cleanCep.length < 8) {
       toast.error("Por favor, digite um CEP válido com 8 dígitos.");
       return;
     }
+
     setIsCalculatingCep(true);
-    setTimeout(() => {
-      setIsCalculatingCep(false);
+    const [address, options] = await Promise.all([
+      fetchAddressByCep(cleanCep),
+      MelhorEnvioService.calculateShipping(cleanCep, [
+        { id: product?.id || "1", price: product?.price || 50, quantity: quantity || 1 },
+      ]),
+    ]);
+    setIsCalculatingCep(false);
+
+    if (address) {
+      toast.success(`Cotação de frete calculada para ${address.localidade} / ${address.uf}`);
+    }
+
+    if (options && options.length > 0) {
+      setShippingOptions(
+        options.map((opt) => ({
+          title: `${opt.name} (${opt.company})`,
+          price: opt.price,
+          time: `${opt.deliveryTime} ${opt.deliveryTime === 1 ? "dia útil" : "dias úteis"}`,
+        }))
+      );
+    } else {
       setShippingOptions([
-        { title: "Entrega Econômica (PAC)", price: 9.9, time: "4 a 6 dias úteis" },
-        { title: "Entrega Rápida (SEDEX)", price: 17.9, time: "1 a 2 dias úteis" },
+        { title: "Entrega Econômica (PAC)", price: 14.9, time: "5 a 7 dias úteis" },
+        { title: "Entrega Rápida (SEDEX)", price: 24.9, time: "2 a 3 dias úteis" },
         { title: "Retirada Aperta Start", price: 0, time: "Pronto em 24h (Grátis)" },
       ]);
-    }, 600);
+    }
   };
 
   const handleShare = () => {
@@ -356,7 +379,7 @@ function ProductDetailPage() {
                   type="text"
                   placeholder="00000-000"
                   value={cep}
-                  onChange={(e) => setCep(e.target.value)}
+                  onChange={(e) => setCep(formatCep(e.target.value))}
                   maxLength={9}
                   className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
                 />
