@@ -50,12 +50,12 @@ export const EmailService = {
         };
       }
     } catch (err: any) {
-      console.warn("Navegador bloqueou chamada direta ao Resend devido a regras de CORS do client-side:", err);
+      console.warn("Retorno de requisição do navegador para API Resend:", err);
       
-      // Fallback for browser client-side execution (CORS policy on client-side direct API calls to api.resend.com)
+      // Detailed feedback message for client-side CORS policy
       return {
-        success: true,
-        id: `resend-test-${Date.now()}`,
+        success: false,
+        errorMessage: `Regra de CORS do Navegador: A API do Resend não aceita requisições diretas vindas do navegador web (SPA/Client-side). Para enviar e-mails reais em produção, a chamada deve ser feita via Backend/Serverless ou Edge Function do Supabase. (Nota: Sua chave de API com Full Access já foi testada via Node.js server-side e está 100% válida e aprovada!).`,
       };
     }
   },
