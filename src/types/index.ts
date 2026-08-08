@@ -108,6 +108,7 @@ export type NotificationCategory =
   | "suppliers"
   | "deliveries"
   | "financial"
+  | "emails"
   | "system"
   | "marketing";
 
