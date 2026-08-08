@@ -1,5 +1,6 @@
 import type { Order } from "@/types";
 import { formatCurrency, formatDate } from "@/utils/format";
+import { supabase } from "@/lib/supabase";
 
 const DEFAULT_RESEND_KEY = "re_" + "ZxKSfrVV_4cmxrZPv53ZchQuMN3xmoJMV";
 const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY || DEFAULT_RESEND_KEY;
@@ -19,24 +20,37 @@ export interface SendEmailResult {
 
 export const EmailService = {
   /**
-   * Core method to send emails via Resend API
+   * Core method to send emails via Resend API (supporting Supabase Edge Function & Server Proxy)
    */
   async sendEmail(input: SendEmailInput): Promise<SendEmailResult> {
     const payload = {
-      from: FROM_EMAIL,
-      to: [input.to],
+      to: input.to,
       subject: input.subject,
       html: input.html,
     };
 
+    // 1. Primary Method: Supabase Edge Function 'resend-email' (Bypasses Browser CORS on Production Web Site)
+    try {
+      const { data, error } = await supabase.functions.invoke("resend-email", {
+        body: payload,
+      });
+
+      if (!error && data && data.id) {
+        return { success: true, id: data.id };
+      } else if (data && data.id) {
+        return { success: true, id: data.id };
+      }
+    } catch (err) {
+      console.warn("Supabase Edge Function 'resend-email' não encontrada ou pendente de deploy:", err);
+    }
+
+    // 2. Secondary Method: Vite Dev Proxy (/api/resend/emails) or Direct HTTP Fetch
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${RESEND_API_KEY}`,
     };
 
-    // Try proxy route first (bypasses browser CORS in dev/production)
     const targetEndpoints = ["/api/resend/emails", "https://api.resend.com/emails"];
-
     let lastError = "";
 
     for (const endpoint of targetEndpoints) {
@@ -44,7 +58,12 @@ export const EmailService = {
         const response = await fetch(endpoint, {
           method: "POST",
           headers,
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            from: FROM_EMAIL,
+            to: [input.to],
+            subject: input.subject,
+            html: input.html,
+          }),
         });
 
         if (response.ok) {
@@ -53,7 +72,6 @@ export const EmailService = {
             return { success: true, id: data.id };
           }
         } else if (response.status === 405) {
-          // Static host without backend proxy route
           continue;
         } else {
           const data = await response.json().catch(() => null);
@@ -66,12 +84,10 @@ export const EmailService = {
       }
     }
 
-    // If both endpoints failed due to client-side CORS on static hosting:
-    // Return test simulation confirmation so admin can test template UI without blocking!
-    console.info("Template de e-mail processado e validado! Em hospedagem estática, disparos reais ocorrem via backend/Supabase.");
+    // Diagnostic fallback message
     return {
-      success: true,
-      id: `resend-sim-${Date.now()}`,
+      success: false,
+      errorMessage: `Resend API: Para disparar e-mails reais do site publicado (apertastart.com.br), implante a Supabase Edge Function 'resend-email' ou rode a aplicação localmente com Vite dev server.`,
     };
   },
 
