@@ -142,7 +142,7 @@ export const SupplierService = {
    * Get products linked to a specific supplier
    */
   async getSupplierProducts(supplierId: string): Promise<Product[]> {
-    const allProducts = await ProductService.listAll();
-    return allProducts.filter((p) => p.supplierId === supplierId);
+    const res = await ProductService.list({ perPage: 1000, includeInactive: true });
+    return res.data.filter((p: Product) => p.supplierId === supplierId);
   },
 };

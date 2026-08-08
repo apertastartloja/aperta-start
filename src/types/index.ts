@@ -75,6 +75,7 @@ export interface Product {
   /** Largura em cm para cálculo de frete */
   shippingWidth?: number;
   /** Altura em cm para cálculo de frete */
+  shippingHeight?: number;
   /** ID do Fornecedor vinculado ao produto */
   supplierId?: ID;
   /** Preço de custo / aquisição R$ */
