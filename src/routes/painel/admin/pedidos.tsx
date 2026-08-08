@@ -27,7 +27,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin";
-import { OrderService, ORDER_STATUS_LABEL } from "@/services/order.service";
+import { OrderService, ORDER_STATUS_LABEL, ORDER_STATUS_COLOR } from "@/services/order.service";
+import { EmailService } from "@/services/email.service";
 import type { Order, OrderStatus } from "@/types";
 import { formatCurrency, formatDate } from "@/utils/format";
 import { toast } from "sonner";
@@ -150,8 +151,18 @@ function PedidosPage() {
 
     setIsSavingTracking(true);
     try {
-      await OrderService.updateTrackingInfo(trackingOrder.id, trackingCode.trim(), carrier);
-      toast.success("Código de rastreio salvo e status atualizado para Enviado!");
+      const updatedOrder = await OrderService.updateTrackingInfo(
+        trackingOrder.id,
+        trackingCode.trim(),
+        carrier
+      );
+
+      // Send Resend transactional tracking email to customer
+      EmailService.sendTrackingUpdate(updatedOrder).catch((err) =>
+        console.warn("Aviso ao enviar e-mail de rastreamento:", err)
+      );
+
+      toast.success("Código de rastreio salvo, status atualizado e e-mail enviado ao cliente!");
       setTrackingOrder(null);
       loadOrders();
     } catch (err) {

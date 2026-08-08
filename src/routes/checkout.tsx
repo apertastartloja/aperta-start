@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { OrderService } from "@/services/order.service";
 import { CouponService } from "@/services/coupon.service";
 import { MercadoPagoService } from "@/services/mercadopago.service";
+import { EmailService } from "@/services/email.service";
 import { fetchAddressByCep, formatCep } from "@/services/viacep.service";
 import type { Product, OrderItem } from "@/types";
 
@@ -178,14 +179,14 @@ function CheckoutPage() {
     }
 
     // For Card or Boleto, complete order creation
-    await OrderService.create({
+    const newOrderPayload = {
       code: generatedOrder,
       userId: "guest",
       customerName: formData.name,
       customerEmail: formData.email,
       customerPhone: formData.phone,
       paymentMethod,
-      status: paymentMethod === "card" ? "paid" : "pending",
+      status: paymentMethod === "card" ? "paid" : ("pending" as const),
       items: orderItems,
       subtotal: totals.subtotal,
       shipping: totals.shipping,
@@ -203,7 +204,14 @@ function CheckoutPage() {
         zipCode: formData.cep,
         isDefault: true,
       },
-    });
+    };
+
+    const createdOrder = await OrderService.create(newOrderPayload);
+
+    // Trigger Resend transactional email
+    EmailService.sendOrderConfirmation(createdOrder).catch((err) =>
+      console.warn("Aviso ao enviar e-mail de confirmação:", err)
+    );
 
     setIsProcessingPayment(false);
     clear();
@@ -234,14 +242,14 @@ function CheckoutPage() {
       productImage: cp.product.images[0]?.url || "",
     }));
 
-    await OrderService.create({
+    const pixOrderPayload = {
       code: pixModalData.orderCode,
       userId: "guest",
       customerName: formData.name,
       customerEmail: formData.email,
       customerPhone: formData.phone,
-      paymentMethod: "pix",
-      status: isApproved ? "paid" : "paid", // Confirmed by user or webhook
+      paymentMethod: "pix" as const,
+      status: isApproved ? ("paid" as const) : ("paid" as const),
       items: orderItems,
       subtotal: totals.subtotal,
       shipping: totals.shipping,
@@ -259,7 +267,14 @@ function CheckoutPage() {
         zipCode: formData.cep,
         isDefault: true,
       },
-    });
+    };
+
+    const createdOrder = await OrderService.create(pixOrderPayload);
+
+    // Trigger Resend transactional email
+    EmailService.sendOrderConfirmation(createdOrder).catch((err) =>
+      console.warn("Aviso ao enviar e-mail de confirmação PIX:", err)
+    );
 
     setIsCheckingPixStatus(false);
     clear();
