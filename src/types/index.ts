@@ -102,6 +102,30 @@ export interface Supplier {
   updatedAt?: ISODate;
 }
 
+export type NotificationCategory =
+  | "orders"
+  | "inventory"
+  | "suppliers"
+  | "deliveries"
+  | "financial"
+  | "system"
+  | "marketing";
+
+export type NotificationPriority = "low" | "medium" | "high" | "critical";
+
+export interface AdminNotification {
+  id: ID;
+  type: string; // ex: 'order_created', 'low_stock', 'payment_confirmed', 'email_failed'
+  category: NotificationCategory;
+  priority: NotificationPriority;
+  title: string;
+  message: string;
+  linkHref?: string; // ex: '/painel/admin/pedidos?id=ord-123'
+  read: boolean;
+  readAt?: ISODate | null;
+  metadata?: Record<string, any>;
+  createdAt: ISODate;
+}
 
 export interface Collection {
   id: ID;

@@ -31,6 +31,7 @@ import { Route as PainelAdminEstoqueRouteImport } from './routes/painel/admin/es
 import { Route as PainelAdminFinanceiroRouteImport } from './routes/painel/admin/financeiro'
 import { Route as PainelAdminFornecedoresRouteImport } from './routes/painel/admin/fornecedores'
 import { Route as PainelAdminMinhaContaRouteImport } from './routes/painel/admin/minha-conta'
+import { Route as PainelAdminNotificacoesRouteImport } from './routes/painel/admin/notificacoes'
 import { Route as PainelAdminPedidosRouteImport } from './routes/painel/admin/pedidos'
 import { Route as PainelAdminRelatoriosRouteImport } from './routes/painel/admin/relatorios'
 import { Route as PainelAdminMarketingIndexRouteImport } from './routes/painel/admin/marketing/index'
@@ -155,6 +156,11 @@ const PainelAdminMinhaContaRoute = PainelAdminMinhaContaRouteImport.update({
   path: '/painel/admin/minha-conta',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelAdminNotificacoesRoute = PainelAdminNotificacoesRouteImport.update({
+  id: '/painel/admin/notificacoes',
+  path: '/painel/admin/notificacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PainelAdminPedidosRoute = PainelAdminPedidosRouteImport.update({
   id: '/painel/admin/pedidos',
   path: '/painel/admin/pedidos',
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/painel/admin/financeiro': typeof PainelAdminFinanceiroRoute
   '/painel/admin/fornecedores': typeof PainelAdminFornecedoresRoute
   '/painel/admin/minha-conta': typeof PainelAdminMinhaContaRoute
+  '/painel/admin/notificacoes': typeof PainelAdminNotificacoesRoute
   '/painel/admin/pedidos': typeof PainelAdminPedidosRoute
   '/painel/admin/relatorios': typeof PainelAdminRelatoriosRoute
   '/painel/admin/': typeof PainelAdminIndexRoute
@@ -283,6 +290,7 @@ export interface FileRoutesByTo {
   '/painel/admin/financeiro': typeof PainelAdminFinanceiroRoute
   '/painel/admin/fornecedores': typeof PainelAdminFornecedoresRoute
   '/painel/admin/minha-conta': typeof PainelAdminMinhaContaRoute
+  '/painel/admin/notificacoes': typeof PainelAdminNotificacoesRoute
   '/painel/admin/pedidos': typeof PainelAdminPedidosRoute
   '/painel/admin/relatorios': typeof PainelAdminRelatoriosRoute
   '/painel/admin': typeof PainelAdminIndexRoute
@@ -320,6 +328,7 @@ export interface FileRoutesById {
   '/painel/admin/financeiro': typeof PainelAdminFinanceiroRoute
   '/painel/admin/fornecedores': typeof PainelAdminFornecedoresRoute
   '/painel/admin/minha-conta': typeof PainelAdminMinhaContaRoute
+  '/painel/admin/notificacoes': typeof PainelAdminNotificacoesRoute
   '/painel/admin/pedidos': typeof PainelAdminPedidosRoute
   '/painel/admin/relatorios': typeof PainelAdminRelatoriosRoute
   '/painel/admin/': typeof PainelAdminIndexRoute
@@ -358,6 +367,7 @@ export interface FileRouteTypes {
     | '/painel/admin/financeiro'
     | '/painel/admin/fornecedores'
     | '/painel/admin/minha-conta'
+    | '/painel/admin/notificacoes'
     | '/painel/admin/pedidos'
     | '/painel/admin/relatorios'
     | '/painel/admin/'
@@ -394,6 +404,7 @@ export interface FileRouteTypes {
     | '/painel/admin/financeiro'
     | '/painel/admin/fornecedores'
     | '/painel/admin/minha-conta'
+    | '/painel/admin/notificacoes'
     | '/painel/admin/pedidos'
     | '/painel/admin/relatorios'
     | '/painel/admin'
@@ -430,6 +441,7 @@ export interface FileRouteTypes {
     | '/painel/admin/financeiro'
     | '/painel/admin/fornecedores'
     | '/painel/admin/minha-conta'
+    | '/painel/admin/notificacoes'
     | '/painel/admin/pedidos'
     | '/painel/admin/relatorios'
     | '/painel/admin/'
@@ -467,6 +479,7 @@ export interface RootRouteChildren {
   PainelAdminFinanceiroRoute: typeof PainelAdminFinanceiroRoute
   PainelAdminFornecedoresRoute: typeof PainelAdminFornecedoresRoute
   PainelAdminMinhaContaRoute: typeof PainelAdminMinhaContaRoute
+  PainelAdminNotificacoesRoute: typeof PainelAdminNotificacoesRoute
   PainelAdminPedidosRoute: typeof PainelAdminPedidosRoute
   PainelAdminRelatoriosRoute: typeof PainelAdminRelatoriosRoute
   PainelAdminIndexRoute: typeof PainelAdminIndexRoute
@@ -638,6 +651,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PainelAdminMinhaContaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel/admin/notificacoes': {
+      id: '/painel/admin/notificacoes'
+      path: '/painel/admin/notificacoes'
+      fullPath: '/painel/admin/notificacoes'
+      preLoaderRoute: typeof PainelAdminNotificacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/painel/admin/pedidos': {
       id: '/painel/admin/pedidos'
       path: '/painel/admin/pedidos'
@@ -747,6 +767,7 @@ const rootRouteChildren: RootRouteChildren = {
   PainelAdminFinanceiroRoute: PainelAdminFinanceiroRoute,
   PainelAdminFornecedoresRoute: PainelAdminFornecedoresRoute,
   PainelAdminMinhaContaRoute: PainelAdminMinhaContaRoute,
+  PainelAdminNotificacoesRoute: PainelAdminNotificacoesRoute,
   PainelAdminPedidosRoute: PainelAdminPedidosRoute,
   PainelAdminRelatoriosRoute: PainelAdminRelatoriosRoute,
   PainelAdminIndexRoute: PainelAdminIndexRoute,

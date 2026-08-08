@@ -40,3 +40,17 @@ export const slugify = (value: string): string =>
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+
+export const formatTimeAgo = (iso: string): string => {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHours = Math.floor(diffMin / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSec < 60) return "agora mesmo";
+  if (diffMin < 60) return `há ${diffMin} min`;
+  if (diffHours < 24) return `há ${diffHours} h`;
+  if (diffDays < 30) return `há ${diffDays} d`;
+  return formatDate(iso);
+};

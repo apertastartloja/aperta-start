@@ -17,6 +17,7 @@ import {
   Truck,
   CreditCard,
   Mail,
+  Bell,
   BarChart2,
   Settings,
   User,
@@ -101,6 +102,11 @@ const menuItems: MenuItem[] = [
     title: "E-mails",
     href: "/painel/admin/emails",
     icon: Mail,
+  },
+  {
+    title: "Notificações",
+    href: "/painel/admin/notificacoes",
+    icon: Bell,
   },
   {
     title: "Relatórios",
