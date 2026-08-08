@@ -44,7 +44,8 @@ function CheckoutPage() {
   const { cart, totals, updateQuantity, removeItem, clear, applyCoupon } = useCartContext();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [paymentMethod, setPaymentMethod] = useState<"pix" | "card" | "boleto">("pix");
+  const [paymentMethod, setPaymentMethod] = useState<"pix" | "card">("pix");
+  const [selectedCarrier, setSelectedCarrier] = useState<"LOCAL_PICKUP" | "CORREIOS" | "JADLOG">("CORREIOS");
   const [couponInput, setCouponInput] = useState("");
   const [isOrderComplete, setIsOrderComplete] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string>("");
@@ -104,7 +105,7 @@ function CheckoutPage() {
   const handleApplyCouponSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!couponInput.trim()) return;
-    
+
     const result = await CouponService.validate(couponInput.trim(), totals.subtotal);
     if (result.valid) {
       applyCoupon(result.coupon!.code);
@@ -124,8 +125,18 @@ function CheckoutPage() {
   } | null>(null);
   const [isCheckingPixStatus, setIsCheckingPixStatus] = useState(false);
 
+  // Dynamic Shipping Calculation based on selected carrier (e.g. Retirada no Local = R$ 0,00)
+  const shippingCost =
+    selectedCarrier === "LOCAL_PICKUP"
+      ? 0
+      : selectedCarrier === "JADLOG"
+      ? 14.9
+      : totals.subtotal >= 199
+      ? 0
+      : 19.9;
+
   const pixDiscount = paymentMethod === "pix" ? totals.subtotal * 0.05 : 0;
-  const finalTotal = Math.max(0, totals.total - pixDiscount);
+  const finalTotal = Math.max(0, totals.subtotal - totals.discount - pixDiscount + shippingCost);
 
   const handleFinishPurchase = async () => {
     if (cart.items.length === 0) {
@@ -178,7 +189,7 @@ function CheckoutPage() {
       return;
     }
 
-    // For Card or Boleto, complete order creation
+    // For Credit Card, complete order creation
     const newOrderPayload = {
       code: generatedOrder,
       userId: "guest",
@@ -186,15 +197,15 @@ function CheckoutPage() {
       customerEmail: formData.email,
       customerPhone: formData.phone,
       paymentMethod,
-      status: paymentMethod === "card" ? "paid" : ("pending" as const),
+      status: "paid" as const,
       items: orderItems,
       subtotal: totals.subtotal,
-      shipping: totals.shipping,
+      shipping: shippingCost,
       discount: totals.discount + pixDiscount,
       total: finalTotal,
       shippingAddress: {
         id: `addr-${Date.now()}`,
-        label: "Entrega",
+        label: selectedCarrier === "LOCAL_PICKUP" ? "Retirada no Local" : "Entrega",
         street: formData.address,
         number: formData.number,
         complement: formData.complement,
@@ -573,6 +584,80 @@ function CheckoutPage() {
                       </div>
                     </div>
 
+                    <div className="pt-4 border-t border-border space-y-4">
+                      <h4 className="text-small font-bold text-foreground flex items-center gap-2">
+                        <Truck className="h-4 w-4 text-brand" /> Escolha a Forma de Envio / Entrega
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {/* Retirada no Local */}
+                        <div
+                          onClick={() => setSelectedCarrier("LOCAL_PICKUP")}
+                          className={`cursor-pointer rounded-2xl border p-4 transition-all flex flex-col justify-between ${
+                            selectedCarrier === "LOCAL_PICKUP"
+                              ? "border-emerald-500 bg-emerald-500/10 ring-2 ring-emerald-500/30"
+                              : "border-border bg-background hover:border-muted-foreground/40"
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <span className="font-extrabold text-foreground text-small">Retirada no Local</span>
+                              <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-caption font-black text-emerald-600 dark:text-emerald-400">
+                                GRÁTIS
+                              </span>
+                            </div>
+                            <p className="mt-1.5 text-caption text-muted-foreground">
+                              Retirar presencialmente no endereço da loja Aperta Start.
+                            </p>
+                          </div>
+                          <span className="mt-3 text-caption font-black text-emerald-600 dark:text-emerald-400">R$ 0,00</span>
+                        </div>
+
+                        {/* Correios (SEDEX / PAC) */}
+                        <div
+                          onClick={() => setSelectedCarrier("CORREIOS")}
+                          className={`cursor-pointer rounded-2xl border p-4 transition-all flex flex-col justify-between ${
+                            selectedCarrier === "CORREIOS"
+                              ? "border-brand bg-brand/10 ring-2 ring-brand/30"
+                              : "border-border bg-background hover:border-muted-foreground/40"
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <span className="font-extrabold text-foreground text-small">Correios (SEDEX)</span>
+                              <span className="text-caption text-muted-foreground">1-3 dias</span>
+                            </div>
+                            <p className="mt-1.5 text-caption text-muted-foreground">
+                              Entrega rápida em seu endereço com rastreamento.
+                            </p>
+                          </div>
+                          <span className="mt-3 text-caption font-black text-foreground">
+                            {totals.subtotal >= 199 ? "Grátis (Pedido > R$ 199)" : "R$ 19,90"}
+                          </span>
+                        </div>
+
+                        {/* Jadlog Express */}
+                        <div
+                          onClick={() => setSelectedCarrier("JADLOG")}
+                          className={`cursor-pointer rounded-2xl border p-4 transition-all flex flex-col justify-between ${
+                            selectedCarrier === "JADLOG"
+                              ? "border-brand bg-brand/10 ring-2 ring-brand/30"
+                              : "border-border bg-background hover:border-muted-foreground/40"
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <span className="font-extrabold text-foreground text-small">Jadlog Package</span>
+                              <span className="text-caption text-muted-foreground">2-4 dias</span>
+                            </div>
+                            <p className="mt-1.5 text-caption text-muted-foreground">
+                              Transportadora expressa para grandes centros urbanos.
+                            </p>
+                          </div>
+                          <span className="mt-3 text-caption font-black text-foreground">R$ 14,90</span>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="pt-4 border-t border-border flex justify-between items-center">
                       <button
                         onClick={() => setStep(1)}
@@ -609,40 +694,29 @@ function CheckoutPage() {
 
                 {step === 3 && (
                   <div className="mt-6 space-y-6">
-                    {/* Payment Selectors */}
-                    <div className="grid grid-cols-3 gap-3">
+                    {/* Payment Selectors (PIX & Cartão de Crédito e Débito) */}
+                    <div className="grid grid-cols-2 gap-4">
                       <button
                         onClick={() => setPaymentMethod("pix")}
-                        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border p-4 text-center transition-all ${
+                        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border p-5 text-center transition-all ${
                           paymentMethod === "pix"
                             ? "border-emerald-500 bg-emerald-500/10 font-bold text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500/30"
                             : "border-border bg-background text-muted-foreground hover:border-muted-foreground/40"
                         }`}
                       >
-                        <QrCode className="h-6 w-6 text-emerald-500" />
-                        <span className="text-small">PIX (5% OFF)</span>
+                        <QrCode className="h-7 w-7 text-emerald-500" />
+                        <span className="text-small font-bold">PIX (5% OFF)</span>
                       </button>
                       <button
                         onClick={() => setPaymentMethod("card")}
-                        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border p-4 text-center transition-all ${
+                        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border p-5 text-center transition-all ${
                           paymentMethod === "card"
                             ? "border-brand bg-brand/10 font-bold text-brand ring-2 ring-brand/30"
                             : "border-border bg-background text-muted-foreground hover:border-muted-foreground/40"
                         }`}
                       >
-                        <CreditCard className="h-6 w-6 text-brand" />
-                        <span className="text-small">Cartão de Crédito</span>
-                      </button>
-                      <button
-                        onClick={() => setPaymentMethod("boleto")}
-                        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border p-4 text-center transition-all ${
-                          paymentMethod === "boleto"
-                            ? "border-primary bg-primary/10 font-bold text-primary ring-2 ring-primary/30"
-                            : "border-border bg-background text-muted-foreground hover:border-muted-foreground/40"
-                        }`}
-                      >
-                        <FileText className="h-6 w-6 text-primary" />
-                        <span className="text-small">Boleto Bancário</span>
+                        <CreditCard className="h-7 w-7 text-brand" />
+                        <span className="text-small font-bold">Cartão de Crédito ou Débito</span>
                       </button>
                     </div>
 
@@ -650,10 +724,10 @@ function CheckoutPage() {
                     {paymentMethod === "pix" && (
                       <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5 space-y-3">
                         <div className="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300 text-small">
-                          <Sparkles className="h-5 w-5 fill-current" /> Desconto de 5% Aplicado!
+                          <Sparkles className="h-5 w-5 fill-current" /> Desconto de 5% Aplicado no PIX!
                         </div>
                         <p className="text-small text-muted-foreground">
-                          Ao clicar em "Finalizar Compra", o QR Code do PIX será gerado instantaneamente na tela para você pagar pelo seu aplicativo bancário.
+                          Ao clicar em "Finalizar Compra", o QR Code do PIX será gerado instantaneamente na tela para você pagar pelo aplicativo do seu banco.
                         </p>
                       </div>
                     )}
@@ -714,16 +788,6 @@ function CheckoutPage() {
                             </select>
                           </div>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Boleto Form */}
-                    {paymentMethod === "boleto" && (
-                      <div className="rounded-xl border border-border bg-background p-5 space-y-2">
-                        <h4 className="font-bold text-foreground text-small">Pagamento por Boleto Bancário</h4>
-                        <p className="text-small text-muted-foreground">
-                          O boleto será gerado após a confirmação. O prazo de compensação bancária é de até 2 dias úteis.
-                        </p>
                       </div>
                     )}
 
@@ -788,7 +852,13 @@ function CheckoutPage() {
                   <div className="flex justify-between text-muted-foreground">
                     <span>Frete de Entrega:</span>
                     <span className="font-semibold text-foreground">
-                      {totals.shipping === 0 ? "Grátis" : formatCurrency(totals.shipping)}
+                      {selectedCarrier === "LOCAL_PICKUP" ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">Retirada Grátis (R$ 0,00)</span>
+                      ) : shippingCost === 0 ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">Grátis</span>
+                      ) : (
+                        formatCurrency(shippingCost)
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between text-h3 font-extrabold text-foreground border-t border-border pt-4">

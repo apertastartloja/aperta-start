@@ -68,9 +68,25 @@ const initialSubscribers: Subscriber[] = [
   },
 ];
 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { NewsletterService, type NewsletterSubscriber } from "@/services";
+
 function NewsletterPage() {
-  const [subscribers, setSubscribers] = useState<Subscriber[]>(initialSubscribers);
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+
+  const { data: subscribers = [], isLoading } = useQuery({
+    queryKey: ["newsletter-subscribers"],
+    queryFn: () => NewsletterService.listAll(),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => NewsletterService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["newsletter-subscribers"] });
+      toast.success("Inscrição removida da lista.");
+    },
+  });
 
   const filteredSubscribers = useMemo(() => {
     return subscribers.filter((s) => {
@@ -108,8 +124,7 @@ function NewsletterPage() {
   };
 
   const handleDelete = (id: string) => {
-    setSubscribers((prev) => prev.filter((s) => s.id !== id));
-    toast.success("Inscrição removida da lista.");
+    deleteMutation.mutate(id);
   };
 
   const copyEmail = (email: string) => {

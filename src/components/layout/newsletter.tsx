@@ -7,6 +7,8 @@ import { Container } from "@/components/common/container";
 import { newsletterSchema, type NewsletterValues } from "@/components/forms/schemas";
 import { useNewsletterContent } from "@/hooks/useContent";
 
+import { NewsletterService } from "@/services";
+
 /** Faixa de captação de e-mail em estilo azul premium. */
 export function Newsletter() {
   const { data: content } = useNewsletterContent();
@@ -15,9 +17,14 @@ export function Newsletter() {
     defaultValues: { email: "" },
   });
 
-  const onSubmit = (values: NewsletterValues) => {
-    toast.success(`Inscrição confirmada para ${values.email}`);
-    form.reset();
+  const onSubmit = async (values: NewsletterValues) => {
+    try {
+      await NewsletterService.subscribe(values.email, "Rodapé da Home");
+      toast.success(`Inscrição confirmada para ${values.email}! Seu cupom foi ativado.`);
+      form.reset();
+    } catch {
+      toast.error("Erro ao cadastrar e-mail. Tente novamente.");
+    }
   };
 
   return (

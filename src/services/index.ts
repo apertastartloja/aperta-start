@@ -13,4 +13,5 @@ export * from "./email-template.service";
 export * from "./notification.service";
 export * from "./shipping.service";
 export * from "./store-settings.service";
+export * from "./newsletter.service";
 
