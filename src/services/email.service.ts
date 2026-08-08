@@ -29,7 +29,22 @@ export const EmailService = {
       html: input.html,
     };
 
-    // 1. Primary Method: Supabase Edge Function 'resend-email' (Bypasses Browser CORS on Production Web Site)
+    // 1. Primary Method: Supabase SQL RPC Function 'send_resend_email' (Executes directly in Supabase SQL without CLI/Docker)
+    try {
+      const { data, error } = await supabase.rpc("send_resend_email", {
+        to_email: input.to,
+        subject_text: input.subject,
+        html_content: input.html,
+      });
+
+      if (!error && data && (data.success || data.id)) {
+        return { success: true, id: data.id || `resend-${Date.now()}` };
+      }
+    } catch (err) {
+      console.warn("Supabase RPC 'send_resend_email' pendente de execução no SQL Editor:", err);
+    }
+
+    // 2. Secondary Method: Supabase Edge Function 'resend-email'
     try {
       const { data, error } = await supabase.functions.invoke("resend-email", {
         body: payload,
