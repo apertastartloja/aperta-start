@@ -22,42 +22,47 @@ export const EmailService = {
    * Core method to send emails via Resend API
    */
   async sendEmail(input: SendEmailInput): Promise<SendEmailResult> {
-    try {
-      const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-        },
-        body: JSON.stringify({
-          from: FROM_EMAIL,
-          to: [input.to],
-          subject: input.subject,
-          html: input.html,
-        }),
-      });
+    const payload = {
+      from: FROM_EMAIL,
+      to: [input.to],
+      subject: input.subject,
+      html: input.html,
+    };
 
-      const data = await response.json();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+    };
 
-      if (response.ok && data.id) {
-        return { success: true, id: data.id };
-      } else {
-        console.warn("Retorno da API Resend:", data);
-        const errorMsg = data.message || data.name || "Erro na API do Resend.";
-        return {
-          success: false,
-          errorMessage: `Resend API: ${errorMsg}`,
-        };
+    // Try proxy route first (bypasses browser CORS in dev/production)
+    const targetEndpoints = ["/api/resend/emails", "https://api.resend.com/emails"];
+
+    let lastError = "";
+
+    for (const endpoint of targetEndpoints) {
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.id) {
+          return { success: true, id: data.id };
+        } else if (data && (data.message || data.name)) {
+          lastError = data.message || data.name || "Erro retornado pela API do Resend.";
+        }
+      } catch (err: any) {
+        lastError = err?.message || "Erro de conexão/CORS no navegador.";
       }
-    } catch (err: any) {
-      console.warn("Retorno de requisição do navegador para API Resend:", err);
-      
-      // Detailed feedback message for client-side CORS policy
-      return {
-        success: false,
-        errorMessage: `Regra de CORS do Navegador: A API do Resend não aceita requisições diretas vindas do navegador web (SPA/Client-side). Para enviar e-mails reais em produção, a chamada deve ser feita via Backend/Serverless ou Edge Function do Supabase. (Nota: Sua chave de API com Full Access já foi testada via Node.js server-side e está 100% válida e aprovada!).`,
-      };
     }
+
+    return {
+      success: false,
+      errorMessage: `Resend API: ${lastError || "Não foi possível enviar o e-mail."}`,
+    };
   },
 
   /**
