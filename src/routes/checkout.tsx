@@ -353,9 +353,34 @@ function CheckoutPage() {
     setIsCheckingPixStatus(false);
     clear();
     setPixModalData(null);
-    toast.success("Pagamento confirmado com sucesso!");
+    toast.success("Pagamento via PIX confirmado! Redirecionando...");
     navigate({ to: "/obrigado", search: { pedido: `#${pixModalData.orderCode}` } });
   };
+
+  // Real-time automatic polling for Mercado Pago Pix Payment approval
+  useEffect(() => {
+    if (!pixModalData) return;
+
+    let isSubscribed = true;
+    const interval = setInterval(async () => {
+      if (pixModalData.paymentId && (typeof pixModalData.paymentId === "number" || typeof pixModalData.paymentId === "string")) {
+        try {
+          const status = await MercadoPagoService.checkStatus(pixModalData.paymentId);
+          if (status === "approved" && isSubscribed) {
+            clearInterval(interval);
+            handleConfirmPixPayment();
+          }
+        } catch {
+          // Continue polling
+        }
+      }
+    }, 3500);
+
+    return () => {
+      isSubscribed = false;
+      clearInterval(interval);
+    };
+  }, [pixModalData]);
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased selection:bg-accent selection:text-accent-foreground">
@@ -1157,21 +1182,30 @@ function CheckoutPage() {
               </div>
             )}
 
+            {/* Live Polling Status Banner */}
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-caption font-bold text-emerald-700 dark:text-emerald-300 flex items-center justify-center gap-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <span>Aguardando confirmação do pagamento... Redirecionamento automático ativo.</span>
+            </div>
+
             {/* Confirmation Buttons */}
-            <div className="space-y-3 pt-2">
+            <div className="space-y-3 pt-1">
               <button
                 type="button"
                 onClick={handleConfirmPixPayment}
                 disabled={isCheckingPixStatus}
-                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-small font-extrabold text-accent-foreground shadow-medium hover:brightness-105 transition-all"
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-small font-extrabold text-accent-foreground shadow-medium hover:brightness-105 transition-all cursor-pointer"
               >
                 {isCheckingPixStatus ? (
                   <>
-                    <Loader2 className="size-4 animate-spin" /> Verificando pagamento...
+                    <Loader2 className="size-4 animate-spin" /> Confirmando e redirecionando...
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="size-4" /> Já Realizei o Pagamento
+                    <CheckCircle2 className="size-4" /> Já Realizei o Pagamento (Avançar)
                   </>
                 )}
               </button>
