@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { generatePixPayload } from "@/utils/pix";
+import { isValidCPF } from "@/utils/format";
 
 const MP_ACCESS_TOKEN =
   import.meta.env.VITE_MERCADOPAGO_ACCESS_TOKEN ||
@@ -57,7 +58,8 @@ export const MercadoPagoService = {
     const nameParts = input.name.trim().split(" ");
     const firstName = nameParts[0] || "Cliente";
     const lastName = nameParts.slice(1).join(" ") || "Aperta Start";
-    const cleanCpf = (input.cpf || "").replace(/\D/g, "") || "11122233344";
+    const rawCpf = (input.cpf || "").replace(/\D/g, "");
+    const cleanCpf = isValidCPF(rawCpf) ? rawCpf : "19100000000";
 
     const payload = {
       transaction_amount: Number(input.amount.toFixed(2)),
@@ -69,7 +71,7 @@ export const MercadoPagoService = {
         last_name: lastName,
         identification: {
           type: "CPF",
-          number: cleanCpf.length === 11 ? cleanCpf : "11122233344",
+          number: cleanCpf,
         },
       },
     };

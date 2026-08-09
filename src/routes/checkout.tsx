@@ -54,7 +54,7 @@ function CheckoutPage() {
   const [formData, setFormData] = useState({
     name: "Cristiano Alves",
     email: "cristiano@exemplo.com",
-    cpf: "123.456.789-00",
+    cpf: "191.000.000-00",
     phone: "(11) 98765-4321",
     cep: "01310-100",
     address: "Av. Paulista",
