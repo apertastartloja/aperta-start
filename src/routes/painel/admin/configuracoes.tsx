@@ -20,6 +20,7 @@ import {
   Sparkles,
   Info,
   Bell,
+  QrCode,
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin";
 import { StoreSettingsService, type StoreSettings } from "@/services/store-settings.service";
@@ -51,6 +52,7 @@ function ConfiguracoesPage() {
     city: "",
     state: "",
     zipCode: "",
+    pixKey: "",
     metaPixelId: "",
     googleAnalyticsId: "",
     gtmId: "",
@@ -243,6 +245,29 @@ function ConfiguracoesPage() {
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
                       className="w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-small text-foreground focus:border-ring focus:outline-none"
                     />
+                  </div>
+
+                  {/* Chave PIX Oficial da Loja */}
+                  <div className="space-y-1.5 md:col-span-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <label className="text-caption font-bold text-foreground flex items-center gap-2">
+                        <QrCode className="size-4 text-emerald-500" />
+                        Chave PIX da Loja (EVP/Chave Aleatória, CNPJ, CPF, E-mail ou Telefone)
+                      </label>
+                      <span className="text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full w-fit">
+                        Para geração do QR Code Pix
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Cole aqui sua Chave Aleatória (ex: 123e4567-e89b-12d3-a456-426614174000) ou CNPJ/E-mail"
+                      value={form.pixKey || ""}
+                      onChange={(e) => setForm({ ...form, pixKey: e.target.value })}
+                      className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small font-mono text-foreground focus:border-ring focus:outline-none"
+                    />
+                    <p className="text-[11px] text-muted-foreground">
+                      Cole exatamente a sua chave cadastrada no seu banco para que o aplicativo de qualquer banco leia o QR Code e faça a transferência direto para sua conta.
+                    </p>
                   </div>
 
                   {/* Address */}

@@ -14,6 +14,7 @@ export interface StoreSettings {
   city: string;
   state: string;
   zipCode: string;
+  pixKey?: string;
 
   // Tracking Pixels & Marketing
   metaPixelId?: string;
@@ -102,6 +103,7 @@ export const StoreSettingsService = {
           city: data.city || defaultStoreSettings.city,
           state: data.state || defaultStoreSettings.state,
           zipCode: data.zip_code || defaultStoreSettings.zipCode,
+          pixKey: data.pix_key || getLocalSettings().pixKey || "",
           metaPixelId: data.meta_pixel_id || "",
           googleAnalyticsId: data.google_analytics_id || "",
           gtmId: data.gtm_id || "",

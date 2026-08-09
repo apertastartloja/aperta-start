@@ -36,10 +36,43 @@ export interface PixPayloadOptions {
 }
 
 /**
+ * Formats and sanitizes a Pix Key (CPF, CNPJ, Email, Phone, or Chave Aleatória/EVP)
+ * according to Banco Central do Brasil (BCB) standards.
+ */
+export function sanitizePixKey(key: string): string {
+  const trimmed = (key || "").trim();
+  if (!trimmed) return "contato@apertastart.com.br";
+
+  // Chave Aleatória (EVP / UUID format: 36 characters)
+  if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(trimmed)) {
+    return trimmed.toLowerCase();
+  }
+
+  // Telefone (+55...):
+  const digitsOnly = trimmed.replace(/\D/g, "");
+  if (/^\+?\d{10,13}$/.test(trimmed) && (digitsOnly.length === 10 || digitsOnly.length === 11 || digitsOnly.length === 12 || digitsOnly.length === 13)) {
+    return digitsOnly.startsWith("55") ? `+${digitsOnly}` : `+55${digitsOnly}`;
+  }
+
+  // CPF (11 dígitos numéricos):
+  if (digitsOnly.length === 11) {
+    return digitsOnly;
+  }
+
+  // CNPJ (14 dígitos numéricos):
+  if (digitsOnly.length === 14) {
+    return digitsOnly;
+  }
+
+  // E-mail ou formato padrão:
+  return trimmed.toLowerCase();
+}
+
+/**
  * Generates a valid static EMV BR Code payload compliant with BACEN specifications.
  */
 export function generatePixPayload(options: PixPayloadOptions): string {
-  const cleanKey = options.key.trim();
+  const cleanKey = sanitizePixKey(options.key);
   const cleanName = (options.name || "APERTA START")
     .trim()
     .normalize("NFD")

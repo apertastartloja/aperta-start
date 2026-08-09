@@ -18,12 +18,25 @@ export const Route = createFileRoute("/obrigado")({
 });
 
 import { generatePixPayload } from "@/utils/pix";
+import { StoreSettingsService } from "@/services/store-settings.service";
+import { useState, useEffect } from "react";
 
 function ThankYouPage() {
   const { pedido } = Route.useSearch();
-  const storePixKey = import.meta.env.VITE_STORE_PIX_KEY || "contato@apertastart.com.br";
+  const [activePixKey, setActivePixKey] = useState<string>(
+    import.meta.env.VITE_STORE_PIX_KEY || "contato@apertastart.com.br"
+  );
+
+  useEffect(() => {
+    StoreSettingsService.getSettings().then((s) => {
+      if (s?.pixKey?.trim()) {
+        setActivePixKey(s.pixKey.trim());
+      }
+    });
+  }, []);
+
   const pixCode = generatePixPayload({
-    key: storePixKey,
+    key: activePixKey,
     name: "Aperta Start",
     city: "Sao Paulo",
     txid: pedido || "APS-ORDER",

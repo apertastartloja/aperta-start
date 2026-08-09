@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { generatePixPayload } from "@/utils/pix";
 import { isValidCPF } from "@/utils/format";
+import { StoreSettingsService } from "./store-settings.service";
 
 const MP_ACCESS_TOKEN =
   import.meta.env.VITE_MERCADOPAGO_ACCESS_TOKEN ||
@@ -142,8 +143,18 @@ export const MercadoPagoService = {
     }
 
     // 3. Fallback: Standard EMV QRCPS (BR Code) Pix generation with valid CRC16
+    let activeKey = STORE_PIX_KEY;
+    try {
+      const settings = await StoreSettingsService.getSettings();
+      if (settings?.pixKey?.trim()) {
+        activeKey = settings.pixKey.trim();
+      }
+    } catch {
+      // Use STORE_PIX_KEY
+    }
+
     const pixCopiaECola = generatePixPayload({
-      key: STORE_PIX_KEY,
+      key: activeKey,
       name: "Aperta Start",
       city: "Sao Paulo",
       amount: input.amount,
