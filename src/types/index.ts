@@ -80,6 +80,10 @@ export interface Product {
   supplierId?: ID;
   /** Preço de custo / aquisição R$ */
   costPrice?: number;
+  /** Produto sob demanda / Feito sob encomenda */
+  isOnDemand?: boolean;
+  /** Prazo de produção em dias úteis para produtos sob demanda */
+  productionDays?: number;
   createdAt: ISODate;
 }
 

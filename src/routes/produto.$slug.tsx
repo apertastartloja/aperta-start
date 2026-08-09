@@ -262,9 +262,15 @@ function ProductDetailPage() {
                   </span>
                 </div>
                 <div className="h-4 w-px bg-border" />
-                <span className="flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
-                  <Check className="h-4 w-4 stroke-[3]" /> Em estoque ({product.stock} un.)
-                </span>
+                {product.isOnDemand ? (
+                  <span className="flex items-center gap-1.5 font-bold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full text-caption">
+                    <Sparkles className="h-3.5 w-3.5" /> Feito sob encomenda (Produção: {product.productionDays || 3} dias úteis)
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
+                    <Check className="h-4 w-4 stroke-[3]" /> Em estoque ({product.stock} un.)
+                  </span>
+                )}
               </div>
             </div>
 

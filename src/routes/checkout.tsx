@@ -20,7 +20,8 @@ import { useCartContext } from "@/contexts/cart-context";
 import { Container } from "@/components/common/container";
 import { QuantitySelector } from "@/components/product/quantity-selector";
 import { mockProducts } from "@/mocks/products.mock";
-import { formatCurrency } from "@/utils/format";
+import { formatCurrency, isValidCPF } from "@/utils/format";
+import { maskCPF, maskPhone, maskCEP, validateEmail, validatePhone } from "@/utils/masks";
 import { toast } from "sonner";
 import { OrderService } from "@/services/order.service";
 import { CouponService } from "@/services/coupon.service";
@@ -73,8 +74,9 @@ function CheckoutPage() {
   const [isLoadingCep, setIsLoadingCep] = useState(false);
 
   const handleCepChange = async (newCepValue: string) => {
-    const formatted = formatCep(newCepValue);
+    const formatted = maskCEP(newCepValue);
     setFormData((prev) => ({ ...prev, cep: formatted }));
+    if (formErrors.cep) setFormErrors((prev) => ({ ...prev, cep: "" }));
 
     const clean = newCepValue.replace(/\D/g, "");
     if (clean.length === 8) {
@@ -95,6 +97,66 @@ function CheckoutPage() {
         toast.error("CEP não localizado. Preencha o endereço manualmente.");
       }
     }
+  };
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [showQuickLogin, setShowQuickLogin] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const handleQuickLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginEmail || !loginPassword) {
+      toast.error("Preencha e-mail e senha para entrar.");
+      return;
+    }
+    setIsLoggingIn(true);
+    setTimeout(() => {
+      setIsLoggingIn(false);
+      setFormData((prev) => ({
+        ...prev,
+        email: loginEmail,
+        name: loginEmail.split("@")[0].toUpperCase() + " (Cliente)",
+      }));
+      setShowQuickLogin(false);
+      toast.success("Login efetuado com sucesso! Dados carregados.");
+    }, 600);
+  };
+
+  const handleNextToStep3 = () => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      errors.name = "Nome completo é obrigatório.";
+    }
+    if (!formData.email.trim() || !validateEmail(formData.email)) {
+      errors.email = "Informe um e-mail válido (ex: nome@dominio.com).";
+    }
+    if (!formData.cpf.trim() || !isValidCPF(formData.cpf)) {
+      errors.cpf = "CPF inválido. Verifique os 11 dígitos.";
+    }
+    if (!formData.phone.trim() || !validatePhone(formData.phone)) {
+      errors.phone = "Informe um WhatsApp/Telefone válido com DDD.";
+    }
+    if (!formData.cep.trim() || formData.cep.replace(/\D/g, "").length !== 8) {
+      errors.cep = "Insira um CEP válido com 8 dígitos.";
+    }
+    if (!formData.address.trim()) {
+      errors.address = "Endereço é obrigatório.";
+    }
+    if (!formData.number.trim()) {
+      errors.number = "Número é obrigatório.";
+    }
+
+    setFormErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      toast.error("Por favor, corrija os campos destacados em vermelho antes de prosseguir.");
+      return;
+    }
+
+    setStep(3);
   };
 
   const cartProducts = cart.items.map((item) => {
@@ -307,8 +369,9 @@ function CheckoutPage() {
 
           {/* Steps Indicator */}
           <div className="hidden md:flex items-center gap-4 text-small font-semibold">
-            <div
-              className={`flex items-center gap-2 ${
+            <button
+              onClick={() => setStep(1)}
+              className={`flex items-center gap-2 transition-all hover:opacity-80 ${
                 step >= 1 ? "text-brand font-bold" : "text-muted-foreground"
               }`}
             >
@@ -320,10 +383,11 @@ function CheckoutPage() {
                 1
               </span>
               Carrinho
-            </div>
+            </button>
             <ChevronRight className="h-4 w-4 text-muted-foreground/40" />
-            <div
-              className={`flex items-center gap-2 ${
+            <button
+              onClick={() => setStep(2)}
+              className={`flex items-center gap-2 transition-all hover:opacity-80 ${
                 step >= 2 ? "text-brand font-bold" : "text-muted-foreground"
               }`}
             >
@@ -335,10 +399,11 @@ function CheckoutPage() {
                 2
               </span>
               Identificação & Entrega
-            </div>
+            </button>
             <ChevronRight className="h-4 w-4 text-muted-foreground/40" />
-            <div
-              className={`flex items-center gap-2 ${
+            <button
+              onClick={handleNextToStep3}
+              className={`flex items-center gap-2 transition-all hover:opacity-80 ${
                 step >= 3 ? "text-brand font-bold" : "text-muted-foreground"
               }`}
             >
@@ -350,7 +415,7 @@ function CheckoutPage() {
                 3
               </span>
               Pagamento
-            </div>
+            </button>
           </div>
 
           <div className="flex items-center gap-1 text-small font-medium text-emerald-600 dark:text-emerald-400">
@@ -483,42 +548,119 @@ function CheckoutPage() {
 
                 {step === 2 && (
                   <div className="mt-6 space-y-4">
+                    {/* Fast Login / Existing Account Banner */}
+                    <div className="rounded-xl border border-brand/20 bg-brand/5 p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-small font-bold text-foreground">
+                          <UserIcon className="h-4 w-4 text-brand" />
+                          <span>Já possui conta na Aperta Start?</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowQuickLogin(!showQuickLogin)}
+                          className="text-caption font-bold text-brand hover:underline flex items-center gap-1"
+                        >
+                          {showQuickLogin ? "Ocultar" : "Entrar com e-mail"}
+                        </button>
+                      </div>
+
+                      {showQuickLogin && (
+                        <form onSubmit={handleQuickLogin} className="pt-2 border-t border-brand/10 space-y-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input
+                              type="email"
+                              placeholder="Seu e-mail cadastrado"
+                              value={loginEmail}
+                              onChange={(e) => setLoginEmail(e.target.value)}
+                              className="rounded-xl border border-input bg-background px-3 py-2 text-small text-foreground"
+                            />
+                            <input
+                              type="password"
+                              placeholder="Sua senha"
+                              value={loginPassword}
+                              onChange={(e) => setLoginPassword(e.target.value)}
+                              className="rounded-xl border border-input bg-background px-3 py-2 text-small text-foreground"
+                            />
+                          </div>
+                          <button
+                            type="submit"
+                            disabled={isLoggingIn}
+                            className="w-full sm:w-auto px-5 py-2 rounded-xl bg-brand text-brand-foreground font-bold text-caption hover:brightness-105 flex items-center justify-center gap-1.5"
+                          >
+                            {isLoggingIn ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Entrar & Carregar Dados"}
+                          </button>
+                        </form>
+                      )}
+                    </div>
+
+                    {/* Inputs with Masks and Validation */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-caption font-semibold text-foreground">Nome Completo</label>
+                        <label className="text-caption font-semibold text-foreground">Nome Completo *</label>
                         <input
                           type="text"
                           value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground"
+                          onChange={(e) => {
+                            setFormData({ ...formData, name: e.target.value });
+                            if (formErrors.name) setFormErrors({ ...formErrors, name: "" });
+                          }}
+                          className={`mt-1 w-full rounded-xl border bg-background px-4 py-2.5 text-small text-foreground ${
+                            formErrors.name ? "border-danger ring-1 ring-danger" : "border-input"
+                          }`}
                         />
+                        {formErrors.name && <p className="mt-1 text-[11px] font-semibold text-danger">{formErrors.name}</p>}
                       </div>
+
                       <div>
-                        <label className="text-caption font-semibold text-foreground">E-mail para Confirmação</label>
+                        <label className="text-caption font-semibold text-foreground">E-mail para Confirmação *</label>
                         <input
                           type="email"
                           value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground"
+                          onChange={(e) => {
+                            setFormData({ ...formData, email: e.target.value });
+                            if (formErrors.email) setFormErrors({ ...formErrors, email: "" });
+                          }}
+                          className={`mt-1 w-full rounded-xl border bg-background px-4 py-2.5 text-small text-foreground ${
+                            formErrors.email ? "border-danger ring-1 ring-danger" : "border-input"
+                          }`}
                         />
+                        {formErrors.email && <p className="mt-1 text-[11px] font-semibold text-danger">{formErrors.email}</p>}
                       </div>
+
                       <div>
-                        <label className="text-caption font-semibold text-foreground">CPF (para nota fiscal)</label>
+                        <label className="text-caption font-semibold text-foreground">CPF (máscara 000.000.000-00) *</label>
                         <input
                           type="text"
+                          placeholder="000.000.000-00"
+                          maxLength={14}
                           value={formData.cpf}
-                          onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-                          className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground"
+                          onChange={(e) => {
+                            setFormData({ ...formData, cpf: maskCPF(e.target.value) });
+                            if (formErrors.cpf) setFormErrors({ ...formErrors, cpf: "" });
+                          }}
+                          className={`mt-1 w-full rounded-xl border bg-background px-4 py-2.5 text-small text-foreground font-mono ${
+                            formErrors.cpf ? "border-danger ring-1 ring-danger" : "border-input"
+                          }`}
                         />
+                        {formErrors.cpf && <p className="mt-1 text-[11px] font-semibold text-danger">{formErrors.cpf}</p>}
                       </div>
+
                       <div>
-                        <label className="text-caption font-semibold text-foreground">Telefone / WhatsApp</label>
+                        <label className="text-caption font-semibold text-foreground">Telefone / WhatsApp *</label>
                         <input
                           type="text"
+                          placeholder="(00) 90000-0000"
+                          maxLength={15}
                           value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground"
+                          onChange={(e) => {
+                            setFormData({ ...formData, phone: maskPhone(e.target.value) });
+                            if (formErrors.phone) setFormErrors({ ...formErrors, phone: "" });
+                          }}
+                          className={`mt-1 w-full rounded-xl border bg-background px-4 py-2.5 text-small text-foreground font-mono ${
+                            formErrors.phone ? "border-danger ring-1 ring-danger" : "border-input"
+                          }`}
                         />
+                        {formErrors.phone && <p className="mt-1 text-[11px] font-semibold text-danger">{formErrors.phone}</p>}
                       </div>
                     </div>
 
@@ -529,7 +671,7 @@ function CheckoutPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                           <div className="flex items-center justify-between">
-                            <label className="text-caption font-semibold text-foreground">CEP</label>
+                            <label className="text-caption font-semibold text-foreground">CEP *</label>
                             {isLoadingCep && (
                               <span className="text-[11px] font-bold text-brand flex items-center gap-1">
                                 <Loader2 className="h-3 w-3 animate-spin" /> Buscando...
@@ -542,27 +684,45 @@ function CheckoutPage() {
                             maxLength={9}
                             value={formData.cep}
                             onChange={(e) => handleCepChange(e.target.value)}
-                            className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground font-mono"
+                            className={`mt-1 w-full rounded-xl border bg-background px-4 py-2.5 text-small text-foreground font-mono ${
+                              formErrors.cep ? "border-danger ring-1 ring-danger" : "border-input"
+                            }`}
                           />
+                          {formErrors.cep && <p className="mt-1 text-[11px] font-semibold text-danger">{formErrors.cep}</p>}
                         </div>
+
                         <div className="sm:col-span-2">
-                          <label className="text-caption font-semibold text-foreground">Logradouro / Rua</label>
+                          <label className="text-caption font-semibold text-foreground">Logradouro / Rua *</label>
                           <input
                             type="text"
                             value={formData.address}
-                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                            className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground"
+                            onChange={(e) => {
+                              setFormData({ ...formData, address: e.target.value });
+                              if (formErrors.address) setFormErrors({ ...formErrors, address: "" });
+                            }}
+                            className={`mt-1 w-full rounded-xl border bg-background px-4 py-2.5 text-small text-foreground ${
+                              formErrors.address ? "border-danger ring-1 ring-danger" : "border-input"
+                            }`}
                           />
+                          {formErrors.address && <p className="mt-1 text-[11px] font-semibold text-danger">{formErrors.address}</p>}
                         </div>
+
                         <div>
-                          <label className="text-caption font-semibold text-foreground">Número</label>
+                          <label className="text-caption font-semibold text-foreground">Número *</label>
                           <input
                             type="text"
                             value={formData.number}
-                            onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-                            className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground"
+                            onChange={(e) => {
+                              setFormData({ ...formData, number: e.target.value });
+                              if (formErrors.number) setFormErrors({ ...formErrors, number: "" });
+                            }}
+                            className={`mt-1 w-full rounded-xl border bg-background px-4 py-2.5 text-small text-foreground ${
+                              formErrors.number ? "border-danger ring-1 ring-danger" : "border-input"
+                            }`}
                           />
+                          {formErrors.number && <p className="mt-1 text-[11px] font-semibold text-danger">{formErrors.number}</p>}
                         </div>
+
                         <div>
                           <label className="text-caption font-semibold text-foreground">Bairro</label>
                           <input
@@ -572,6 +732,7 @@ function CheckoutPage() {
                             className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground"
                           />
                         </div>
+
                         <div>
                           <label className="text-caption font-semibold text-foreground">Cidade / UF</label>
                           <input
@@ -660,13 +821,15 @@ function CheckoutPage() {
 
                     <div className="pt-4 border-t border-border flex justify-between items-center">
                       <button
+                        type="button"
                         onClick={() => setStep(1)}
-                        className="text-small font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1"
+                        className="text-small font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1.5 rounded-xl border border-border px-4 py-2.5 hover:bg-background"
                       >
                         <ArrowLeft className="h-4 w-4" /> Voltar ao Carrinho
                       </button>
                       <button
-                        onClick={() => setStep(3)}
+                        type="button"
+                        onClick={handleNextToStep3}
                         className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-small font-bold text-primary-foreground shadow-sm hover:bg-primary/90"
                       >
                         Prosseguir para Pagamento
@@ -791,14 +954,30 @@ function CheckoutPage() {
                       </div>
                     )}
 
-                    {/* Submit Purchase CTA */}
-                    <button
-                      onClick={handleFinishPurchase}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent py-4 text-h4 font-extrabold text-accent-foreground shadow-medium transition-all hover:brightness-105 hover:shadow-large"
-                    >
-                      <Lock className="h-5 w-5" />
-                      Finalizar Compra ({formatCurrency(finalTotal)})
-                    </button>
+                    {/* Submit Purchase CTA & Back Button */}
+                    <div className="space-y-3 pt-2">
+                      <button
+                        onClick={handleFinishPurchase}
+                        disabled={isProcessingPayment}
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent py-4 text-h4 font-extrabold text-accent-foreground shadow-medium transition-all hover:brightness-105 hover:shadow-large disabled:opacity-50"
+                      >
+                        {isProcessingPayment ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <>
+                            <Lock className="h-5 w-5" />
+                            Finalizar Compra ({formatCurrency(finalTotal)})
+                          </>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setStep(2)}
+                        className="w-full flex items-center justify-center gap-1.5 py-2.5 text-small font-semibold text-muted-foreground hover:text-foreground hover:underline"
+                      >
+                        <ArrowLeft className="h-4 w-4" /> Voltar para Dados de Entrega (Passo 2)
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

@@ -402,14 +402,18 @@ function EstoquePage() {
                               <span
                                 className={cn(
                                   "rounded-full px-2.5 py-0.5 text-caption font-extrabold border",
-                                  currentStock === 0
+                                  product.isOnDemand
+                                    ? "border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                                    : currentStock === 0
                                     ? "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400"
                                     : currentStock <= 5
                                     ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
                                     : "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                                 )}
                               >
-                                {currentStock === 0
+                                {product.isOnDemand
+                                  ? "⚡ Sob Demanda"
+                                  : currentStock === 0
                                   ? "🚨 Esgotado"
                                   : currentStock <= 5
                                   ? `⚠️ Alerta (${currentStock} un.)`
@@ -422,7 +426,9 @@ function EstoquePage() {
                               <div
                                 className={cn(
                                   "h-full transition-all duration-300 rounded-full",
-                                  currentStock === 0
+                                  product.isOnDemand
+                                    ? "w-full bg-purple-500"
+                                    : currentStock === 0
                                     ? "w-0 bg-rose-500"
                                     : currentStock <= 5
                                     ? "w-1/3 bg-amber-500"

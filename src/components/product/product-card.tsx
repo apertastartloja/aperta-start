@@ -49,6 +49,11 @@ export function ProductCard({ product, className, compact = false }: ProductCard
         />
 
         <ProductBadgeList types={product.badges} max={1} className="absolute left-3 top-3 z-10" />
+        {product.isOnDemand && (
+          <span className="absolute left-3 bottom-3 z-10 rounded-lg bg-purple-600/90 px-2 py-0.5 text-[10px] font-black text-white shadow-xs backdrop-blur-xs">
+            ⚡ SOB DEMANDA
+          </span>
+        )}
         <WishlistButton productId={product.id} className="absolute right-3 top-3 z-10" />
       </div>
 

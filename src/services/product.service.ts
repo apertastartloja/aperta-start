@@ -57,6 +57,8 @@ export const ProductService = {
           shippingLength: item.shipping_length ?? undefined,
           shippingWidth: item.shipping_width ?? undefined,
           shippingHeight: item.shipping_height ?? undefined,
+          isOnDemand: Boolean(item.is_on_demand ?? item.isOnDemand ?? false),
+          productionDays: item.production_days ?? item.productionDays ?? 3,
           createdAt: item.created_at ?? new Date().toISOString(),
         }));
         localProductsStore = fetched;
