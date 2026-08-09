@@ -83,6 +83,8 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
   const [supplierId, setSupplierId] = useState<string>(initialData?.supplierId || "");
   const [compareAtPrice, setCompareAtPrice] = useState<number | string>(initialData?.compareAtPrice ?? "");
   const [stock, setStock] = useState<number | string>(initialData?.stock ?? 10);
+  const [isOnDemand, setIsOnDemand] = useState<boolean>(initialData?.isOnDemand || false);
+  const [productionDays, setProductionDays] = useState<number | string>(initialData?.productionDays ?? 3);
   const [categoryId, setCategoryId] = useState<string>(initialData?.categoryId || "");
 
   // Quick Supplier Creation Modal State
@@ -287,6 +289,8 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
         rating: initialData?.rating ?? 5.0,
         reviewsCount: initialData?.reviewsCount ?? 0,
         stock: Number(stock) || 0,
+        isOnDemand,
+        productionDays: Number(productionDays) || 3,
         variants: hasVariants ? variants : [],
         tags: tagsArray.length > 0 ? tagsArray : ["ferramentas", "aperta-start"],
         status,
@@ -800,10 +804,47 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
                   onChange={(e) => setStock(e.target.value)}
                   className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small font-black text-foreground focus:border-ring focus:outline-none"
                 />
-                {Number(stock) <= 5 && Number(stock) > 0 && (
+                {!isOnDemand && Number(stock) <= 5 && Number(stock) > 0 && (
                   <p className="text-[11px] font-bold text-amber-600 flex items-center gap-1 mt-1">
                     <AlertCircle className="size-3" /> Alerta de Estoque Baixo (≤ 5 un)
                   </p>
+                )}
+              </div>
+
+              {/* Produto Sob Demanda Box */}
+              <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-bold text-foreground text-small">
+                    <Sparkles className="size-4 text-purple-500" />
+                    <span>Produto Sob Demanda (Feito sob encomenda)</span>
+                  </div>
+                  <label className="relative inline-flex cursor-pointer items-center">
+                    <input
+                      type="checkbox"
+                      checked={isOnDemand}
+                      onChange={(e) => setIsOnDemand(e.target.checked)}
+                      className="peer sr-only"
+                    />
+                    <div className="peer h-6 w-11 rounded-full bg-muted after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-purple-600 peer-checked:after:translate-x-full peer-focus:outline-none" />
+                  </label>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Ao ativar, o item é vendido sem depender de estoque físico prévio e exibe selo informativo na loja.
+                </p>
+
+                {isOnDemand && (
+                  <div className="pt-2 border-t border-purple-500/10 flex items-center justify-between gap-2">
+                    <label className="text-[12px] font-bold text-foreground shrink-0">
+                      Prazo de Produção (dias úteis):
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={productionDays}
+                      onChange={(e) => setProductionDays(e.target.value)}
+                      className="w-20 rounded-xl border border-input bg-background px-3 py-1.5 text-small font-bold text-foreground text-center"
+                    />
+                  </div>
                 )}
               </div>
             </div>

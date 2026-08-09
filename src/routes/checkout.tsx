@@ -15,6 +15,7 @@ import {
   ShoppingBag,
   Ticket,
   Loader2,
+  User as UserIcon,
 } from "lucide-react";
 import { useCartContext } from "@/contexts/cart-context";
 import { Container } from "@/components/common/container";
@@ -990,25 +991,45 @@ function CheckoutPage() {
                   Resumo do Pedido
                 </h3>
 
-                {/* Cupom Form */}
-                <form onSubmit={handleApplyCouponSubmit} className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Ticket className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <input
-                      type="text"
-                      placeholder="Cupom de desconto"
-                      value={couponInput}
-                      onChange={(e) => setCouponInput(e.target.value)}
-                      className="w-full rounded-xl border border-input bg-background pl-9 pr-3 py-2 text-small text-foreground uppercase"
-                    />
+                {/* Cupom Form & Active Coupon Badge */}
+                {cart.couponCode ? (
+                  <div className="flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-caption font-bold text-emerald-700 dark:text-emerald-300">
+                    <div className="flex items-center gap-2">
+                      <Ticket className="h-4 w-4 text-emerald-500" />
+                      <span>Cupom <strong>{cart.couponCode}</strong> aplicado!</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        applyCoupon(null);
+                        setCouponInput("");
+                        toast.info("Cupom de desconto removido.");
+                      }}
+                      className="flex items-center gap-1 text-caption text-danger hover:underline font-bold cursor-pointer"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Remover
+                    </button>
                   </div>
-                  <button
-                    type="submit"
-                    className="rounded-xl bg-primary px-4 py-2 text-small font-bold text-primary-foreground hover:bg-primary/90"
-                  >
-                    Aplicar
-                  </button>
-                </form>
+                ) : (
+                  <form onSubmit={handleApplyCouponSubmit} className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Ticket className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type="text"
+                        placeholder="Cupom de desconto"
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value)}
+                        className="w-full rounded-xl border border-input bg-background pl-9 pr-3 py-2 text-small text-foreground uppercase"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="rounded-xl bg-primary px-4 py-2 text-small font-bold text-primary-foreground hover:bg-primary/90"
+                    >
+                      Aplicar
+                    </button>
+                  </form>
+                )}
 
                 {/* Subtotals & Totals */}
                 <div className="space-y-3 text-small border-t border-border pt-4">
