@@ -1,8 +1,12 @@
 import { supabase } from "@/lib/supabase";
+import { generatePixPayload } from "@/utils/pix";
 
 const MP_ACCESS_TOKEN =
   import.meta.env.VITE_MERCADOPAGO_ACCESS_TOKEN ||
   "APP_USR-5700161549146357-080720-efdfe843bead67a21e9b51011584947c-2998808507";
+
+const STORE_PIX_KEY =
+  import.meta.env.VITE_STORE_PIX_KEY || "contato@apertastart.com.br";
 
 const MP_PUBLIC_KEY =
   import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY ||
@@ -126,15 +130,25 @@ export const MercadoPagoService = {
               ticketUrl: transactionData?.ticket_url || "",
             };
           }
+        } else {
+          const errBody = await response.json().catch(() => null);
+          console.warn(`[MercadoPago] API HTTP ${response.status} na requisição:`, errBody);
         }
-      } catch {
-        // Try next endpoint
+      } catch (err) {
+        console.warn(`[MercadoPago] Erro de conexão com ${endpoint}:`, err);
       }
     }
 
-    // 3. Fallback: Dynamic Sandbox PIX Generation for Static Browser Environment
-    const pixCopiaECola = `00020126580014br.gov.bcb.pix0136apertastart-pix-${input.orderCode}-amount-${input.amount.toFixed(2).replace(".", "")}5204000053039865405${input.amount.toFixed(2)}5802BR5912ApertaStart6009SaoPaulo62070503***6304`;
-    const mockQrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixCopiaECola)}`;
+    // 3. Fallback: Standard EMV QRCPS (BR Code) Pix generation with valid CRC16
+    const pixCopiaECola = generatePixPayload({
+      key: STORE_PIX_KEY,
+      name: "Aperta Start",
+      city: "Sao Paulo",
+      amount: input.amount,
+      txid: input.orderCode,
+    });
+
+    const mockQrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixCopiaECola)}`;
 
     return {
       success: true,

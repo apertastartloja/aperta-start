@@ -17,9 +17,17 @@ export const Route = createFileRoute("/obrigado")({
   component: ThankYouPage,
 });
 
+import { generatePixPayload } from "@/utils/pix";
+
 function ThankYouPage() {
   const { pedido } = Route.useSearch();
-  const pixCode = "00020126580014BR.GOV.BCB.PIX0136apertastart-pix-qr-code-key5204000053039865405159.805802BR5920Aperta Start Gamer6009Sao Paulo62070503***6304E8A9";
+  const storePixKey = import.meta.env.VITE_STORE_PIX_KEY || "contato@apertastart.com.br";
+  const pixCode = generatePixPayload({
+    key: storePixKey,
+    name: "Aperta Start",
+    city: "Sao Paulo",
+    txid: pedido || "APS-ORDER",
+  });
 
   const handleCopyPix = () => {
     if (typeof window !== "undefined" && navigator.clipboard) {
