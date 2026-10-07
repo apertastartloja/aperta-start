@@ -21,9 +21,14 @@ import {
   Info,
   Bell,
   QrCode,
+  CreditCard,
+  ExternalLink,
+  AlertTriangle,
+  Zap,
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin";
 import { StoreSettingsService, type StoreSettings } from "@/services/store-settings.service";
+import { InfinitePayService } from "@/services/infinitepay.service";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -35,9 +40,16 @@ export const Route = createFileRoute("/painel/admin/configuracoes")({
 });
 
 function ConfiguracoesPage() {
-  const [activeTab, setActiveTab] = useState<"general" | "pixels" | "social" | "preferences">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "payments" | "pixels" | "social" | "preferences">("general");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTestingInfinitePay, setIsTestingInfinitePay] = useState(false);
+  const [infinitePayTestResult, setInfinitePayTestResult] = useState<{
+    success: boolean;
+    status: string;
+    message: string;
+    details?: any;
+  } | null>(null);
 
   // Form State
   const [form, setForm] = useState<StoreSettings>({
@@ -65,7 +77,32 @@ function ConfiguracoesPage() {
     topBarNotice: "",
     showLowStockAlert: true,
     enableLgpdNotice: true,
+    infinitePayEnabled: true,
+    infinitePayHandle: "Aperta-Start-Site",
+    infinitePayTitle: "Pix ou Cartão de Crédito",
+    infinitePayDescription:
+      "Você será levado ao ambiente seguro da InfinitePay para pagar com Pix ou cartão. Seus dados já vão preenchidos — é só confirmar.",
   });
+
+  const handleTestInfinitePay = async () => {
+    setIsTestingInfinitePay(true);
+    setInfinitePayTestResult(null);
+    try {
+      const res = await InfinitePayService.testConnection(form.infinitePayHandle);
+      setInfinitePayTestResult(res);
+      if (res.success) {
+        toast.success("Conexão com a InfinitePay validada com sucesso!");
+      } else if (res.status === "not_enabled") {
+        toast.warning("Tag reconhecida, mas o Checkout Integrado precisa ser ativado no App.");
+      } else {
+        toast.error(res.message);
+      }
+    } catch (err: any) {
+      toast.error("Erro ao testar conexão com a InfinitePay");
+    } finally {
+      setIsTestingInfinitePay(false);
+    }
+  };
 
   const loadSettings = async () => {
     setIsLoading(true);
@@ -134,6 +171,7 @@ function ConfiguracoesPage() {
         <div className="rounded-3xl border border-border bg-surface p-2 shadow-xs flex items-center gap-2 overflow-x-auto scrollbar-none">
           {[
             { id: "general", label: "🏢 Dados Cadastrais & Loja", icon: Building2 },
+            { id: "payments", label: "💳 Pagamentos & InfinitePay", icon: CreditCard },
             { id: "pixels", label: "🎯 Pixels & Rastreamento", icon: Target },
             { id: "social", label: "📱 Redes Sociais & Canais", icon: Share2 },
             { id: "preferences", label: "⚙️ Avisos & LGPD", icon: Bell },
@@ -280,6 +318,181 @@ function ConfiguracoesPage() {
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
                       className="w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-small text-foreground focus:border-ring focus:outline-none"
                     />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: Pagamentos & InfinitePay */}
+            {activeTab === "payments" && (
+              <div className="space-y-6">
+                {/* InfinitePay Integration Card */}
+                <div className="rounded-3xl border border-border bg-surface p-6 sm:p-8 space-y-6 shadow-xs">
+                  <div className="border-b border-border pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                      <h2 className="text-h3 font-black text-foreground flex items-center gap-2">
+                        <CreditCard className="size-5 text-emerald-500" /> InfinitePay — Checkout Integrado
+                      </h2>
+                      <p className="text-small text-muted-foreground">
+                        Permita que seus clientes paguem com Pix ou Cartão em até 12x via InfinitePay usando sua InfiniteTag.
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.infinitePayEnabled ?? true}
+                        onChange={(e) => setForm({ ...form, infinitePayEnabled: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                      <span className="ml-3 text-caption font-bold text-foreground">
+                        {form.infinitePayEnabled ? "Ativo no Checkout" : "Desativado"}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Title */}
+                    <div className="space-y-1.5">
+                      <label className="text-caption font-bold text-foreground">Título no Checkout</label>
+                      <input
+                        type="text"
+                        placeholder="Pix ou Cartão de Crédito"
+                        value={form.infinitePayTitle || "Pix ou Cartão de Crédito"}
+                        onChange={(e) => setForm({ ...form, infinitePayTitle: e.target.value })}
+                        className="w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-small text-foreground focus:border-ring focus:outline-none"
+                      />
+                      <p className="text-[11px] text-muted-foreground">Nome exibido na opção de pagamento para o cliente.</p>
+                    </div>
+
+                    {/* InfiniteTag (handle) */}
+                    <div className="space-y-1.5">
+                      <label className="text-caption font-bold text-foreground flex items-center justify-between">
+                        <span>InfiniteTag (handle)</span>
+                        <span className="text-[10px] font-black uppercase text-brand bg-brand/10 px-2 py-0.5 rounded-full">
+                          Sem o símbolo $
+                        </span>
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Ex: Aperta-Start-Site"
+                          value={form.infinitePayHandle || ""}
+                          onChange={(e) => setForm({ ...form, infinitePayHandle: e.target.value.replace(/^\$/, "") })}
+                          className="flex-1 rounded-2xl border border-input bg-background px-4 py-2.5 text-small font-mono text-foreground focus:border-ring focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleTestInfinitePay}
+                          disabled={isTestingInfinitePay || !form.infinitePayHandle}
+                          className="inline-flex items-center gap-1.5 rounded-2xl bg-muted px-4 py-2.5 text-caption font-bold text-foreground hover:bg-muted/80 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          {isTestingInfinitePay ? (
+                            <Loader2 className="size-4 animate-spin text-brand" />
+                          ) : (
+                            <Zap className="size-4 text-emerald-500" />
+                          )}
+                          Testar Conexão
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        Seu nome de usuário no App InfinitePay, sem o símbolo $. Aparece no canto superior esquerdo da tela inicial do app.
+                      </p>
+                    </div>
+
+                    {/* Description */}
+                    <div className="space-y-1.5 md:col-span-2">
+                      <label className="text-caption font-bold text-foreground">Descrição do Meio de Pagamento</label>
+                      <textarea
+                        rows={2}
+                        placeholder="Você será levado ao ambiente seguro da InfinitePay para pagar com Pix ou cartão..."
+                        value={form.infinitePayDescription || ""}
+                        onChange={(e) => setForm({ ...form, infinitePayDescription: e.target.value })}
+                        className="w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-small text-foreground focus:border-ring focus:outline-none"
+                      />
+                      <p className="text-[11px] text-muted-foreground">Texto explicativo exibido abaixo do título no checkout para tranquilizar o cliente.</p>
+                    </div>
+                  </div>
+
+                  {/* Status do Teste de Conexão */}
+                  {infinitePayTestResult && (
+                    <div
+                      className={cn(
+                        "rounded-2xl p-4 border flex items-start gap-3",
+                        infinitePayTestResult.success
+                          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-200"
+                          : infinitePayTestResult.status === "not_enabled"
+                          ? "bg-amber-500/10 border-amber-500/30 text-amber-800 dark:text-amber-200"
+                          : "bg-destructive/10 border-destructive/30 text-destructive dark:text-destructive-foreground"
+                      )}
+                    >
+                      {infinitePayTestResult.success ? (
+                        <CheckCircle2 className="size-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      ) : (
+                        <AlertTriangle className="size-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                      )}
+                      <div className="space-y-1 text-small flex-1">
+                        <p className="font-bold">{infinitePayTestResult.message}</p>
+                        {infinitePayTestResult.status === "not_enabled" && (
+                          <div className="pt-2">
+                            <a
+                              href="https://app.infinitepay.io/external-checkout#configuracoes?enabled=true"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 text-white font-bold px-3 py-1.5 text-caption hover:bg-amber-600 transition-colors"
+                            >
+                              Abrir Painel InfinitePay e Ativar Checkout <ExternalLink className="size-3.5" />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Instruction Box */}
+                  <div className="rounded-2xl border border-border bg-muted/40 p-5 space-y-3">
+                    <div className="flex items-center gap-2 font-bold text-foreground text-caption">
+                      <Info className="size-4 text-brand" /> Instruções de Ativação no App InfinitePay
+                    </div>
+                    <ul className="text-[12px] text-muted-foreground space-y-1.5 list-disc pl-5">
+                      <li>
+                        <strong>Passo 1:</strong> No seu App InfinitePay (celular) ou painel web, vá em <strong>Vendas → Checkout → Configurações</strong>.
+                      </li>
+                      <li>
+                        <strong>Passo 2:</strong> Habilite o <strong>Checkout Integrado</strong> (ou Link Integrado via API). Sem esse passo ativado no app, a API recusa a criação de links de pagamento.
+                      </li>
+                      <li>
+                        <strong>Passo 3:</strong> Em <strong>Meios de pagamento</strong> dentro dessa mesma tela do app, garanta que Pix e Cartão estejam habilitados.
+                      </li>
+                      <li>
+                        <strong>Passo 4:</strong> Cole sua <strong>InfiniteTag</strong> acima (ex: <code className="bg-background px-1.5 py-0.5 rounded font-mono">Aperta-Start-Site</code>) e clique em <em>Testar Conexão</em>.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Pix Direto da Loja */}
+                <div className="rounded-3xl border border-border bg-surface p-6 sm:p-8 space-y-4 shadow-xs">
+                  <div className="border-b border-border pb-3">
+                    <h3 className="text-h3 font-black text-foreground flex items-center gap-2">
+                      <QrCode className="size-5 text-emerald-500" /> Chave PIX Padrão da Loja
+                    </h3>
+                    <p className="text-small text-muted-foreground">
+                      Utilizada para gerar o QR Code Pix direto ou de contingência da conta jurídica da loja.
+                    </p>
+                  </div>
+                  <div className="space-y-1.5 max-w-xl">
+                    <label className="text-caption font-bold text-foreground">Chave Pix Cadastrada no Banco</label>
+                    <input
+                      type="text"
+                      placeholder="Chave Aleatória (EVP), CNPJ, E-mail ou Telefone"
+                      value={form.pixKey || ""}
+                      onChange={(e) => setForm({ ...form, pixKey: e.target.value })}
+                      className="w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-small font-mono text-foreground focus:border-ring focus:outline-none"
+                    />
+                    <p className="text-[11px] text-muted-foreground">
+                      Cole exatamente a chave da conta bancária da Aperta Start.
+                    </p>
                   </div>
                 </div>
               </div>

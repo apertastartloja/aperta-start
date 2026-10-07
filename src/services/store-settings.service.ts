@@ -33,6 +33,12 @@ export interface StoreSettings {
   topBarNotice: string;
   showLowStockAlert: boolean;
   enableLgpdNotice: boolean;
+
+  // InfinitePay Integration
+  infinitePayEnabled?: boolean;
+  infinitePayHandle?: string;
+  infinitePayTitle?: string;
+  infinitePayDescription?: string;
 }
 
 const defaultStoreSettings: StoreSettings = {
@@ -62,6 +68,12 @@ const defaultStoreSettings: StoreSettings = {
   topBarNotice: "⚡ Frete Grátis para todo o Sudeste acima de R$ 199,00! Cupom: START10",
   showLowStockAlert: true,
   enableLgpdNotice: true,
+
+  infinitePayEnabled: true,
+  infinitePayHandle: (import.meta.env.VITE_INFINITEPAY_HANDLE as string) || "Aperta-Start-Site",
+  infinitePayTitle: "Pix ou Cartão de Crédito",
+  infinitePayDescription:
+    "Você será levado ao ambiente seguro da InfinitePay para pagar com Pix ou cartão. Seus dados já vão preenchidos — é só confirmar.",
 };
 
 const SETTINGS_LOCAL_KEY = "apertastart_store_settings";

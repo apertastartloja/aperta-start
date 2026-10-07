@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ShieldCheck,
   Lock,
@@ -16,6 +16,7 @@ import {
   Ticket,
   Loader2,
   User as UserIcon,
+  ExternalLink,
 } from "lucide-react";
 import { useCartContext } from "@/contexts/cart-context";
 import { Container } from "@/components/common/container";
@@ -27,6 +28,8 @@ import { toast } from "sonner";
 import { OrderService } from "@/services/order.service";
 import { CouponService } from "@/services/coupon.service";
 import { MercadoPagoService } from "@/services/mercadopago.service";
+import { StoreSettingsService } from "@/services/store-settings.service";
+import { InfinitePayService } from "@/services/infinitepay.service";
 import { EmailService } from "@/services/email.service";
 import { fetchAddressByCep, formatCep } from "@/services/viacep.service";
 import type { Product, OrderItem } from "@/types";
@@ -46,11 +49,39 @@ function CheckoutPage() {
   const { cart, totals, updateQuantity, removeItem, clear, applyCoupon } = useCartContext();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [paymentMethod, setPaymentMethod] = useState<"pix" | "card">("pix");
+  const [paymentMethod, setPaymentMethod] = useState<"pix" | "card" | "infinitepay">("infinitepay");
   const [selectedCarrier, setSelectedCarrier] = useState<"LOCAL_PICKUP" | "CORREIOS" | "JADLOG">("CORREIOS");
   const [couponInput, setCouponInput] = useState("");
   const [isOrderComplete, setIsOrderComplete] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string>("");
+
+  const [infinitePayConfig, setInfinitePayConfig] = useState<{
+    enabled: boolean;
+    handle: string;
+    title: string;
+    description: string;
+  }>({
+    enabled: true,
+    handle: "Aperta-Start-Site",
+    title: "Pix ou Cartão de Crédito",
+    description:
+      "Você será levado ao ambiente seguro da InfinitePay para pagar com Pix ou cartão. Seus dados já vão preenchidos — é só confirmar.",
+  });
+
+  useEffect(() => {
+    StoreSettingsService.getSettings().then((s) => {
+      if (s) {
+        setInfinitePayConfig({
+          enabled: s.infinitePayEnabled !== false,
+          handle: s.infinitePayHandle || "Aperta-Start-Site",
+          title: s.infinitePayTitle || "Pix ou Cartão de Crédito",
+          description:
+            s.infinitePayDescription ||
+            "Você será levado ao ambiente seguro da InfinitePay para pagar com Pix ou cartão. Seus dados já vão preenchidos — é só confirmar.",
+        });
+      }
+    });
+  }, []);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -224,6 +255,87 @@ function CheckoutPage() {
     }));
 
     setIsProcessingPayment(true);
+
+    // If InfinitePay, create pending order and redirect to InfinitePay Checkout
+    if (paymentMethod === "infinitepay") {
+      const infiniteOrderPayload = {
+        code: generatedOrder,
+        userId: "guest",
+        customerName: formData.name,
+        customerEmail: formData.email,
+        customerPhone: formData.phone,
+        paymentMethod: "infinitepay" as const,
+        status: "pending" as const,
+        items: orderItems,
+        subtotal: totals.subtotal,
+        shipping: shippingCost,
+        discount: totals.discount,
+        total: finalTotal,
+        shippingAddress: {
+          id: `addr-${Date.now()}`,
+          label: selectedCarrier === "LOCAL_PICKUP" ? "Retirada no Local" : "Entrega",
+          street: formData.address,
+          number: formData.number,
+          complement: formData.complement,
+          district: formData.neighborhood,
+          city: formData.city,
+          state: formData.uf,
+          zipCode: formData.cep,
+          isDefault: true,
+        },
+      };
+
+      await OrderService.create(infiniteOrderPayload);
+
+      let infinitePayItems = [];
+      if (totals.discount > 0) {
+        infinitePayItems = [
+          {
+            description: `Pedido Aperta Start #${generatedOrder} (${orderItems.length} itens)`,
+            quantity: 1,
+            price: Math.round(finalTotal * 100),
+          },
+        ];
+      } else {
+        infinitePayItems = cartProducts.map((cp) => ({
+          description: cp.product.name.slice(0, 100),
+          quantity: cp.quantity,
+          price: Math.round(cp.unitPrice * 100),
+        }));
+        if (shippingCost > 0) {
+          infinitePayItems.push({
+            description: `Frete (${selectedCarrier === "LOCAL_PICKUP" ? "Retirada" : "Envio"})`,
+            quantity: 1,
+            price: Math.round(shippingCost * 100),
+          });
+        }
+      }
+
+      const linkRes = await InfinitePayService.createCheckoutLink({
+        orderCode: generatedOrder,
+        items: infinitePayItems,
+        customer: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+        },
+        redirectUrl: `${window.location.origin}/obrigado?pedido=${encodeURIComponent("#" + generatedOrder)}`,
+      });
+
+      setIsProcessingPayment(false);
+
+      if (linkRes.success && linkRes.url) {
+        clear();
+        toast.success("Redirecionando para o ambiente seguro da InfinitePay...");
+        window.location.href = linkRes.url;
+      } else {
+        toast.error(
+          linkRes.errorMessage ||
+            "Não foi possível gerar o link na InfinitePay. Verifique se o Checkout Integrado está habilitado no App."
+        );
+      }
+      return;
+    }
 
     // If PIX, call Mercado Pago API to create real PIX QR Code
     if (paymentMethod === "pix") {
@@ -883,31 +995,82 @@ function CheckoutPage() {
 
                 {step === 3 && (
                   <div className="mt-6 space-y-6">
-                    {/* Payment Selectors (PIX & Cartão de Crédito e Débito) */}
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* Payment Selectors (InfinitePay, PIX & Cartão) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {infinitePayConfig.enabled && (
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod("infinitepay")}
+                          className={`relative flex flex-col items-center justify-center gap-2 rounded-2xl border p-4 text-center transition-all ${
+                            paymentMethod === "infinitepay"
+                              ? "border-emerald-500 bg-emerald-500/10 font-bold text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500/30"
+                              : "border-border bg-background text-muted-foreground hover:border-muted-foreground/40"
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <CreditCard className="h-6 w-6 text-emerald-500" />
+                            <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase">
+                              Até 12x
+                            </span>
+                          </div>
+                          <span className="text-small font-bold">InfinitePay</span>
+                          <span className="text-[11px] text-muted-foreground">Pix ou Cartão</span>
+                        </button>
+                      )}
+
                       <button
+                        type="button"
                         onClick={() => setPaymentMethod("pix")}
-                        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border p-5 text-center transition-all ${
+                        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border p-4 text-center transition-all ${
                           paymentMethod === "pix"
                             ? "border-emerald-500 bg-emerald-500/10 font-bold text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500/30"
                             : "border-border bg-background text-muted-foreground hover:border-muted-foreground/40"
                         }`}
                       >
-                        <QrCode className="h-7 w-7 text-emerald-500" />
-                        <span className="text-small font-bold">PIX (5% OFF)</span>
+                        <QrCode className="h-6 w-6 text-emerald-500" />
+                        <span className="text-small font-bold">PIX Direto</span>
+                        <span className="text-[11px] font-bold text-emerald-600">5% OFF</span>
                       </button>
+
                       <button
+                        type="button"
                         onClick={() => setPaymentMethod("card")}
-                        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border p-5 text-center transition-all ${
+                        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border p-4 text-center transition-all ${
                           paymentMethod === "card"
                             ? "border-brand bg-brand/10 font-bold text-brand ring-2 ring-brand/30"
                             : "border-border bg-background text-muted-foreground hover:border-muted-foreground/40"
                         }`}
                       >
-                        <CreditCard className="h-7 w-7 text-brand" />
-                        <span className="text-small font-bold">Cartão de Crédito ou Débito</span>
+                        <CreditCard className="h-6 w-6 text-brand" />
+                        <span className="text-small font-bold">Cartão Direto</span>
+                        <span className="text-[11px] text-muted-foreground">Crédito ou Débito</span>
                       </button>
                     </div>
+
+                    {/* InfinitePay Payment Details */}
+                    {paymentMethod === "infinitepay" && (
+                      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300 text-small">
+                            <Sparkles className="h-5 w-5 fill-current" /> {infinitePayConfig.title || "Pix ou Cartão de Crédito"}
+                          </div>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[11px] font-black text-emerald-600 dark:text-emerald-300">
+                            <ShieldCheck className="h-3.5 w-3.5" /> Ambiente Seguro
+                          </span>
+                        </div>
+                        <p className="text-small text-muted-foreground">
+                          {infinitePayConfig.description ||
+                            "Você será levado ao ambiente seguro da InfinitePay para pagar com Pix ou cartão. Seus dados já vão preenchidos — é só confirmar."}
+                        </p>
+                        <div className="rounded-xl bg-background/80 p-3 border border-emerald-500/20 flex flex-wrap items-center justify-between gap-2 text-caption text-foreground">
+                          <div className="flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Conta InfinitePay: <strong>{infinitePayConfig.handle}</strong></span>
+                          </div>
+                          <span className="text-muted-foreground font-medium">Aceita Pix Instantâneo e Cartão em até 12x</span>
+                        </div>
+                      </div>
+                    )}
 
                     {/* PIX Payment Details */}
                     {paymentMethod === "pix" && (

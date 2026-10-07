@@ -264,7 +264,7 @@ export interface Order {
   shippingAddress: Address;
   trackingCode?: string;
   carrier?: string;
-  paymentMethod?: "pix" | "card" | "boleto";
+  paymentMethod?: "pix" | "card" | "boleto" | "infinitepay";
   customerName?: string;
   customerEmail?: string;
   customerPhone?: string;
