@@ -1,6 +1,6 @@
 import { SHIPPING } from "@/constants";
 import type { Cart, CartItem, CartTotals, Coupon } from "@/types";
-import { clone, delay } from "./base.service";
+import { clone } from "./base.service";
 
 const uid = () => `ci-${Math.random().toString(36).slice(2, 10)}`;
 const CART_STORAGE_KEY = "apertastart_cart";
@@ -32,7 +32,7 @@ let cart: Cart = loadCart();
 
 export const CartService = {
   async get(): Promise<Cart> {
-    return delay(clone(cart));
+    return clone(cart);
   },
 
   async addItem(item: Omit<CartItem, "id">): Promise<Cart> {
@@ -46,7 +46,7 @@ export const CartService = {
     }
     cart.updatedAt = new Date().toISOString();
     saveCart(cart);
-    return delay(clone(cart));
+    return clone(cart);
   },
 
   async updateQuantity(itemId: string, quantity: number): Promise<Cart> {
@@ -55,27 +55,27 @@ export const CartService = {
       .filter((i) => i.quantity > 0);
     cart.updatedAt = new Date().toISOString();
     saveCart(cart);
-    return delay(clone(cart));
+    return clone(cart);
   },
 
   async removeItem(itemId: string): Promise<Cart> {
     cart.items = cart.items.filter((i) => i.id !== itemId);
     cart.updatedAt = new Date().toISOString();
     saveCart(cart);
-    return delay(clone(cart));
+    return clone(cart);
   },
 
   async clear(): Promise<Cart> {
     cart = { ...cart, items: [], couponCode: null, updatedAt: new Date().toISOString() };
     saveCart(cart);
-    return delay(clone(cart));
+    return clone(cart);
   },
 
   async applyCoupon(code: string | null): Promise<Cart> {
     cart.couponCode = code ? code.trim().toUpperCase() : null;
     cart.updatedAt = new Date().toISOString();
     saveCart(cart);
-    return delay(clone(cart));
+    return clone(cart);
   },
 
   /** Regras de total centralizadas com suporte a cupom real (porcentagem ou valor fixo) */

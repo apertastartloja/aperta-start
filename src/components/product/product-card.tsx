@@ -72,7 +72,9 @@ export function ProductCard({ product, className, compact = false }: ProductCard
         </div>
 
         {!compact ? (
-          <AddToCartButton product={product} className="relative z-10" />
+          <div className="relative z-20 mt-1">
+            <AddToCartButton product={product} />
+          </div>
         ) : null}
       </CardContent>
     </Card>

@@ -325,8 +325,11 @@ function AdminDashboardPage() {
 
             <div className="space-y-4">
               {topProducts.length === 0 ? (
-                <div className="py-8 text-center text-caption text-muted-foreground">
-                  Nenhuma venda registrada ainda.
+                <div className="py-8 text-center space-y-1">
+                  <p className="text-small font-bold text-foreground">Nenhuma venda registrada ainda</p>
+                  <p className="text-caption text-muted-foreground">
+                    Os campeões de vendas aparecerão aqui conforme os primeiros pedidos forem concluídos.
+                  </p>
                 </div>
               ) : (
                 topProducts.map((prod, idx) => (

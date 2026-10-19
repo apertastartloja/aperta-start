@@ -60,12 +60,21 @@ function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState<"description" | "specs" | "reviews">("description");
 
   const hasDescription = Boolean(product?.description?.trim());
+  const hasSpecs = Boolean(
+    (product?.specs && product.specs.length > 0) ||
+    product?.shippingWeight ||
+    product?.shippingLength
+  );
 
   useEffect(() => {
-    if (product && !product.description?.trim() && activeTab === "description") {
-      setActiveTab("specs");
+    if (product) {
+      if (!hasDescription && activeTab === "description") {
+        setActiveTab(hasSpecs ? "specs" : "reviews");
+      } else if (!hasSpecs && activeTab === "specs") {
+        setActiveTab(hasDescription ? "description" : "reviews");
+      }
     }
-  }, [product, activeTab]);
+  }, [product, hasDescription, hasSpecs, activeTab]);
 
   useEffect(() => {
     if (product?.variants && product.variants.length > 0 && !selectedColor) {
@@ -468,19 +477,21 @@ function ProductDetailPage() {
                 )}
               </button>
             )}
-            <button
-              onClick={() => setActiveTab("specs")}
-              className={`pb-4 text-h4 font-bold transition-colors relative shrink-0 ${
-                activeTab === "specs"
-                  ? "text-brand"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Especificações Técnicas
-              {activeTab === "specs" && (
-                <span className="absolute bottom-0 left-0 right-0 h-1 rounded-t-full bg-brand" />
-              )}
-            </button>
+            {hasSpecs && (
+              <button
+                onClick={() => setActiveTab("specs")}
+                className={`pb-4 text-h4 font-bold transition-colors relative shrink-0 ${
+                  activeTab === "specs"
+                    ? "text-brand"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Especificações Técnicas
+                {activeTab === "specs" && (
+                  <span className="absolute bottom-0 left-0 right-0 h-1 rounded-t-full bg-brand" />
+                )}
+              </button>
+            )}
             <button
               onClick={() => setActiveTab("reviews")}
               className={`pb-4 text-h4 font-bold transition-colors relative shrink-0 ${
@@ -506,40 +517,33 @@ function ProductDetailPage() {
               </div>
             )}
 
-            {activeTab === "specs" && (
+            {hasSpecs && activeTab === "specs" && (
               <div className="max-w-3xl">
-                {product.specs && product.specs.length > 0 ? (
-                  <table className="w-full text-left text-small">
-                    <tbody>
-                      {product.specs.map((spec, idx) => (
-                        <tr key={idx} className={idx < product.specs!.length - 1 ? "border-b border-border" : ""}>
-                          <td className="py-3 font-semibold text-foreground w-1/3">{spec.key}</td>
-                          <td className="py-3 text-muted-foreground">{spec.value}</td>
-                        </tr>
-                      ))}
-                      {/* Also show shipping dimensions if set */}
-                      {product.shippingWeight && (
-                        <tr className="border-t border-border">
-                          <td className="py-3 font-semibold text-foreground">Peso</td>
-                          <td className="py-3 text-muted-foreground">{product.shippingWeight} kg</td>
-                        </tr>
-                      )}
-                      {product.shippingLength && (
-                        <tr>
-                          <td className="py-3 font-semibold text-foreground">Dimensões (C×L×A)</td>
-                          <td className="py-3 text-muted-foreground">
-                            {product.shippingLength} × {product.shippingWidth} × {product.shippingHeight} cm
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="text-center py-10 text-muted-foreground">
-                    <p className="text-small">Especificações técnicas não cadastradas para este produto.</p>
-                    <p className="text-caption mt-1">O administrador pode adicionar especificações no painel.</p>
-                  </div>
-                )}
+                <table className="w-full text-left text-small">
+                  <tbody>
+                    {product.specs?.map((spec, idx) => (
+                      <tr key={idx} className={idx < (product.specs?.length || 0) - 1 ? "border-b border-border" : ""}>
+                        <td className="py-3 font-semibold text-foreground w-1/3">{spec.key}</td>
+                        <td className="py-3 text-muted-foreground">{spec.value}</td>
+                      </tr>
+                    ))}
+                    {/* Also show shipping dimensions if set */}
+                    {product.shippingWeight && (
+                      <tr className="border-t border-border">
+                        <td className="py-3 font-semibold text-foreground">Peso</td>
+                        <td className="py-3 text-muted-foreground">{product.shippingWeight} kg</td>
+                      </tr>
+                    )}
+                    {product.shippingLength && (
+                      <tr>
+                        <td className="py-3 font-semibold text-foreground">Dimensões (C×L×A)</td>
+                        <td className="py-3 text-muted-foreground">
+                          {product.shippingLength} × {product.shippingWidth} × {product.shippingHeight} cm
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             )}
 
