@@ -97,6 +97,9 @@ function ProductDetailPage() {
       productId: product.id,
       quantity,
       unitPrice: product.price,
+      productName: product.name,
+      productSku: product.sku,
+      productImage: product.images[0]?.url,
     });
   };
 
@@ -106,6 +109,9 @@ function ProductDetailPage() {
       productId: product.id,
       quantity,
       unitPrice: product.price,
+      productName: product.name,
+      productSku: product.sku,
+      productImage: product.images[0]?.url,
     });
     navigate({ to: "/checkout" });
   };
@@ -254,13 +260,17 @@ function ProductDetailPage() {
 
               {/* Rating & Stock */}
               <div className="mt-3 flex items-center gap-4 text-small">
-                <div className="flex items-center gap-1 text-amber-500 font-semibold">
-                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                  <span>{product.rating.toFixed(1)}</span>
-                  <span className="text-muted-foreground font-normal">
-                    ({product.reviewsCount} avaliações)
-                  </span>
-                </div>
+                {product.reviewsCount && product.reviewsCount > 0 ? (
+                  <div className="flex items-center gap-1 text-amber-500 font-semibold">
+                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    <span>{product.rating.toFixed(1)}</span>
+                    <span className="text-muted-foreground font-normal">
+                      ({product.reviewsCount} avaliações)
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-muted-foreground font-normal">Sem avaliações</span>
+                )}
                 <div className="h-4 w-px bg-border" />
                 {product.isOnDemand ? (
                   <span className="flex items-center gap-1.5 font-bold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full text-caption">
@@ -286,7 +296,7 @@ function ProductDetailPage() {
               </div>
 
               <p className="text-caption text-muted-foreground">
-                Ou até <strong>6x de {formatCurrency(product.price / 6)}</strong> sem juros no cartão
+                Ou até <strong>12x de {formatCurrency(product.price / 12)}</strong> sem juros no cartão
               </p>
             </div>
 
@@ -538,72 +548,83 @@ function ProductDetailPage() {
 
             {activeTab === "reviews" && (
               <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row items-center gap-6 rounded-xl bg-background p-6 border border-border">
-                  <div className="text-center">
-                    <span className="text-display text-foreground font-black">{product.rating.toFixed(1)}</span>
-                    <div className="flex justify-center text-amber-400 mt-1">
-                      <Star className="h-5 w-5 fill-current" />
-                      <Star className="h-5 w-5 fill-current" />
-                      <Star className="h-5 w-5 fill-current" />
-                      <Star className="h-5 w-5 fill-current" />
-                      <Star className="h-5 w-5 fill-current" />
-                    </div>
-                    <p className="mt-1 text-caption text-muted-foreground">Baseado em {product.reviewsCount} opiniões</p>
+                {!product.reviewsCount || product.reviewsCount === 0 ? (
+                  <div className="rounded-2xl border border-border bg-background p-10 text-center space-y-2">
+                    <p className="text-h4 font-bold text-foreground">Sem avaliações ainda</p>
+                    <p className="text-small text-muted-foreground max-w-md mx-auto">
+                      Este produto ainda não possui avaliações. Seja o primeiro a avaliar após receber seu pedido!
+                    </p>
                   </div>
-                  <div className="h-full w-px bg-border hidden sm:block" />
-                  <div className="flex-1 space-y-2 w-full">
-                    {[5, 4, 3, 2, 1].map((stars, idx) => (
-                      <div key={stars} className="flex items-center gap-3 text-small">
-                        <span className="w-8 font-medium text-foreground">{stars} ★</span>
-                        <div className="h-2 flex-1 rounded-full bg-border overflow-hidden">
-                          <div
-                            className="h-full bg-amber-400 rounded-full"
-                            style={{ width: `${idx === 0 ? 85 : idx === 1 ? 10 : 5}%` }}
-                          />
+                ) : (
+                  <>
+                    <div className="flex flex-col sm:flex-row items-center gap-6 rounded-xl bg-background p-6 border border-border">
+                      <div className="text-center">
+                        <span className="text-display text-foreground font-black">{product.rating.toFixed(1)}</span>
+                        <div className="flex justify-center text-amber-400 mt-1">
+                          <Star className="h-5 w-5 fill-current" />
+                          <Star className="h-5 w-5 fill-current" />
+                          <Star className="h-5 w-5 fill-current" />
+                          <Star className="h-5 w-5 fill-current" />
+                          <Star className="h-5 w-5 fill-current" />
                         </div>
-                        <span className="w-10 text-right text-caption text-muted-foreground">
-                          {idx === 0 ? "85%" : idx === 1 ? "10%" : "5%"}
-                        </span>
+                        <p className="mt-1 text-caption text-muted-foreground">Baseado em {product.reviewsCount} opiniões</p>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                      <div className="h-full w-px bg-border hidden sm:block" />
+                      <div className="flex-1 space-y-2 w-full">
+                        {[5, 4, 3, 2, 1].map((stars, idx) => (
+                          <div key={stars} className="flex items-center gap-3 text-small">
+                            <span className="w-8 font-medium text-foreground">{stars} ★</span>
+                            <div className="h-2 flex-1 rounded-full bg-border overflow-hidden">
+                              <div
+                                className="h-full bg-amber-400 rounded-full"
+                                style={{ width: `${idx === 0 ? 85 : idx === 1 ? 10 : 5}%` }}
+                              />
+                            </div>
+                            <span className="w-10 text-right text-caption text-muted-foreground">
+                              {idx === 0 ? "85%" : idx === 1 ? "10%" : "5%"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
-                {/* Example Reviews */}
-                <div className="space-y-4">
-                  <div className="rounded-xl border border-border p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-foreground">Lucas M. — Cliente Verificado</span>
-                      <span className="text-caption text-muted-foreground">há 3 dias</span>
+                    {/* Example Reviews */}
+                    <div className="space-y-4">
+                      <div className="rounded-xl border border-border p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-foreground">Lucas M. — Cliente Verificado</span>
+                          <span className="text-caption text-muted-foreground">há 3 dias</span>
+                        </div>
+                        <div className="flex text-amber-400">
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                        </div>
+                        <p className="text-small text-muted-foreground">
+                          Produto de altíssima qualidade! Chegou super rápido aqui em SP e deixou meu setup incrivelmente organizado. Recomendo demais!
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-border p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-foreground">Beatriz S. — Cliente Verificado</span>
+                          <span className="text-caption text-muted-foreground">há 1 semana</span>
+                        </div>
+                        <div className="flex text-amber-400">
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                        </div>
+                        <p className="text-small text-muted-foreground">
+                          Excelente acabamento e embalagem super bem protegida. Com certeza comprarei mais itens da Aperta Start!
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex text-amber-400">
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                    </div>
-                    <p className="text-small text-muted-foreground">
-                      Produto de altíssima qualidade! Chegou super rápido aqui em SP e deixou meu setup incrivelmente organizado. Recomendo demais!
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-border p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-foreground">Beatriz S. — Cliente Verificado</span>
-                      <span className="text-caption text-muted-foreground">há 1 semana</span>
-                    </div>
-                    <div className="flex text-amber-400">
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                    </div>
-                    <p className="text-small text-muted-foreground">
-                      Excelente acabamento e embalagem super bem protegida. Com certeza comprarei mais itens da Aperta Start!
-                    </p>
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
             )}
           </div>

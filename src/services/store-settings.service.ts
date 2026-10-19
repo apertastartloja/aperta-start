@@ -44,15 +44,15 @@ export interface StoreSettings {
 const defaultStoreSettings: StoreSettings = {
   storeName: "Aperta Start - Suportes & Decoração Gamer",
   corporateName: "",
-  cnpj: "", // Optional / Em emissão
+  cnpj: "68.689.135/0004-40",
   stateRegistration: "",
-  email: "contato@apertastart.com.br",
+  email: "apertastart.loja@gmail.com",
   phone: "(11) 98765-4321",
   whatsapp: "5511987654321",
-  address: "Av. Paulista, 1000 - Bela Vista",
-  city: "São Paulo",
-  state: "SP",
-  zipCode: "01310-100",
+  address: "",
+  city: "",
+  state: "",
+  zipCode: "",
 
   metaPixelId: "123456789012345",
   googleAnalyticsId: "G-APS1234567",
@@ -65,7 +65,7 @@ const defaultStoreSettings: StoreSettings = {
   facebook: "apertastartloja",
   whatsappLink: "https://wa.me/5511987654321",
 
-  topBarNotice: "⚡ Frete Grátis para todo o Sudeste acima de R$ 199,00! Cupom: START10",
+  topBarNotice: "",
   showLowStockAlert: true,
   enableLgpdNotice: true,
 

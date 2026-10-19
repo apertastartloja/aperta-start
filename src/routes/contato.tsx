@@ -51,7 +51,7 @@ function ContactPage() {
     },
     {
       q: "Quais são as formas de pagamento aceitas?",
-      a: "Aceitamos PIX (com 5% de desconto automático), Cartão de Crédito em até 6x sem juros (Visa, Mastercard, Elo, Amex) e Boleto Bancário.",
+      a: "Aceitamos PIX (com 5% de desconto automático) e Cartão de Crédito em até 12x sem juros (Visa, Mastercard, Elo, Amex).",
     },
   ];
 

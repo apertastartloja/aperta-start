@@ -52,6 +52,9 @@ function WishlistPage() {
         productId: product.id,
         quantity: 1,
         unitPrice: product.price,
+        productName: product.name,
+        productSku: product.sku,
+        productImage: product.images[0]?.url,
       });
     });
     toast.success(

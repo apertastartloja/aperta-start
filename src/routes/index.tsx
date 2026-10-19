@@ -16,7 +16,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Suportes, luminárias, action figures e kits gamer com design exclusivo Aperta Start. Frete para todo o Brasil e parcelamento em até 6x.",
+          "Suportes, luminárias, action figures e kits gamer com design exclusivo Aperta Start. Frete para todo o Brasil e parcelamento em até 12x.",
       },
       { property: "og:title", content: "Aperta Start — Acessórios e decoração gamer" },
       {

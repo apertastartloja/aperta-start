@@ -2,51 +2,7 @@ import { supabase } from "@/lib/supabase";
 import type { Coupon } from "@/types";
 import { NotFoundError, clone, delay } from "./base.service";
 
-const initialCoupons: Coupon[] = [
-  {
-    id: "coup-1",
-    code: "START10",
-    type: "percentage",
-    value: 10,
-    minOrderValue: 50,
-    active: true,
-    usageCount: 142,
-    usageLimit: 500,
-    createdAt: "2026-06-01T10:00:00.000Z",
-  },
-  {
-    id: "coup-2",
-    code: "GAMER20",
-    type: "percentage",
-    value: 20,
-    minOrderValue: 100,
-    active: true,
-    usageCount: 89,
-    usageLimit: 200,
-    createdAt: "2026-07-15T14:30:00.000Z",
-  },
-  {
-    id: "coup-3",
-    code: "BEMVINDO15",
-    type: "fixed",
-    value: 15,
-    minOrderValue: 70,
-    active: true,
-    usageCount: 310,
-    createdAt: "2026-05-01T09:00:00.000Z",
-  },
-  {
-    id: "coup-4",
-    code: "BLACK50",
-    type: "fixed",
-    value: 50,
-    minOrderValue: 250,
-    active: false,
-    usageCount: 50,
-    usageLimit: 50,
-    createdAt: "2026-04-10T12:00:00.000Z",
-  },
-];
+const initialCoupons: Coupon[] = [];
 
 let localCouponsStore: Coupon[] = clone(initialCoupons);
 

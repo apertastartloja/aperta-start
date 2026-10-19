@@ -41,7 +41,7 @@ export interface PixPayloadOptions {
  */
 export function sanitizePixKey(key: string): string {
   const trimmed = (key || "").trim();
-  if (!trimmed) return "contato@apertastart.com.br";
+  if (!trimmed) return "apertastart.loja@gmail.com";
 
   // Chave Aleatória (EVP / UUID format: 36 characters)
   if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(trimmed)) {

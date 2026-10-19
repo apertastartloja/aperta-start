@@ -267,24 +267,12 @@ function AccountPage() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="rounded-2xl border-2 border-brand bg-surface p-5 shadow-light space-y-3 relative">
-                    <span className="absolute top-4 right-4 rounded-full bg-brand/10 text-brand px-3 py-1 text-caption font-extrabold">
-                      Principal
-                    </span>
-                    <div className="flex items-center gap-2 font-bold text-foreground text-small">
-                      <MapPin className="h-4 w-4 text-brand" /> Casa
-                    </div>
-                    <p className="text-small text-muted-foreground leading-relaxed">
-                      Cristiano Alves<br />
-                      Av. Paulista, 1000 — Apto 42<br />
-                      Bela Vista — São Paulo / SP<br />
-                      CEP: 01310-100
-                    </p>
-                    <div className="pt-2 flex gap-4 text-caption font-bold text-brand">
-                      <button onClick={() => toast("Editar endereço")}>Editar</button>
-                    </div>
-                  </div>
+                <div className="rounded-2xl border border-dashed border-border bg-surface p-8 text-center space-y-2">
+                  <MapPin className="h-8 w-8 text-muted-foreground mx-auto" />
+                  <p className="text-small font-bold text-foreground">Nenhum endereço cadastrado</p>
+                  <p className="text-caption text-muted-foreground">
+                    Seus endereços de entrega aparecerão aqui após você preenchê-los no checkout ou cadastrar acima.
+                  </p>
                 </div>
               </div>
             )}

@@ -24,7 +24,7 @@ import { useState, useEffect } from "react";
 function ThankYouPage() {
   const { pedido } = Route.useSearch();
   const [activePixKey, setActivePixKey] = useState<string>(
-    import.meta.env.VITE_STORE_PIX_KEY || "contato@apertastart.com.br"
+    import.meta.env.VITE_STORE_PIX_KEY || "apertastart.loja@gmail.com"
   );
 
   useEffect(() => {

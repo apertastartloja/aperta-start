@@ -66,11 +66,11 @@ function ClientesPage() {
     name: "",
     email: "",
     phone: "",
-    city: "São Paulo",
-    state: "SP",
-    street: "Av. Paulista",
-    number: "1000",
-    zipCode: "01310-100",
+    city: "",
+    state: "",
+    street: "",
+    number: "",
+    zipCode: "",
   });
 
   const loadData = async () => {
@@ -80,7 +80,27 @@ function ClientesPage() {
         UserService.listAll(),
         OrderService.listAll({ perPage: 200 }),
       ]);
-      setUsers(usersData);
+
+      const combinedUsers = [...usersData];
+      for (const ord of ordersRes.data) {
+        if (
+          ord.customerEmail &&
+          !combinedUsers.some(
+            (u) => u.email.toLowerCase() === ord.customerEmail.toLowerCase()
+          )
+        ) {
+          combinedUsers.push({
+            id: ord.userId || `usr-${ord.id}`,
+            name: ord.customerName || "Cliente",
+            email: ord.customerEmail,
+            phone: ord.customerPhone,
+            addresses: ord.shippingAddress ? [ord.shippingAddress] : [],
+            createdAt: ord.createdAt,
+          });
+        }
+      }
+
+      setUsers(combinedUsers);
       setOrders(ordersRes.data);
     } catch (err) {
       console.error("Erro ao carregar clientes:", err);

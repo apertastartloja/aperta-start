@@ -38,7 +38,7 @@ const columns = [
   },
 ];
 
-const payments = ["Visa", "Master", "Elo", "Amex", "Pix", "Boleto"];
+const payments = ["Visa", "Master", "Elo", "Amex", "Pix"];
 
 export function Footer() {
   return (
@@ -102,7 +102,7 @@ export function Footer() {
       <div className="border-t border-white/10 bg-black/20">
         <Container className="text-small flex items-center justify-center py-6 text-white/60 text-center">
           <p>
-            © {new Date().getFullYear()} {APP.name}. Todos os direitos reservados.
+            © {new Date().getFullYear()} {APP.name} • CNPJ: 68.689.135/0004-40 • Todos os direitos reservados.
           </p>
         </Container>
       </div>

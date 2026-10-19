@@ -8,7 +8,7 @@ const MP_ACCESS_TOKEN =
   "APP_USR-5700161549146357-080720-efdfe843bead67a21e9b51011584947c-2998808507";
 
 const STORE_PIX_KEY =
-  import.meta.env.VITE_STORE_PIX_KEY || "contato@apertastart.com.br";
+  import.meta.env.VITE_STORE_PIX_KEY || "apertastart.loja@gmail.com";
 
 const MP_PUBLIC_KEY =
   import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY ||

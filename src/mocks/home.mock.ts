@@ -31,7 +31,7 @@ export const mockBenefits: Benefit[] = [
 /** Barra institucional clara (seção 10 da Home) e Top Bar (seção 1). */
 export const mockInstitutional: InstitutionalItem[] = [
   { id: "ins-1", icon: "truck", title: "Frete para todo Brasil", description: "Consulte condições" },
-  { id: "ins-2", icon: "creditCard", title: "Parcele em até 6x", description: "sem juros" },
+  { id: "ins-2", icon: "creditCard", title: "Parcele em até 12x", description: "sem juros" },
   { id: "ins-3", icon: "pix", title: "5% de desconto", description: "no PIX" },
   { id: "ins-4", icon: "refresh", title: "Troca fácil", description: "em até 7 dias" },
 ];

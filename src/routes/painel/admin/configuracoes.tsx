@@ -250,13 +250,13 @@ function ConfiguracoesPage() {
                     </div>
                     <input
                       type="text"
-                      placeholder="00.000.000/0001-00 (Opcional por enquanto)"
+                      placeholder="68.689.135/0004-40"
                       value={form.cnpj}
                       onChange={(e) => setForm({ ...form, cnpj: e.target.value })}
                       className="w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-small font-mono text-foreground focus:border-ring focus:outline-none"
                     />
                     <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                      <Info className="size-3 text-brand" /> Você pode cadastrar o CNPJ posteriormente quando o processo estiver concluído.
+                      <Info className="size-3 text-brand" /> CNPJ oficial da Aperta Start.
                     </p>
                   </div>
 
@@ -266,7 +266,7 @@ function ConfiguracoesPage() {
                     <input
                       type="email"
                       required
-                      placeholder="contato@apertastart.com.br"
+                      placeholder="apertastart.loja@gmail.com"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
                       className="w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-small text-foreground focus:border-ring focus:outline-none"
@@ -298,7 +298,7 @@ function ConfiguracoesPage() {
                     </div>
                     <input
                       type="text"
-                      placeholder="Cole aqui sua Chave Aleatória (ex: 123e4567-e89b-12d3-a456-426614174000) ou CNPJ/E-mail"
+                      placeholder="Cole aqui sua Chave Aleatória, CNPJ (68.689.135/0004-40) ou E-mail (apertastart.loja@gmail.com)"
                       value={form.pixKey || ""}
                       onChange={(e) => setForm({ ...form, pixKey: e.target.value })}
                       className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small font-mono text-foreground focus:border-ring focus:outline-none"
@@ -310,10 +310,10 @@ function ConfiguracoesPage() {
 
                   {/* Address */}
                   <div className="space-y-1.5 md:col-span-2">
-                    <label className="text-caption font-bold text-foreground">Endereço Físico / Sede</label>
+                    <label className="text-caption font-bold text-foreground">Endereço Físico / Sede (Opcional)</label>
                     <input
                       type="text"
-                      placeholder="Ex: Av. Paulista, 1000 - Bela Vista, São Paulo/SP"
+                      placeholder="Endereço da sede da empresa (opcional)"
                       value={form.address}
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
                       className="w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-small text-foreground focus:border-ring focus:outline-none"
@@ -639,7 +639,7 @@ function ConfiguracoesPage() {
                     <label className="text-caption font-bold text-foreground">Mensagem da Barra Superior (Top Bar)</label>
                     <textarea
                       rows={2}
-                      placeholder="⚡ Frete Grátis para todo o Sudeste acima de R$ 199,00! Cupom: START10"
+                      placeholder="⚡ Frete Grátis para todo o Brasil em compras qualificadas!"
                       value={form.topBarNotice}
                       onChange={(e) => setForm({ ...form, topBarNotice: e.target.value })}
                       className="w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-small text-foreground focus:border-ring focus:outline-none resize-none"

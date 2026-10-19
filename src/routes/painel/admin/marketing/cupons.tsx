@@ -259,7 +259,7 @@ function CuponsPage() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4.5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Buscar por código de cupom (ex: START10)..."
+              placeholder="Buscar por código de cupom..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-2xl border border-input bg-background pl-11 pr-4 py-2.5 text-small text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
@@ -463,7 +463,7 @@ function CuponsPage() {
                 <input
                   type="text"
                   required
-                  placeholder="EX: START10 ou FRETEGRATIS"
+                  placeholder="EX: PROMO10 ou FRETEGRATIS"
                   value={form.code}
                   onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                   className="w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-small font-mono font-bold text-foreground uppercase placeholder:text-muted-foreground focus:border-ring focus:outline-none"

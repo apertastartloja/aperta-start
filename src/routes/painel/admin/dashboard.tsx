@@ -1,18 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState, useEffect, useMemo } from "react";
 import {
   TrendingUp,
   ShoppingBag,
   Users,
   Package,
   DollarSign,
-  ArrowUpRight,
-  ArrowDownRight,
   ChevronRight,
   Sparkles,
-  Eye,
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
+  Inbox,
+  Loader2,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -24,7 +21,11 @@ import {
   CartesianGrid,
 } from "recharts";
 import { AdminLayout } from "@/components/admin/admin-layout";
-import { mockProducts } from "@/mocks";
+import { OrderService, ORDER_STATUS_LABEL, ORDER_STATUS_COLOR } from "@/services/order.service";
+import { UserService } from "@/services/user.service";
+import { ProductService } from "@/services/product.service";
+import { formatCurrency, formatDate } from "@/utils/format";
+import type { Order, Product, User } from "@/types";
 
 export const Route = createFileRoute("/painel/admin/dashboard")({
   head: () => ({
@@ -36,68 +37,133 @@ export const Route = createFileRoute("/painel/admin/dashboard")({
   component: AdminDashboardPage,
 });
 
-// Mock Sales Chart Data (Últimos 7 dias / semanas)
-const mockSalesChartData = [
-  { label: "Seg", vendas: 12400, pedidos: 32 },
-  { label: "Ter", vendas: 18900, pedidos: 45 },
-  { label: "Qua", vendas: 15600, pedidos: 38 },
-  { label: "Qui", vendas: 24800, pedidos: 59 },
-  { label: "Sex", vendas: 31200, pedidos: 74 },
-  { label: "Sáb", vendas: 28400, pedidos: 68 },
-  { label: "Dom", vendas: 17650, pedidos: 41 },
-];
-
-// Mock Recent Orders Data
-const mockRecentOrders = [
-  {
-    id: "PED-9842",
-    cliente: "Guilherme Santos",
-    email: "guilherme@exemplo.com",
-    itens: 3,
-    total: 849.9,
-    status: "Entregue",
-    data: "Há 15 min",
-  },
-  {
-    id: "PED-9841",
-    cliente: "Mariana Oliveira",
-    email: "mariana.o@exemplo.com",
-    itens: 1,
-    total: 359.0,
-    status: "Processando",
-    data: "Há 42 min",
-  },
-  {
-    id: "PED-9840",
-    cliente: "Carlos Eduardo",
-    email: "carlos.edu@exemplo.com",
-    itens: 2,
-    total: 1290.0,
-    status: "Aguardando Pagamento",
-    data: "Há 1 hora",
-  },
-  {
-    id: "PED-9839",
-    cliente: "Fernanda Lima",
-    email: "nanda.lima@exemplo.com",
-    itens: 5,
-    total: 2150.8,
-    status: "Entregue",
-    data: "Há 2 horas",
-  },
-  {
-    id: "PED-9838",
-    cliente: "Roberto Alves",
-    email: "roberto@exemplo.com",
-    itens: 1,
-    total: 199.9,
-    status: "Processando",
-    data: "Há 3 horas",
-  },
-];
-
 function AdminDashboardPage() {
-  const topProducts = mockProducts.slice(0, 4);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    Promise.all([
+      OrderService.listAll({ perPage: 200 }),
+      UserService.listAll(),
+      ProductService.list({ perPage: 200, includeInactive: true }),
+    ])
+      .then(([ordersRes, usersRes, productsRes]) => {
+        if (!isMounted) return;
+        setOrders(ordersRes.data);
+        setUsers(usersRes);
+        setProducts(productsRes.data);
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar dados do dashboard:", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Real Metrics
+  const validOrders = useMemo(() => orders.filter((o) => o.status !== "canceled"), [orders]);
+
+  const totalRevenue = useMemo(
+    () => validOrders.reduce((sum, o) => sum + o.total, 0),
+    [validOrders]
+  );
+
+  const totalOrdersCount = orders.length;
+
+  const totalCustomersCount = useMemo(() => {
+    const emails = new Set<string>();
+    users.forEach((u) => {
+      if (u.email) emails.add(u.email.toLowerCase());
+    });
+    orders.forEach((o) => {
+      if (o.customerEmail) emails.add(o.customerEmail.toLowerCase());
+    });
+    return emails.size;
+  }, [users, orders]);
+
+  const totalProductsCount = products.length;
+
+  const avgTicket = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0;
+
+  // Real 7-day Sales Chart Data
+  const salesChartData = useMemo(() => {
+    const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    const now = new Date();
+    const result = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() - i);
+      const dayLabel = days[d.getDay()]!;
+      const dateStr = d.toISOString().split("T")[0]!;
+
+      const dayOrders = validOrders.filter((o) => o.createdAt.startsWith(dateStr));
+      const dayVendas = dayOrders.reduce((acc, o) => acc + o.total, 0);
+
+      result.push({
+        label: dayLabel,
+        vendas: dayVendas,
+        pedidos: dayOrders.length,
+      });
+    }
+
+    return result;
+  }, [validOrders]);
+
+  // Top Selling Products based on actual orders or store products
+  const topProducts = useMemo(() => {
+    const salesMap: Record<string, { count: number; total: number }> = {};
+    validOrders.forEach((o) => {
+      o.items.forEach((item) => {
+        if (!salesMap[item.productId]) {
+          salesMap[item.productId] = { count: 0, total: 0 };
+        }
+        salesMap[item.productId]!.count += item.quantity;
+        salesMap[item.productId]!.total += item.unitPrice * item.quantity;
+      });
+    });
+
+    const sortedBySales = Object.entries(salesMap)
+      .map(([id, info]) => {
+        const prod = products.find((p) => p.id === id);
+        return {
+          id,
+          name: prod?.name || "Produto",
+          sku: prod?.sku || "APS",
+          price: prod?.price || info.total / (info.count || 1),
+          image: prod?.images[0]?.url || "/placeholder-product.svg",
+          salesCount: info.count,
+        };
+      })
+      .sort((a, b) => b.salesCount - a.salesCount);
+
+    if (sortedBySales.length > 0) {
+      return sortedBySales.slice(0, 4);
+    }
+
+    return products.slice(0, 4).map((p) => ({
+      id: p.id,
+      name: p.name,
+      sku: p.sku,
+      price: p.price,
+      image: p.images[0]?.url || "/placeholder-product.svg",
+      salesCount: 0,
+    }));
+  }, [validOrders, products]);
+
+  const recentOrders = useMemo(() => {
+    return [...orders]
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 5);
+  }, [orders]);
 
   return (
     <AdminLayout>
@@ -132,10 +198,9 @@ function AdminDashboardPage() {
               </div>
             </div>
             <div className="space-y-1">
-              <p className="text-h3 font-black text-foreground">R$ 148.950,00</p>
-              <div className="flex items-center gap-1.5 text-[12px] font-bold text-emerald-600 dark:text-emerald-400">
-                <ArrowUpRight className="size-4" />
-                <span>+18.4% este mês</span>
+              <p className="text-h3 font-black text-foreground">{formatCurrency(totalRevenue)}</p>
+              <div className="flex items-center gap-1.5 text-[12px] font-bold text-muted-foreground">
+                <span>{validOrders.length} {validOrders.length === 1 ? "venda paga" : "vendas pagas"}</span>
               </div>
             </div>
           </div>
@@ -149,10 +214,9 @@ function AdminDashboardPage() {
               </div>
             </div>
             <div className="space-y-1">
-              <p className="text-h3 font-black text-foreground">1.284</p>
-              <div className="flex items-center gap-1.5 text-[12px] font-bold text-emerald-600 dark:text-emerald-400">
-                <ArrowUpRight className="size-4" />
-                <span>+12.3% vs mês ant.</span>
+              <p className="text-h3 font-black text-foreground">{totalOrdersCount}</p>
+              <div className="flex items-center gap-1.5 text-[12px] font-bold text-muted-foreground">
+                <span>{totalOrdersCount === 1 ? "pedido registrado" : "pedidos registrados"}</span>
               </div>
             </div>
           </div>
@@ -166,10 +230,9 @@ function AdminDashboardPage() {
               </div>
             </div>
             <div className="space-y-1">
-              <p className="text-h3 font-black text-foreground">3.842</p>
-              <div className="flex items-center gap-1.5 text-[12px] font-bold text-emerald-600 dark:text-emerald-400">
-                <ArrowUpRight className="size-4" />
-                <span>+8.1% este mês</span>
+              <p className="text-h3 font-black text-foreground">{totalCustomersCount}</p>
+              <div className="flex items-center gap-1.5 text-[12px] font-bold text-muted-foreground">
+                <span>{totalCustomersCount === 1 ? "cliente na base" : "clientes na base"}</span>
               </div>
             </div>
           </div>
@@ -183,9 +246,9 @@ function AdminDashboardPage() {
               </div>
             </div>
             <div className="space-y-1">
-              <p className="text-h3 font-black text-foreground">156</p>
+              <p className="text-h3 font-black text-foreground">{totalProductsCount}</p>
               <div className="flex items-center gap-1.5 text-[12px] font-bold text-muted-foreground">
-                <span>+4 novos adicionados</span>
+                <span>{totalProductsCount === 1 ? "produto ativo" : "produtos no catálogo"}</span>
               </div>
             </div>
           </div>
@@ -199,10 +262,9 @@ function AdminDashboardPage() {
               </div>
             </div>
             <div className="space-y-1">
-              <p className="text-h3 font-black text-foreground">R$ 412,50</p>
-              <div className="flex items-center gap-1.5 text-[12px] font-bold text-emerald-600 dark:text-emerald-400">
-                <ArrowUpRight className="size-4" />
-                <span>+3.2% este mês</span>
+              <p className="text-h3 font-black text-foreground">{formatCurrency(avgTicket)}</p>
+              <div className="flex items-center gap-1.5 text-[12px] font-bold text-muted-foreground">
+                <span>por pedido</span>
               </div>
             </div>
           </div>
@@ -226,7 +288,7 @@ function AdminDashboardPage() {
 
             <div className="h-72 w-full pt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={mockSalesChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <AreaChart data={salesChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#ffc933" stopOpacity={0.4} />
@@ -245,7 +307,7 @@ function AdminDashboardPage() {
                       color: "var(--color-foreground)",
                       fontWeight: "bold",
                     }}
-                    formatter={(value: any) => [`R$ ${Number(value).toLocaleString("pt-BR")}`, "Vendas"]}
+                    formatter={(value: any) => [`R$ ${Number(value).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, "Vendas"]}
                   />
                   <Area
                     type="monotone"
@@ -265,31 +327,41 @@ function AdminDashboardPage() {
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div>
                 <h3 className="text-h4 font-black text-foreground">Mais Vendidos</h3>
-                <p className="text-caption text-muted-foreground">Campeões de receita</p>
+                <p className="text-caption text-muted-foreground">Campeões do catálogo</p>
               </div>
-              <ChevronRight className="size-5 text-muted-foreground" />
+              <Link to="/painel/admin/produtos/lista" className="text-muted-foreground hover:text-foreground">
+                <ChevronRight className="size-5" />
+              </Link>
             </div>
 
             <div className="space-y-4">
-              {topProducts.map((prod, idx) => (
-                <div key={prod.id} className="flex items-center gap-3.5 p-2 rounded-2xl hover:bg-muted/50 transition-colors">
-                  <span className="font-black text-caption text-muted-foreground size-5 grid place-items-center">
-                    #{idx + 1}
-                  </span>
-                  <img
-                    src={typeof prod.images[0] === "string" ? prod.images[0] : prod.images[0]?.url}
-                    alt={prod.name}
-                    className="size-12 rounded-xl object-contain bg-background border border-border p-1 shrink-0"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-small font-bold text-foreground truncate">{prod.name}</p>
-                    <p className="text-[11px] text-muted-foreground">{prod.sku || "Produto"} • {prod.reviewsCount || (120 + idx * 15)} vds</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-small font-black text-foreground">R$ {prod.price.toFixed(2)}</p>
-                  </div>
+              {topProducts.length === 0 ? (
+                <div className="py-8 text-center text-caption text-muted-foreground">
+                  Nenhum produto cadastrado no catálogo.
                 </div>
-              ))}
+              ) : (
+                topProducts.map((prod, idx) => (
+                  <div key={prod.id} className="flex items-center gap-3.5 p-2 rounded-2xl hover:bg-muted/50 transition-colors">
+                    <span className="font-black text-caption text-muted-foreground size-5 grid place-items-center">
+                      #{idx + 1}
+                    </span>
+                    <img
+                      src={prod.image || "/placeholder-product.svg"}
+                      alt={prod.name}
+                      className="size-12 rounded-xl object-contain bg-background border border-border p-1 shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-small font-bold text-foreground truncate">{prod.name}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {prod.sku} • {prod.salesCount} {prod.salesCount === 1 ? "venda" : "vendas"}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-small font-black text-foreground">{formatCurrency(prod.price)}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -301,57 +373,67 @@ function AdminDashboardPage() {
               <h3 className="text-h4 font-black text-foreground">Pedidos Recentes</h3>
               <p className="text-caption text-muted-foreground">Últimas transações realizadas na plataforma</p>
             </div>
-            <button className="text-small font-bold text-brand hover:underline self-start sm:self-auto">
+            <Link to="/painel/admin/pedidos" className="text-small font-bold text-brand hover:underline self-start sm:self-auto">
               Ver todos os pedidos →
-            </button>
+            </Link>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-small">
-              <thead>
-                <tr className="border-b border-border text-caption text-muted-foreground">
-                  <th className="py-3 px-4 font-extrabold">ID Pedido</th>
-                  <th className="py-3 px-4 font-extrabold">Cliente</th>
-                  <th className="py-3 px-4 font-extrabold">Itens</th>
-                  <th className="py-3 px-4 font-extrabold">Valor Total</th>
-                  <th className="py-3 px-4 font-extrabold">Status</th>
-                  <th className="py-3 px-4 font-extrabold">Data</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {mockRecentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-muted/40 transition-colors">
-                    <td className="py-3.5 px-4 font-extrabold text-foreground">{order.id}</td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-foreground">{order.cliente}</div>
-                      <div className="text-[11px] text-muted-foreground">{order.email}</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-medium text-foreground">{order.itens} itens</td>
-                    <td className="py-3.5 px-4 font-black text-foreground">
-                      R$ {order.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      {order.status === "Entregue" && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-caption font-bold text-emerald-600 dark:text-emerald-400">
-                          <CheckCircle2 className="size-3" /> Entregue
-                        </span>
-                      )}
-                      {order.status === "Processando" && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-info/10 px-2.5 py-1 text-caption font-bold text-info">
-                          <Clock className="size-3" /> Processando
-                        </span>
-                      )}
-                      {order.status === "Aguardando Pagamento" && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-1 text-caption font-bold text-amber-700 dark:text-amber-400">
-                          <AlertTriangle className="size-3" /> Pagamento
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-muted-foreground text-[12px]">{order.data}</td>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12 gap-2 text-muted-foreground text-small">
+                <Loader2 className="size-5 animate-spin" /> Carregando pedidos...
+              </div>
+            ) : recentOrders.length === 0 ? (
+              <div className="py-12 text-center space-y-3">
+                <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+                  <Inbox className="size-6" />
+                </div>
+                <p className="text-small font-bold text-foreground">Nenhum pedido recente registrado</p>
+                <p className="text-caption text-muted-foreground max-w-sm mx-auto">
+                  Assim que novos clientes finalizarem compras na loja, os pedidos aparecerão aqui em tempo real.
+                </p>
+              </div>
+            ) : (
+              <table className="w-full text-left text-small">
+                <thead>
+                  <tr className="border-b border-border text-caption text-muted-foreground">
+                    <th className="py-3 px-4 font-extrabold">ID Pedido</th>
+                    <th className="py-3 px-4 font-extrabold">Cliente</th>
+                    <th className="py-3 px-4 font-extrabold">Itens</th>
+                    <th className="py-3 px-4 font-extrabold">Valor Total</th>
+                    <th className="py-3 px-4 font-extrabold">Status</th>
+                    <th className="py-3 px-4 font-extrabold">Data</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {recentOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-muted/40 transition-colors">
+                      <td className="py-3.5 px-4 font-extrabold text-foreground">#{order.code || order.id}</td>
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-foreground">{order.customerName || "Cliente Convidado"}</div>
+                        <div className="text-[11px] text-muted-foreground">{order.customerEmail || "—"}</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-medium text-foreground">
+                        {order.items.length} {order.items.length === 1 ? "item" : "itens"}
+                      </td>
+                      <td className="py-3.5 px-4 font-black text-foreground">
+                        {formatCurrency(order.total)}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-caption font-bold border ${
+                            ORDER_STATUS_COLOR[order.status] || "bg-muted text-muted-foreground border-border"
+                          }`}
+                        >
+                          {ORDER_STATUS_LABEL[order.status] || order.status}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-muted-foreground text-[12px]">{formatDate(order.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </div>

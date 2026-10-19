@@ -46,12 +46,12 @@ function FinanceiroPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [methodFilter, setMethodFilter] = useState<"all" | "pix" | "card" | "boleto">("all");
+  const [methodFilter, setMethodFilter] = useState<"all" | "pix" | "card">("all");
 
   // Withdrawal modal state
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [pixKey, setPixKey] = useState("12.345.678/0001-90 (CNPJ)");
+  const [pixKey, setPixKey] = useState("68.689.135/0004-40 (CNPJ)");
   const [isSubmittingWithdraw, setIsSubmittingWithdraw] = useState(false);
 
   const loadData = async () => {
@@ -77,10 +77,8 @@ function FinanceiroPage() {
       let fee = 0;
       if (o.paymentMethod === "pix") {
         fee = o.total * 0.0099; // 0.99% PIX fee
-      } else if (o.paymentMethod === "card") {
-        fee = o.total * 0.0299; // 2.99% Card fee
       } else {
-        fee = 2.5; // R$ 2.50 fixed Boleto fee
+        fee = o.total * 0.0299; // 2.99% Card fee
       }
       fee = Math.min(fee, o.total);
       const net = Math.max(0, o.total - fee);
@@ -129,11 +127,9 @@ function FinanceiroPage() {
     // Breakdown by payment method
     const pixTxs = validTxs.filter((t) => t.order.paymentMethod === "pix");
     const cardTxs = validTxs.filter((t) => t.order.paymentMethod === "card");
-    const boletoTxs = validTxs.filter((t) => t.order.paymentMethod === "boleto");
 
     const pixGross = pixTxs.reduce((sum, t) => sum + t.order.total, 0);
     const cardGross = cardTxs.reduce((sum, t) => sum + t.order.total, 0);
-    const boletoGross = boletoTxs.reduce((sum, t) => sum + t.order.total, 0);
 
     return {
       grossRevenue,
@@ -145,8 +141,6 @@ function FinanceiroPage() {
       pixCount: pixTxs.length,
       cardGross,
       cardCount: cardTxs.length,
-      boletoGross,
-      boletoCount: boletoTxs.length,
     };
   }, [transactions]);
 
@@ -297,7 +291,7 @@ function FinanceiroPage() {
             <CreditCard className="size-4 text-brand" /> Divisão por Método de Pagamento
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* PIX */}
             <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/5 p-5 space-y-2">
               <div className="flex items-center justify-between">
@@ -325,20 +319,6 @@ function FinanceiroPage() {
               <p className="text-h3 font-black text-foreground">{formatCurrency(stats.cardGross)}</p>
               <p className="text-caption text-muted-foreground">Taxa de processamento estimada: ~2.99%</p>
             </div>
-
-            {/* Boleto */}
-            <div className="rounded-3xl border border-border bg-surface p-5 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-caption font-extrabold text-muted-foreground uppercase flex items-center gap-1.5">
-                  <FileText className="size-4 text-primary" /> Boleto Bancário
-                </span>
-                <span className="text-caption font-bold text-muted-foreground bg-muted px-2.5 py-0.5 rounded-full">
-                  {stats.boletoCount} vendas
-                </span>
-              </div>
-              <p className="text-h3 font-black text-foreground">{formatCurrency(stats.boletoGross)}</p>
-              <p className="text-caption text-muted-foreground">Taxa fixa estimada: R$ 2.50 / boleto</p>
-            </div>
           </div>
         </div>
 
@@ -360,7 +340,6 @@ function FinanceiroPage() {
               { id: "all", label: "Todas as Formas" },
               { id: "pix", label: "PIX" },
               { id: "card", label: "Cartão" },
-              { id: "boleto", label: "Boleto" },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -424,13 +403,13 @@ function FinanceiroPage() {
                             <>
                               <QrCode className="size-3.5 text-emerald-500" /> PIX
                             </>
-                          ) : order.paymentMethod === "card" ? (
+                          ) : order.paymentMethod === "infinitepay" ? (
                             <>
-                              <CreditCard className="size-3.5 text-brand" /> Cartão
+                              <CreditCard className="size-3.5 text-brand" /> InfinitePay
                             </>
                           ) : (
                             <>
-                              <FileText className="size-3.5 text-primary" /> Boleto
+                              <CreditCard className="size-3.5 text-brand" /> Cartão
                             </>
                           )}
                         </span>

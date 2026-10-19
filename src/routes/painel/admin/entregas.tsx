@@ -228,7 +228,7 @@ function EntregasPage() {
         </div>
 
         {/* Metrics Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="rounded-3xl border border-border bg-surface p-5 shadow-xs flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-caption font-bold text-muted-foreground uppercase">
@@ -250,32 +250,6 @@ function EntregasPage() {
             </div>
             <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
               <CheckCircle2 className="size-6" />
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-border bg-surface p-5 shadow-xs flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="text-caption font-bold text-muted-foreground uppercase">
-                Frete Grátis Sudeste
-              </span>
-              <p className="text-h3 font-black text-brand">
-                {formatCurrency(stats.freeShippingMin)}
-              </p>
-            </div>
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-              <Zap className="size-6" />
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-border bg-surface p-5 shadow-xs flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="text-caption font-bold text-muted-foreground uppercase">
-                Prazo Médio Brasil
-              </span>
-              <p className="text-h3 font-black text-foreground">2 a 5 dias</p>
-            </div>
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-              <Clock className="size-6" />
             </div>
           </div>
         </div>

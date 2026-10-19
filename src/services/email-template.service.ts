@@ -67,14 +67,14 @@ export const sampleTemplateContext = {
     pix_copia_cola: "00020126580014br.gov.bcb.pix0136apertastart-pix-1803152040000",
   },
   entrega: {
-    endereco: "Av. Paulista, 1000 - Apto 42, Bela Vista, São Paulo/SP",
+    endereco: "Rua do Cliente, 123 - Centro",
     transportadora: "Correios (SEDEX Express)",
     codigo_rastreio: "AA987654321BR",
     link_rastreio: "https://rastreamento.correios.com.br/app/index.php",
   },
   loja: {
     nome: "Aperta Start",
-    email: "contato@apertastart.com.br",
+    email: "apertastart.loja@gmail.com",
     whatsapp: "(11) 98765-4321",
     logo_url: "https://apertastart.com.br/assets/logo.png",
   },
@@ -397,7 +397,7 @@ const initialTemplates: EmailTemplate[] = [
         id: "b3",
         type: "text",
         content:
-          "Obrigado por se inscrever na nossa lista VIP! Use o cupom abaixo na tela de checkout para garantir 10% de desconto no seu próximo pedido:",
+          "Obrigado por se inscrever na nossa lista VIP! Aproveite as melhores novidades e ofertas exclusivas no seu próximo pedido:",
         fontSize: 14,
         textColor: "#f4f4f5",
         align: "center",
@@ -405,7 +405,7 @@ const initialTemplates: EmailTemplate[] = [
       {
         id: "b4",
         type: "button",
-        content: "Usar Cupom START10 Na Loja",
+        content: "Acessar a Loja",
         buttonUrl: "https://apertastart.com.br/loja",
         bgColor: "#eab308",
         textColor: "#000000",

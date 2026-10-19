@@ -384,7 +384,7 @@ function ProdutosListaPage() {
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3.5">
                             <img
-                              src={product.images[0]?.url || "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&auto=format&fit=crop&q=80"}
+                              src={product.images[0]?.url || "/placeholder-product.svg"}
                               alt={product.name}
                               className="size-12 rounded-xl object-contain bg-background border border-border p-1 shrink-0"
                             />

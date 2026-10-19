@@ -220,6 +220,9 @@ export interface CartItem {
   variantId?: ID;
   quantity: number;
   unitPrice: number;
+  productName?: string;
+  productSku?: string;
+  productImage?: string;
 }
 
 export interface Cart {

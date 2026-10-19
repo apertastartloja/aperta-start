@@ -120,7 +120,7 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
     initialData?.images || [
       {
         id: "img-1",
-        url: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800&auto=format&fit=crop&q=80",
+        url: "/placeholder-product.svg",
         alt: "Imagem do produto",
       },
     ]
@@ -1045,7 +1045,11 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
                 <label className="text-caption font-bold text-foreground">Mensagem do Bump</label>
                 <input
                   type="text"
-                  placeholder="Adicione por apenas +R$ 29,90!"
+                  placeholder={
+                    orderBumpProductId && allProducts.find((p) => p.id === orderBumpProductId)
+                      ? `Adicione por apenas +${formatCurrency(allProducts.find((p) => p.id === orderBumpProductId)!.price)}!`
+                      : "Adicione por apenas +R$ ..."
+                  }
                   value={orderBumpMessage}
                   onChange={(e) => setOrderBumpMessage(e.target.value)}
                   className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-small text-foreground focus:border-ring focus:outline-none"
@@ -1211,7 +1215,7 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Hero 3D Studio"
+                  placeholder="Ex: Fornecedor Parceiro"
                   value={quickSupplierData.name}
                   onChange={(e) =>
                     setQuickSupplierData({ ...quickSupplierData, name: e.target.value })
@@ -1224,7 +1228,7 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
                 <label className="text-caption font-bold text-muted-foreground">Razão Social</label>
                 <input
                   type="text"
-                  placeholder="Ex: Hero Impressão 3D LTDA"
+                  placeholder="Ex: Empresa Parceira LTDA"
                   value={quickSupplierData.companyName}
                   onChange={(e) =>
                     setQuickSupplierData({ ...quickSupplierData, companyName: e.target.value })

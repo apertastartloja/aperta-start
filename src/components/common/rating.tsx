@@ -11,6 +11,14 @@ interface RatingProps {
 export function Rating({ value, reviewsCount, size = "sm", className }: RatingProps) {
   const iconSize = size === "sm" ? "size-3.5" : "size-4.5";
 
+  if (!reviewsCount || reviewsCount === 0) {
+    return (
+      <div className={cn("flex items-center gap-1.5", className)}>
+        <span className="text-small text-muted-foreground">Sem avaliações</span>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
       <div className="flex items-center gap-0.5">
@@ -28,8 +36,7 @@ export function Rating({ value, reviewsCount, size = "sm", className }: RatingPr
         ))}
       </div>
       <span className="text-small text-muted-foreground">
-        {value.toFixed(1)}
-        {typeof reviewsCount === "number" ? ` (${reviewsCount})` : ""}
+        {value.toFixed(1)} ({reviewsCount})
       </span>
     </div>
   );

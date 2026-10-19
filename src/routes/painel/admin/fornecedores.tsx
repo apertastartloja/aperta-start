@@ -506,7 +506,7 @@ function FornecedoresPage() {
                     <input
                       type="text"
                       required
-                      placeholder="Ex: Hero 3D Studio"
+                      placeholder="Ex: Fornecedor Parceiro"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full rounded-2xl border border-input bg-background p-2.5 text-small text-foreground focus:outline-none focus:border-ring"

@@ -33,6 +33,9 @@ export function AddToCartButton({
           productId: product.id,
           quantity,
           unitPrice: product.price,
+          productName: product.name,
+          productSku: product.sku,
+          productImage: product.images[0]?.url,
           ...(variantId ? { variantId } : {}),
         })
       }

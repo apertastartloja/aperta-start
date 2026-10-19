@@ -2,7 +2,7 @@ export const APP = {
   name: "Aperta Start",
   tagline: "Acessórios e decoração gamer para elevar seu setup e sua experiência de jogo!",
   supportPhone: "0800 123 4567",
-  supportEmail: "ola@apertastart.com.br",
+  supportEmail: "apertastart.loja@gmail.com",
 } as const;
 
 /** Rotas centralizadas. */
@@ -21,7 +21,7 @@ export const ROUTES = {
 
 export const CURRENCY = { locale: "pt-BR", code: "BRL" } as const;
 
-export const INSTALLMENTS = { max: 6, minValue: 10, interestFree: true } as const;
+export const INSTALLMENTS = { max: 12, minValue: 10, interestFree: true } as const;
 
 export const SHIPPING = { freeAbove: 199, flatRate: 19.9 } as const;
 

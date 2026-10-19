@@ -18,10 +18,12 @@ import {
   User as UserIcon,
   ExternalLink,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useCartContext } from "@/contexts/cart-context";
 import { Container } from "@/components/common/container";
 import { QuantitySelector } from "@/components/product/quantity-selector";
 import { mockProducts } from "@/mocks/products.mock";
+import { ProductService } from "@/services/product.service";
 import { formatCurrency, isValidCPF } from "@/utils/format";
 import { maskCPF, maskPhone, maskCEP, validateEmail, validatePhone } from "@/utils/masks";
 import { toast } from "sonner";
@@ -85,21 +87,21 @@ function CheckoutPage() {
 
   // Form State
   const [formData, setFormData] = useState({
-    name: "Cristiano Alves",
-    email: "cristiano@exemplo.com",
-    cpf: "191.000.000-00",
-    phone: "(11) 98765-4321",
-    cep: "01310-100",
-    address: "Av. Paulista",
-    number: "1000",
-    complement: "Apto 42",
-    neighborhood: "Bela Vista",
-    city: "São Paulo",
-    uf: "SP",
-    cardNumber: "**** **** **** 4829",
-    cardName: "Cristiano Alves",
-    cardExpiry: "12/28",
-    cardCvv: "888",
+    name: "",
+    email: "",
+    cpf: "",
+    phone: "",
+    cep: "",
+    address: "",
+    number: "",
+    complement: "",
+    neighborhood: "",
+    city: "",
+    uf: "",
+    cardNumber: "",
+    cardName: "",
+    cardExpiry: "",
+    cardCvv: "",
     installments: "1",
   });
 
@@ -191,8 +193,41 @@ function CheckoutPage() {
     setStep(3);
   };
 
+  const { data: productsData } = useQuery({
+    queryKey: ["products", "checkout-page"],
+    queryFn: () => ProductService.list({ perPage: 200, includeInactive: true }),
+  });
+
+  const allProducts = productsData?.data ?? [];
+
   const cartProducts = cart.items.map((item) => {
-    const p: Product = mockProducts.find((mp) => mp.id === item.productId) ?? mockProducts[0]!;
+    const foundProduct =
+      allProducts.find((mp) => mp.id === item.productId) ??
+      mockProducts.find((mp) => mp.id === item.productId);
+
+    const p: Product = foundProduct ?? {
+      id: item.productId,
+      name: item.productName || "Produto Aperta Start",
+      sku: item.productSku || "APS-100",
+      slug: (item.productName || "produto").toLowerCase().replace(/\s+/g, "-"),
+      description: item.productName || "",
+      price: item.unitPrice,
+      categoryId: "cat-1",
+      stock: 99,
+      images: [
+        {
+          id: "img-1",
+          url: item.productImage || "/placeholder-product.svg",
+          alt: item.productName || "",
+        },
+      ],
+      rating: 5,
+      reviewsCount: 0,
+      badges: [],
+      tags: [],
+      status: "active",
+      collectionIds: [],
+    };
     return { ...item, product: p };
   });
 
@@ -616,7 +651,7 @@ function CheckoutPage() {
                       {cartProducts.map(({ id, quantity, unitPrice, product }) => (
                         <div key={id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
                           <img
-                            src={product.images[0]?.url || ""}
+                            src={product.images[0]?.url || "/placeholder-product.svg"}
                             alt={product.name}
                             className="h-20 w-20 shrink-0 rounded-xl border border-border bg-background object-contain p-2"
                           />
@@ -1133,10 +1168,11 @@ function CheckoutPage() {
                               onChange={(e) => setFormData({ ...formData, installments: e.target.value })}
                               className="mt-1 w-full rounded-xl border border-input bg-surface px-4 py-2.5 text-small text-foreground"
                             >
-                              <option value="1">1x de {formatCurrency(finalTotal)} sem juros</option>
-                              <option value="2">2x de {formatCurrency(finalTotal / 2)} sem juros</option>
-                              <option value="3">3x de {formatCurrency(finalTotal / 3)} sem juros</option>
-                              <option value="6">6x de {formatCurrency(finalTotal / 6)} sem juros</option>
+                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
+                                <option key={n} value={String(n)}>
+                                  {n}x de {formatCurrency(finalTotal / n)} sem juros
+                                </option>
+                              ))}
                             </select>
                           </div>
                         </div>
@@ -1222,7 +1258,7 @@ function CheckoutPage() {
                 {/* Subtotals & Totals */}
                 <div className="space-y-3 text-small border-t border-border pt-4">
                   <div className="flex justify-between text-muted-foreground">
-                    <span>Subtotal ({cart.items.length} itens):</span>
+                    <span>Subtotal ({cart.items.length} {cart.items.length === 1 ? "item" : "itens"}):</span>
                     <span className="font-semibold text-foreground">{formatCurrency(totals.subtotal)}</span>
                   </div>
                   {totals.discount > 0 && (

@@ -47,7 +47,7 @@ export function Installments({ total, className }: { total: number; className?: 
 
   return (
     <p className={cn("text-small text-muted-foreground", className)}>
-      ou {count}x de {formatCurrency(value)}
+      {"ou "}{count}{"x de "}{formatCurrency(value)}
       {interestFree ? "" : ""}
     </p>
   );

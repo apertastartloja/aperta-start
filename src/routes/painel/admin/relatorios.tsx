@@ -98,31 +98,69 @@ function RelatoriosPage() {
     const totalRevenue = filteredOrders.reduce((sum, o) => sum + o.total, 0);
     const totalOrdersCount = filteredOrders.length;
     const avgTicket = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0;
-    const conversionRate = 3.4; // % estimated e-commerce conversion rate
+    const paidOrders = filteredOrders.filter((o) =>
+      ["paid", "processing", "shipped", "delivered"].includes(o.status)
+    ).length;
+    const conversionRate =
+      totalOrdersCount > 0
+        ? ((paidOrders / totalOrdersCount) * 100).toFixed(1)
+        : "0.0";
 
-    return { totalRevenue, totalOrdersCount, avgTicket, conversionRate };
+    return { totalRevenue, totalOrdersCount, avgTicket, conversionRate, paidOrders };
   }, [filteredOrders]);
 
-  // Daily / Weekly Revenue Timeline Bars Data
+  // Daily / Weekly Revenue Timeline Bars Data computed from real filteredOrders
   const timelineData = useMemo(() => {
+    const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
     const daysMap: Record<string, number> = {
-      Seg: 1240,
-      Ter: 1890,
-      Qua: 2450,
-      Qui: 3100,
-      Sex: 4200,
-      Sáb: 3850,
-      Dom: 2900,
+      Seg: 0,
+      Ter: 0,
+      Qua: 0,
+      Qui: 0,
+      Sex: 0,
+      Sáb: 0,
+      Dom: 0,
     };
 
-    // Calculate max for height scaling
+    filteredOrders.forEach((o) => {
+      const d = new Date(o.createdAt);
+      const name = dayNames[d.getDay()];
+      if (name && daysMap[name] !== undefined) {
+        daysMap[name] += o.total;
+      }
+    });
+
     const maxVal = Math.max(...Object.values(daysMap), 1);
-    return Object.entries(daysMap).map(([day, val]) => ({
+    return ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((day) => ({
       day,
-      value: val,
-      percentage: Math.round((val / maxVal) * 100),
+      value: daysMap[day] || 0,
+      percentage: Math.round(((daysMap[day] || 0) / maxVal) * 100),
     }));
-  }, []);
+  }, [filteredOrders]);
+
+  // Order Funnel / Pipeline from real filteredOrders
+  const orderFunnel = useMemo(() => {
+    const total = filteredOrders.length;
+    if (total === 0) {
+      return { paid: 0, paidPct: 0, shipped: 0, shippedPct: 0, delivered: 0, deliveredPct: 0 };
+    }
+    const paid = filteredOrders.filter((o) =>
+      ["paid", "processing", "shipped", "delivered"].includes(o.status)
+    ).length;
+    const shipped = filteredOrders.filter((o) =>
+      ["shipped", "delivered"].includes(o.status)
+    ).length;
+    const delivered = filteredOrders.filter((o) => o.status === "delivered").length;
+
+    return {
+      paid,
+      paidPct: Math.round((paid / total) * 100),
+      shipped,
+      shippedPct: Math.round((shipped / total) * 100),
+      delivered,
+      deliveredPct: Math.round((delivered / total) * 100),
+    };
+  }, [filteredOrders]);
 
   // Top 5 Best Selling Products Ranking
   const topProducts: TopProductStat[] = useMemo(() => {
@@ -146,11 +184,11 @@ function RelatoriosPage() {
           products.find((p) => p.id === productId) ||
           ({
             id: productId,
-            name: "Suporte para Controle Gamer",
-            sku: "APS-100",
-            price: 79.9,
+            name: "Produto",
+            sku: "SKU",
+            price: data.revenue / (data.units || 1),
             categoryId: "cat-1",
-            images: [{ url: "/assets/products/suporte-duplo.jpg", alt: "" }],
+            images: [{ id: "1", url: "/placeholder-product.svg", alt: "Produto" }],
           } as Product);
 
         const share = (data.revenue / totalRev) * 100;
@@ -162,24 +200,33 @@ function RelatoriosPage() {
     return list;
   }, [filteredOrders, products, stats.totalRevenue]);
 
-  // Category Revenue Distribution
+  // Category Revenue Distribution from real orders
   const categoryStats: CategoryStat[] = useMemo(() => {
-    const catMap: Record<string, number> = {
-      Suportes: stats.totalRevenue * 0.42,
-      Luminárias: stats.totalRevenue * 0.28,
-      "Caixas e Organizadores": stats.totalRevenue * 0.18,
-      "Action Figures": stats.totalRevenue * 0.08,
-      Chaveiros: stats.totalRevenue * 0.04,
-    };
+    if (filteredOrders.length === 0 || stats.totalRevenue === 0) {
+      return [];
+    }
+
+    const catRevMap: Record<string, number> = {};
+
+    filteredOrders.forEach((order) => {
+      order.items.forEach((item) => {
+        const product = products.find((p) => p.id === item.productId);
+        const category = mockCategories.find((c) => c.id === product?.categoryId);
+        const categoryName = category?.name || "Outros";
+        catRevMap[categoryName] = (catRevMap[categoryName] || 0) + item.unitPrice * item.quantity;
+      });
+    });
 
     const total = stats.totalRevenue || 1;
 
-    return Object.entries(catMap).map(([catName, rev]) => ({
-      categoryName: catName,
-      revenue: rev,
-      share: (rev / total) * 100,
-    }));
-  }, [stats.totalRevenue]);
+    return Object.entries(catRevMap)
+      .map(([categoryName, revenue]) => ({
+        categoryName,
+        revenue,
+        share: (revenue / total) * 100,
+      }))
+      .sort((a, b) => b.revenue - a.revenue);
+  }, [filteredOrders, products, stats.totalRevenue]);
 
   // Export CSV
   const handleExportCSV = () => {
@@ -318,8 +365,8 @@ function RelatoriosPage() {
                 </span>
                 <h3 className="text-h3 font-black text-foreground">Faturamento por Dia da Semana</h3>
               </div>
-              <span className="text-caption font-extrabold text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full flex items-center gap-1">
-                <ArrowUpRight className="size-3.5" /> +14.2% vs. período anterior
+              <span className="text-caption font-bold text-muted-foreground bg-muted/60 border border-border px-3 py-1 rounded-full flex items-center gap-1">
+                {filteredOrders.length} {filteredOrders.length === 1 ? "pedido" : "pedidos"} no período
               </span>
             </div>
 
@@ -349,7 +396,7 @@ function RelatoriosPage() {
 
             <div className="flex items-center justify-between text-caption text-muted-foreground pt-1">
               <span>Valores em Reais (R$) computados por dia</span>
-              <span className="font-bold text-foreground">Atualizado há 5 minutos</span>
+              <span className="font-bold text-foreground">Atualizado em tempo real</span>
             </div>
           </div>
 
@@ -363,23 +410,30 @@ function RelatoriosPage() {
             </div>
 
             <div className="space-y-4">
-              {categoryStats.map((cat) => (
-                <div key={cat.categoryName} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-small">
-                    <span className="font-bold text-foreground">{cat.categoryName}</span>
-                    <span className="font-extrabold text-foreground font-mono">
-                      {cat.share.toFixed(1)}% ({formatCurrency(cat.revenue)})
-                    </span>
-                  </div>
-
-                  <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                    <div
-                      style={{ width: `${cat.share}%` }}
-                      className="h-full rounded-full bg-brand"
-                    />
-                  </div>
+              {categoryStats.length === 0 ? (
+                <div className="py-8 text-center text-muted-foreground space-y-1">
+                  <p className="text-small font-medium">Nenhuma venda registrada no período.</p>
+                  <p className="text-caption text-muted-foreground">O share por categoria será calculado automaticamente.</p>
                 </div>
-              ))}
+              ) : (
+                categoryStats.map((cat) => (
+                  <div key={cat.categoryName} className="space-y-1.5">
+                    <div className="flex items-center justify-between text-small">
+                      <span className="font-bold text-foreground">{cat.categoryName}</span>
+                      <span className="font-extrabold text-foreground font-mono">
+                        {cat.share.toFixed(1)}% ({formatCurrency(cat.revenue)})
+                      </span>
+                    </div>
+
+                    <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                      <div
+                        style={{ width: `${cat.share}%` }}
+                        className="h-full rounded-full bg-brand"
+                      />
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -410,90 +464,110 @@ function RelatoriosPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {topProducts.map(({ product, unitsSold, revenue, share }, idx) => (
-                    <tr key={product.id} className="hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3 font-black text-brand text-small">
-                        #{idx + 1}
-                      </td>
-
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={product.images[0]?.url || ""}
-                            alt={product.name}
-                            className="size-10 rounded-xl border border-border object-contain p-1 shrink-0"
-                          />
-                          <div>
-                            <p className="font-bold text-foreground line-clamp-1">{product.name}</p>
-                            <span className="text-caption text-muted-foreground font-mono">{product.sku}</span>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="px-4 py-3 font-bold text-foreground">
-                        {unitsSold} un.
-                      </td>
-
-                      <td className="px-4 py-3 font-black text-emerald-600 dark:text-emerald-400">
-                        {formatCurrency(revenue)}
-                      </td>
-
-                      <td className="px-4 py-3 text-right font-extrabold text-foreground font-mono">
-                        {share.toFixed(1)}%
+                  {topProducts.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                        Nenhuma venda registrada no período selecionado.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    topProducts.map(({ product, unitsSold, revenue, share }, idx) => (
+                      <tr key={product.id} className="hover:bg-muted/20 transition-colors">
+                        <td className="px-4 py-3 font-black text-brand text-small">
+                          #{idx + 1}
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={product.images[0]?.url || "/placeholder-product.svg"}
+                              alt={product.name}
+                              className="size-10 rounded-xl border border-border object-contain p-1 shrink-0"
+                            />
+                            <div>
+                              <p className="font-bold text-foreground line-clamp-1">{product.name}</p>
+                              <span className="text-caption text-muted-foreground font-mono">{product.sku}</span>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-3 font-bold text-foreground">
+                          {unitsSold} un.
+                        </td>
+
+                        <td className="px-4 py-3 font-black text-emerald-600 dark:text-emerald-400">
+                          {formatCurrency(revenue)}
+                        </td>
+
+                        <td className="px-4 py-3 text-right font-extrabold text-foreground font-mono">
+                          {share.toFixed(1)}%
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* E-Commerce Conversion Funnel */}
+          {/* Real Order Pipeline Funnel */}
           <div className="rounded-3xl border border-border bg-surface p-6 shadow-xs space-y-5">
             <div>
               <span className="text-caption font-extrabold text-brand uppercase tracking-wider">
-                Jornada do Cliente
+                Pipeline de Vendas
               </span>
-              <h3 className="text-h3 font-black text-foreground">Funil de Conversão</h3>
+              <h3 className="text-h3 font-black text-foreground">Funil de Pedidos</h3>
             </div>
 
-            <div className="space-y-3">
-              {/* Step 1 */}
-              <div className="rounded-2xl border border-border bg-background p-3.5 space-y-1">
-                <div className="flex items-center justify-between text-caption font-bold text-muted-foreground">
-                  <span>1. Visitantes da Loja</span>
-                  <span className="text-foreground font-extrabold">4.820 acessos</span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-brand" />
+            {filteredOrders.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground space-y-2">
+                <ShoppingBag className="size-8 mx-auto opacity-30" />
+                <p className="text-small font-medium">Nenhum pedido no período selecionado.</p>
+                <p className="text-caption text-muted-foreground">O funil reflete os pedidos criados e seu progresso.</p>
               </div>
+            ) : (
+              <div className="space-y-3">
+                {/* Step 1 */}
+                <div className="rounded-2xl border border-border bg-background p-3.5 space-y-1">
+                  <div className="flex items-center justify-between text-caption font-bold text-muted-foreground">
+                    <span>1. Pedidos Criados</span>
+                    <span className="text-foreground font-extrabold">{filteredOrders.length} (100%)</span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-brand" />
+                </div>
 
-              {/* Step 2 */}
-              <div className="rounded-2xl border border-border bg-background p-3.5 space-y-1">
-                <div className="flex items-center justify-between text-caption font-bold text-muted-foreground">
-                  <span>2. Adicionaram ao Carrinho</span>
-                  <span className="text-foreground font-extrabold">742 (15.4%)</span>
+                {/* Step 2 */}
+                <div className="rounded-2xl border border-border bg-background p-3.5 space-y-1">
+                  <div className="flex items-center justify-between text-caption font-bold text-muted-foreground">
+                    <span>2. Pagos / Aprovados</span>
+                    <span className="text-foreground font-extrabold">
+                      {orderFunnel.paid} ({orderFunnel.paidPct}%)
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-brand/80" style={{ width: `${Math.max(orderFunnel.paidPct, 4)}%` }} />
                 </div>
-                <div className="h-2 w-full rounded-full bg-brand/80" style={{ width: "75%" }} />
-              </div>
 
-              {/* Step 3 */}
-              <div className="rounded-2xl border border-border bg-background p-3.5 space-y-1">
-                <div className="flex items-center justify-between text-caption font-bold text-muted-foreground">
-                  <span>3. Iniciaram Checkout</span>
-                  <span className="text-foreground font-extrabold">310 (6.4%)</span>
+                {/* Step 3 */}
+                <div className="rounded-2xl border border-border bg-background p-3.5 space-y-1">
+                  <div className="flex items-center justify-between text-caption font-bold text-muted-foreground">
+                    <span>3. Em Transporte</span>
+                    <span className="text-foreground font-extrabold">
+                      {orderFunnel.shipped} ({orderFunnel.shippedPct}%)
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-brand/60" style={{ width: `${Math.max(orderFunnel.shippedPct, 4)}%` }} />
                 </div>
-                <div className="h-2 w-full rounded-full bg-brand/60" style={{ width: "45%" }} />
-              </div>
 
-              {/* Step 4 */}
-              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 space-y-1">
-                <div className="flex items-center justify-between text-caption font-extrabold text-emerald-600 dark:text-emerald-400">
-                  <span>4. Compras Concluídas</span>
-                  <span>164 (3.4%)</span>
+                {/* Step 4 */}
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 space-y-1">
+                  <div className="flex items-center justify-between text-caption font-extrabold text-emerald-600 dark:text-emerald-400">
+                    <span>4. Entregues com Sucesso</span>
+                    <span>{orderFunnel.delivered} ({orderFunnel.deliveredPct}%)</span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-emerald-500" style={{ width: `${Math.max(orderFunnel.deliveredPct, 4)}%` }} />
                 </div>
-                <div className="h-2 w-full rounded-full bg-emerald-500" style={{ width: "25%" }} />
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

@@ -53,7 +53,7 @@ const STATUS_BADGE_STYLE: Record<OrderStatus, string> = {
 const PAYMENT_ICON: Record<string, typeof CreditCard> = {
   pix: QrCode,
   card: CreditCard,
-  boleto: FileText,
+  infinitepay: CreditCard,
 };
 
 function PedidosPage() {
@@ -378,11 +378,11 @@ function PedidosPage() {
                             <PayIcon className="size-3.5 text-brand" />
                             {order.paymentMethod === "pix"
                               ? "PIX"
+                              : order.paymentMethod === "infinitepay"
+                              ? "InfinitePay"
                               : order.paymentMethod === "card"
                               ? "Cartão"
-                              : order.paymentMethod === "boleto"
-                              ? "Boleto"
-                              : "Outro"}
+                              : "Cartão / PIX"}
                           </span>
                         </td>
 

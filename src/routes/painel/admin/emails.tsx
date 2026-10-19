@@ -321,7 +321,7 @@ function EmailsPage() {
             <div className="rounded-3xl border border-border bg-surface p-5 shadow-xs flex items-center justify-between">
               <div>
                 <span className="text-caption font-extrabold text-muted-foreground uppercase">Remetente Oficial</span>
-                <p className="text-small font-black text-foreground mt-1">contato@apertastart.com.br</p>
+                <p className="text-small font-black text-foreground mt-1">apertastart.loja@gmail.com</p>
               </div>
               <div className="flex size-12 items-center justify-center rounded-2xl bg-brand/10 text-brand">
                 <Mail className="size-6" />

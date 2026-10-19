@@ -25,7 +25,17 @@ export function MiniCart() {
 
   const cartItemsWithProduct = cart.items.map((item) => {
     const product = allProducts.find((p) => p.id === item.productId);
-    return { ...item, product: product ?? null };
+    return {
+      ...item,
+      product: product ?? {
+        id: item.productId,
+        name: item.productName || "Produto",
+        sku: item.productSku || "APS",
+        price: item.unitPrice,
+        stock: 99,
+        images: [{ id: "img-1", url: item.productImage || "/placeholder-product.svg", alt: item.productName || "" }],
+      } as any,
+    };
   });
 
   // Find Order Bump: look for a bump defined on any product in the cart
@@ -36,9 +46,16 @@ export function MiniCart() {
         const bumpProduct = allProducts.find((p) => p.id === cartProduct.orderBumpProductId);
         const alreadyInCart = cart.items.some((ci) => ci.productId === cartProduct.orderBumpProductId);
         if (bumpProduct && !alreadyInCart) {
+          const bumpPriceFormatted = formatCurrency(bumpProduct.price);
+          let msg = cartProduct.orderBumpMessage?.trim();
+          if (!msg || msg.includes("29,90")) {
+            msg = `Adicione por apenas +${bumpPriceFormatted}!`;
+          } else if (msg.includes("{preco}") || msg.includes("{price}")) {
+            msg = msg.replace("{preco}", bumpPriceFormatted).replace("{price}", bumpPriceFormatted);
+          }
           return {
             product: bumpProduct,
-            message: cartProduct.orderBumpMessage || `Adicione por apenas ${formatCurrency(bumpProduct.price)}!`,
+            message: msg,
           };
         }
       }
@@ -52,6 +69,9 @@ export function MiniCart() {
       productId: orderBumpProduct.product.id,
       quantity: 1,
       unitPrice: orderBumpProduct.product.price,
+      productName: orderBumpProduct.product.name,
+      productSku: orderBumpProduct.product.sku,
+      productImage: orderBumpProduct.product.images[0]?.url,
     });
   };
 
@@ -109,7 +129,7 @@ export function MiniCart() {
               <li key={id} className="flex gap-3 py-3 first:pt-0 last:pb-0">
                 {product ? (
                   <img
-                    src={product.images[0]?.url || ""}
+                    src={product.images[0]?.url || "/placeholder-product.svg"}
                     alt={product.name}
                     className="h-16 w-16 shrink-0 rounded-xl border border-border bg-background object-contain p-1.5"
                   />

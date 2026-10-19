@@ -1,10 +1,12 @@
 import { CURRENCY, INSTALLMENTS } from "@/constants";
 
-export const formatCurrency = (value: number): string =>
-  new Intl.NumberFormat(CURRENCY.locale, {
+export const formatCurrency = (value: number): string => {
+  const formatted = new Intl.NumberFormat(CURRENCY.locale, {
     style: "currency",
     currency: CURRENCY.code,
   }).format(value);
+  return formatted.replace(/^R\$\s*/, "R$ ").replace(/\u00a0/g, " ");
+};
 
 export const formatNumber = (value: number): string =>
   new Intl.NumberFormat(CURRENCY.locale).format(value);
