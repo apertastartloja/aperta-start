@@ -168,6 +168,17 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
     }
   }, [categories, categoryId]);
 
+  // Sync initialData changes (including onDemand toggle and productionDays)
+  useEffect(() => {
+    if (initialData) {
+      setIsOnDemand(Boolean(initialData.isOnDemand));
+      setProductionDays(initialData.productionDays ?? 3);
+      if (initialData.specs) {
+        setSpecs(initialData.specs);
+      }
+    }
+  }, [initialData]);
+
   // Image Upload Handler
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -306,6 +317,7 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
         shippingLength: shippingLength !== "" ? Number(shippingLength) : undefined,
         shippingWidth: shippingWidth !== "" ? Number(shippingWidth) : undefined,
         shippingHeight: shippingHeight !== "" ? Number(shippingHeight) : undefined,
+        specs: specs.filter((s) => s.key && s.key.trim()),
       };
 
       if (isEditing && initialData?.id) {

@@ -58,39 +58,53 @@ export const ProductService = {
         .order("created_at", { ascending: false });
 
       if (!error && data && data.length > 0) {
-        const fetched = data.map((item) => ({
-          id: item.id,
-          name: item.name,
-          slug: item.slug,
-          sku: item.sku ?? "",
-          description: item.description,
-          shortDescription: item.short_description ?? undefined,
-          price: Number(item.price),
-          compareAtPrice: item.compare_at_price ? Number(item.compare_at_price) : null,
-          categoryId: item.category_id,
-          collectionIds: item.collection_ids ?? [],
-          images: item.images ?? [],
-          badges: item.badges ?? [],
-          rating: Number(item.rating ?? 5.0),
-          reviewsCount: item.reviews_count ?? 0,
-          stock: item.stock ?? 0,
-          variants: item.variants ?? [],
-          tags: item.tags ?? [],
-          status: item.status ?? "active",
-          seoTitle: item.seo_title ?? undefined,
-          seoDescription: item.seo_description ?? undefined,
-          relatedProductIds: item.related_product_ids ?? [],
-          orderBumpProductId: item.order_bump_product_id ?? null,
-          orderBumpMessage: item.order_bump_message ?? undefined,
-          specs: item.specs ?? [],
-          shippingWeight: item.shipping_weight ?? undefined,
-          shippingLength: item.shipping_length ?? undefined,
-          shippingWidth: item.shipping_width ?? undefined,
-          shippingHeight: item.shipping_height ?? undefined,
-          isOnDemand: Boolean(item.is_on_demand ?? item.isOnDemand ?? false),
-          productionDays: item.production_days ?? item.productionDays ?? 3,
-          createdAt: item.created_at ?? new Date().toISOString(),
-        }));
+        const fetched = data.map((item) => {
+          const rawSpecs = Array.isArray(item.specs) ? item.specs : [];
+          const onDemandSpec = rawSpecs.find(
+            (s: any) => s && (s.key === "__on_demand" || s.key === "on_demand" || s.key === "sob_demanda")
+          );
+          const isOnDemand = onDemandSpec
+            ? onDemandSpec.value !== "false" && onDemandSpec.value !== false && onDemandSpec.value !== ""
+            : Boolean(item.is_on_demand ?? item.isOnDemand ?? false);
+          const productionDays = onDemandSpec && Number(onDemandSpec.value) > 0
+            ? Number(onDemandSpec.value)
+            : Number(item.production_days ?? item.productionDays ?? 3);
+          const cleanSpecs = rawSpecs.filter((s: any) => !s?.key?.startsWith("__"));
+
+          return {
+            id: item.id,
+            name: item.name,
+            slug: item.slug,
+            sku: item.sku ?? "",
+            description: item.description,
+            shortDescription: item.short_description ?? undefined,
+            price: Number(item.price),
+            compareAtPrice: item.compare_at_price ? Number(item.compare_at_price) : null,
+            categoryId: item.category_id,
+            collectionIds: item.collection_ids ?? [],
+            images: item.images ?? [],
+            badges: item.badges ?? [],
+            rating: Number(item.rating ?? 5.0),
+            reviewsCount: item.reviews_count ?? 0,
+            stock: item.stock ?? 0,
+            variants: item.variants ?? [],
+            tags: item.tags ?? [],
+            status: item.status ?? "active",
+            seoTitle: item.seo_title ?? undefined,
+            seoDescription: item.seo_description ?? undefined,
+            relatedProductIds: item.related_product_ids ?? [],
+            orderBumpProductId: item.order_bump_product_id ?? null,
+            orderBumpMessage: item.order_bump_message ?? undefined,
+            specs: cleanSpecs,
+            shippingWeight: item.shipping_weight ?? undefined,
+            shippingLength: item.shipping_length ?? undefined,
+            shippingWidth: item.shipping_width ?? undefined,
+            shippingHeight: item.shipping_height ?? undefined,
+            isOnDemand,
+            productionDays,
+            createdAt: item.created_at ?? new Date().toISOString(),
+          };
+        });
         const fetchedIds = new Set(fetched.map((p) => p.id));
         const merged = [...fetched, ...localProductsStore.filter((p) => !fetchedIds.has(p.id))];
         localProductsStore = merged;
@@ -209,6 +223,20 @@ export const ProductService = {
     const newId = `prod-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     const createdAt = new Date().toISOString();
 
+    const isOnDemand = Boolean(input.isOnDemand);
+    const productionDays = Number(input.productionDays) || 3;
+    const cleanSpecs = Array.isArray(input.specs)
+      ? input.specs.filter((s) => !s?.key?.startsWith("__"))
+      : [];
+
+    const specsToPersist = [...cleanSpecs];
+    if (isOnDemand) {
+      specsToPersist.push({
+        key: "__on_demand",
+        value: String(productionDays),
+      });
+    }
+
     const newProduct: Product = {
       ...input,
       id: newId,
@@ -216,6 +244,9 @@ export const ProductService = {
       status: input.status ?? "active",
       rating: input.rating ?? 5.0,
       reviewsCount: input.reviewsCount ?? 0,
+      isOnDemand,
+      productionDays,
+      specs: cleanSpecs,
     };
 
     // 1. Tentar salvar no Supabase
@@ -244,7 +275,7 @@ export const ProductService = {
         related_product_ids: newProduct.relatedProductIds ?? [],
         order_bump_product_id: newProduct.orderBumpProductId ?? null,
         order_bump_message: newProduct.orderBumpMessage ?? null,
-        specs: newProduct.specs ?? [],
+        specs: specsToPersist,
         shipping_weight: newProduct.shippingWeight ?? null,
         shipping_length: newProduct.shippingLength ?? null,
         shipping_width: newProduct.shippingWidth ?? null,
@@ -270,10 +301,33 @@ export const ProductService = {
     const existingIndex = localProductsStore.findIndex((p) => p.id === id);
     const existing = localProductsStore[existingIndex];
 
+    const targetIsOnDemand = patch.isOnDemand !== undefined
+      ? Boolean(patch.isOnDemand)
+      : existing ? Boolean(existing.isOnDemand) : false;
+
+    const targetProductionDays = patch.productionDays !== undefined
+      ? Number(patch.productionDays) || 3
+      : existing ? Number(existing.productionDays) || 3 : 3;
+
+    const baseSpecs = patch.specs !== undefined
+      ? (Array.isArray(patch.specs) ? patch.specs.filter((s) => !s?.key?.startsWith("__")) : [])
+      : (existing && Array.isArray(existing.specs) ? existing.specs.filter((s) => !s?.key?.startsWith("__")) : []);
+
+    const specsToPersist = [...baseSpecs];
+    if (targetIsOnDemand) {
+      specsToPersist.push({
+        key: "__on_demand",
+        value: String(targetProductionDays),
+      });
+    }
+
     const updatedProduct: Product = {
       ...(existing || {}),
       ...patch,
       id,
+      isOnDemand: targetIsOnDemand,
+      productionDays: targetProductionDays,
+      specs: baseSpecs,
     } as Product;
 
     // 1. Atualizar no Supabase
@@ -299,7 +353,12 @@ export const ProductService = {
       if (patch.relatedProductIds !== undefined) payload["related_product_ids"] = patch.relatedProductIds;
       if (patch.orderBumpProductId !== undefined) payload["order_bump_product_id"] = patch.orderBumpProductId;
       if (patch.orderBumpMessage !== undefined) payload["order_bump_message"] = patch.orderBumpMessage;
-      if (patch.specs !== undefined) payload["specs"] = patch.specs;
+      
+      // Sempre salvar specs atualizado quando specs, isOnDemand ou productionDays mudarem
+      if (patch.specs !== undefined || patch.isOnDemand !== undefined || patch.productionDays !== undefined) {
+        payload["specs"] = specsToPersist;
+      }
+
       if (patch.shippingWeight !== undefined) payload["shipping_weight"] = patch.shippingWeight;
       if (patch.shippingLength !== undefined) payload["shipping_length"] = patch.shippingLength;
       if (patch.shippingWidth !== undefined) payload["shipping_width"] = patch.shippingWidth;
