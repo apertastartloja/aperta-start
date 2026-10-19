@@ -49,7 +49,7 @@ function ProductDetailPage() {
   });
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState("Preto Stealth");
+  const [selectedColor, setSelectedColor] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [cep, setCep] = useState("");
   const [shippingOptions, setShippingOptions] = useState<
@@ -58,11 +58,19 @@ function ProductDetailPage() {
   const [isCalculatingCep, setIsCalculatingCep] = useState(false);
   const [activeTab, setActiveTab] = useState<"description" | "specs" | "reviews">("description");
 
-  const colors = [
-    { name: "Preto Stealth", hex: "#19253b" },
-    { name: "Amarelo Start", hex: "#ffc933" },
-    { name: "Roxo Cyber", hex: "#7c3aed" },
-  ];
+  const hasDescription = Boolean(product?.description?.trim());
+
+  useEffect(() => {
+    if (product && !product.description?.trim() && activeTab === "description") {
+      setActiveTab("specs");
+    }
+  }, [product, activeTab]);
+
+  useEffect(() => {
+    if (product?.variants && product.variants.length > 0 && !selectedColor) {
+      setSelectedColor(product.variants[0].value);
+    }
+  }, [product, selectedColor]);
 
   const currentImage = product ? (product.images[selectedImageIndex]?.url || product.images[0]?.url || "") : "";
 
@@ -314,11 +322,12 @@ function ProductDetailPage() {
               </p>
             </div>
 
-            {/* Colors selection */}
-            {product.variants && product.variants.length > 0 ? (
+            {/* Variants selection — only displayed when product has registered variants */}
+            {product.variants && product.variants.length > 0 && (
               <div className="space-y-2">
                 <label className="text-small font-semibold text-foreground flex justify-between">
                   <span>Variações:</span>
+                  <span className="text-muted-foreground font-normal">{selectedColor}</span>
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map((v) => (
@@ -337,32 +346,6 @@ function ProductDetailPage() {
                           {v.priceDiff > 0 ? "+" : ""}{formatCurrency(v.priceDiff)}
                         </span>
                       ) : null}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <label className="text-small font-semibold text-foreground flex justify-between">
-                  <span>Cor / Edição:</span>
-                  <span className="text-muted-foreground font-normal">{selectedColor}</span>
-                </label>
-                <div className="flex gap-3">
-                  {colors.map((c) => (
-                    <button
-                      key={c.name}
-                      onClick={() => setSelectedColor(c.name)}
-                      className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-small font-medium transition-all ${
-                        selectedColor === c.name
-                          ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                          : "border-border bg-surface hover:bg-muted"
-                      }`}
-                    >
-                      <span
-                        className="h-4 w-4 rounded-full border border-white/20"
-                        style={{ backgroundColor: c.hex }}
-                      />
-                      {c.name}
                     </button>
                   ))}
                 </div>
@@ -469,19 +452,21 @@ function ProductDetailPage() {
         {/* Middle Tabs: Description, Specs & Reviews */}
         <div className="mt-16 rounded-2xl border border-border bg-surface p-6 sm:p-8 shadow-light">
           <div className="flex border-b border-border gap-6 overflow-x-auto">
-            <button
-              onClick={() => setActiveTab("description")}
-              className={`pb-4 text-h4 font-bold transition-colors relative shrink-0 ${
-                activeTab === "description"
-                  ? "text-brand"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Descrição Completa
-              {activeTab === "description" && (
-                <span className="absolute bottom-0 left-0 right-0 h-1 rounded-t-full bg-brand" />
-              )}
-            </button>
+            {hasDescription && (
+              <button
+                onClick={() => setActiveTab("description")}
+                className={`pb-4 text-h4 font-bold transition-colors relative shrink-0 ${
+                  activeTab === "description"
+                    ? "text-brand"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Descrição Completa
+                {activeTab === "description" && (
+                  <span className="absolute bottom-0 left-0 right-0 h-1 rounded-t-full bg-brand" />
+                )}
+              </button>
+            )}
             <button
               onClick={() => setActiveTab("specs")}
               className={`pb-4 text-h4 font-bold transition-colors relative shrink-0 ${
@@ -511,15 +496,12 @@ function ProductDetailPage() {
           </div>
 
           <div className="py-6">
-            {activeTab === "description" && (
-              <div className="space-y-4 text-body text-muted-foreground leading-relaxed max-w-4xl">
+            {hasDescription && activeTab === "description" && (
+              <div className="space-y-4 text-body text-muted-foreground leading-relaxed max-w-4xl whitespace-pre-line">
                 <p>{product.description}</p>
                 {product.shortDescription && (
                   <p className="font-medium text-foreground">{product.shortDescription}</p>
                 )}
-                <p>
-                  Desenvolvido especialmente para entusiastas de setup gamer e cultura geek, este produto alia durabilidade extrema, acabamento premium e funcionalidade impecável. Fabricado com materiais de alta qualidade no Brasil pela Aperta Start.
-                </p>
               </div>
             )}
 

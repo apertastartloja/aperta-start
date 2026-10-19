@@ -911,14 +911,28 @@ function CheckoutPage() {
                           />
                         </div>
 
-                        <div>
-                          <label className="text-caption font-semibold text-foreground">Cidade / UF</label>
-                          <input
-                            type="text"
-                            value={`${formData.city} / ${formData.uf}`}
-                            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                            className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground"
-                          />
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="col-span-2">
+                            <label className="text-caption font-semibold text-foreground">Cidade</label>
+                            <input
+                              type="text"
+                              placeholder="São Paulo"
+                              value={formData.city}
+                              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                              className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-small text-foreground focus:border-ring focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-caption font-semibold text-foreground">UF</label>
+                            <input
+                              type="text"
+                              maxLength={2}
+                              placeholder="SP"
+                              value={formData.uf}
+                              onChange={(e) => setFormData({ ...formData, uf: e.target.value.toUpperCase().slice(0, 2) })}
+                              className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2.5 text-small text-foreground uppercase text-center focus:border-ring focus:outline-none"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
