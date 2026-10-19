@@ -27,19 +27,23 @@ export function SearchSuggestions({
           {results.map((product) => (
             <li key={product.id}>
               <Link
-                to="/"
+                to="/produto/$slug"
+                params={{ slug: product.slug }}
                 onClick={onSelect}
                 className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted"
               >
                 <span className="size-10 shrink-0 overflow-hidden rounded-sm bg-surface">
-                  {product.images[0] ? (
-                    <img
-                      src={product.images[0].url}
-                      alt={product.images[0].alt}
-                      className="size-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : null}
+                  <img
+                    src={product.images?.[0]?.url || "/placeholder-product.svg"}
+                    alt={product.images?.[0]?.alt || product.name}
+                    onError={(e) => {
+                      if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+                        e.currentTarget.src = "/placeholder-product.svg";
+                      }
+                    }}
+                    className="size-full object-cover"
+                    loading="lazy"
+                  />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="text-small block truncate font-medium">{product.name}</span>

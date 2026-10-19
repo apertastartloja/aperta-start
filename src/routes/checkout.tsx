@@ -227,6 +227,7 @@ function CheckoutPage() {
       tags: [],
       status: "active",
       collectionIds: [],
+      createdAt: new Date().toISOString(),
     };
     return { ...item, product: p };
   });

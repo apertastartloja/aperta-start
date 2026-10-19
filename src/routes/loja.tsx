@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   ChevronRight,
   Filter,
@@ -8,11 +9,12 @@ import {
   Search,
   ArrowUpDown,
   RotateCcw,
+  Loader2,
 } from "lucide-react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { ProductCard } from "@/components/product/product-card";
 import { Container } from "@/components/common/container";
-import { mockProducts } from "@/mocks/products.mock";
+import { ProductService } from "@/services/product.service";
 import { mockCategories } from "@/mocks/categories.mock";
 
 export const Route = createFileRoute("/loja")({
@@ -30,9 +32,21 @@ export const Route = createFileRoute("/loja")({
 });
 
 function ShopPage() {
+  const { data: productsData, isLoading } = useQuery({
+    queryKey: ["products", "storefront"],
+    queryFn: () => ProductService.list({ perPage: 200 }),
+  });
+
+  const products = productsData?.data ?? [];
+
+  const maxCatalogPrice = useMemo(() => {
+    if (products.length === 0) return 500;
+    return Math.max(500, ...products.map((p) => Math.ceil(p.price)));
+  }, [products]);
+
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedBadge, setSelectedBadge] = useState<string>("all");
-  const [priceRange, setPriceRange] = useState<number>(200);
+  const [priceRange, setPriceRange] = useState<number>(500);
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating">(
     "featured"
   );
@@ -41,7 +55,7 @@ function ShopPage() {
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    return mockProducts
+    return products
       .filter((p) => {
         // Category filter
         if (selectedCategory !== "all" && p.categoryId !== selectedCategory) {
@@ -51,8 +65,8 @@ function ShopPage() {
         if (selectedBadge !== "all" && !p.badges.includes(selectedBadge as any)) {
           return false;
         }
-        // Price filter
-        if (p.price > priceRange) {
+        // Price filter (only applies if slider is moved below maxCatalogPrice)
+        if (priceRange < maxCatalogPrice && p.price > priceRange) {
           return false;
         }
         // Search query
@@ -71,12 +85,12 @@ function ShopPage() {
         if (sortBy === "rating") return b.rating - a.rating;
         return 0; // featured default
       });
-  }, [selectedCategory, selectedBadge, priceRange, sortBy, searchQuery]);
+  }, [products, selectedCategory, selectedBadge, priceRange, maxCatalogPrice, sortBy, searchQuery]);
 
   const handleResetFilters = () => {
     setSelectedCategory("all");
     setSelectedBadge("all");
-    setPriceRange(200);
+    setPriceRange(maxCatalogPrice);
     setSortBy("featured");
     setSearchQuery("");
   };
@@ -104,7 +118,7 @@ function ShopPage() {
             </h1>
             <p className="mt-1 text-small text-muted-foreground">
               Mostrando <strong className="text-foreground">{filteredProducts.length}</strong> de{" "}
-              {mockProducts.length} itens disponíveis no estoque.
+              {products.length} itens disponíveis no estoque.
             </p>
           </div>
 
@@ -239,7 +253,7 @@ function ShopPage() {
                 <input
                   type="range"
                   min="20"
-                  max="200"
+                  max={maxCatalogPrice}
                   step="10"
                   value={priceRange}
                   onChange={(e) => setPriceRange(Number(e.target.value))}
@@ -247,7 +261,7 @@ function ShopPage() {
                 />
                 <div className="flex justify-between text-caption text-muted-foreground">
                   <span>R$ 20</span>
-                  <span>R$ 200+</span>
+                  <span>R$ {maxCatalogPrice}+</span>
                 </div>
               </div>
             </div>
@@ -255,7 +269,11 @@ function ShopPage() {
 
           {/* Products Grid */}
           <main className="lg:col-span-9 space-y-6">
-            {filteredProducts.length > 0 ? (
+            {isLoading ? (
+              <div className="flex items-center justify-center min-h-[40vh]">
+                <Loader2 className="h-10 w-10 animate-spin text-brand" />
+              </div>
+            ) : filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />

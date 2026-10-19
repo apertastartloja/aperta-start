@@ -86,7 +86,7 @@ function ClientesPage() {
         if (
           ord.customerEmail &&
           !combinedUsers.some(
-            (u) => u.email.toLowerCase() === ord.customerEmail.toLowerCase()
+            (u) => u.email.toLowerCase() === ord.customerEmail!.toLowerCase()
           )
         ) {
           combinedUsers.push({

@@ -326,7 +326,7 @@ function AdminDashboardPage() {
             <div className="space-y-4">
               {topProducts.length === 0 ? (
                 <div className="py-8 text-center text-caption text-muted-foreground">
-                  Nenhum produto cadastrado no catálogo.
+                  Nenhuma venda registrada ainda.
                 </div>
               ) : (
                 topProducts.map((prod, idx) => (

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Truck,
@@ -11,6 +11,7 @@ import {
   Share2,
   ShoppingCart,
   Loader2,
+  Sparkles,
 } from "lucide-react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Container } from "@/components/common/container";
@@ -72,7 +73,7 @@ function ProductDetailPage() {
     }
   }, [product, selectedColor]);
 
-  const currentImage = product ? (product.images[selectedImageIndex]?.url || product.images[0]?.url || "") : "";
+  const currentImage = product ? (product.images?.[selectedImageIndex]?.url || product.images?.[0]?.url || "") : "";
 
   // Fetch related products — use relatedProductIds if set, else fall back to same category
   const { data: relatedProductsData } = useQuery({
@@ -228,7 +229,7 @@ function ProductDetailPage() {
                   className="h-full w-full object-contain object-center transition-transform duration-300 hover:scale-105"
                 />
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                  {product.badges.map((badge) => (
+                  {(product.badges || []).map((badge) => (
                     <ProductBadge key={badge} type={badge} />
                   ))}
                 </div>
@@ -246,7 +247,7 @@ function ProductDetailPage() {
 
               {/* Gallery Thumbnails */}
               <div className="flex gap-3 overflow-x-auto pb-2">
-                {product.images.map((img, idx) => (
+                {(product.images || []).map((img, idx) => (
                   <button
                     key={img.id}
                     onClick={() => setSelectedImageIndex(idx)}

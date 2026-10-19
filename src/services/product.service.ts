@@ -4,7 +4,37 @@ import { mockCategories, mockCollections, mockProducts } from "@/mocks";
 import type { Paginated, Product, ProductQuery } from "@/types";
 import { NotFoundError, clone, delay, paginate } from "./base.service";
 
-let localProductsStore: Product[] = clone(mockProducts);
+const PRODUCTS_STORAGE_KEY = "aperta_start_products_local";
+
+function getLocalProducts(): Product[] {
+  if (typeof window === "undefined") return clone(mockProducts);
+  try {
+    const raw = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const existingIds = new Set(parsed.map((p: any) => p.id));
+        const missingSeeds = mockProducts.filter((mp) => !existingIds.has(mp.id));
+        return [...parsed, ...missingSeeds];
+      }
+    }
+  } catch (e) {
+    console.warn("Erro ao ler produtos do localStorage", e);
+  }
+  return clone(mockProducts);
+}
+
+function saveLocalProducts(products: Product[]) {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
+    } catch (e) {
+      console.warn("Erro ao salvar produtos no localStorage", e);
+    }
+  }
+}
+
+let localProductsStore: Product[] = getLocalProducts();
 
 const normalize = (value: string) =>
   value
@@ -27,7 +57,7 @@ export const ProductService = {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (!error && data) {
+      if (!error && data && data.length > 0) {
         const fetched = data.map((item) => ({
           id: item.id,
           name: item.name,
@@ -61,8 +91,11 @@ export const ProductService = {
           productionDays: item.production_days ?? item.productionDays ?? 3,
           createdAt: item.created_at ?? new Date().toISOString(),
         }));
-        localProductsStore = fetched;
-        return fetched;
+        const fetchedIds = new Set(fetched.map((p) => p.id));
+        const merged = [...fetched, ...localProductsStore.filter((p) => !fetchedIds.has(p.id))];
+        localProductsStore = merged;
+        saveLocalProducts(merged);
+        return merged;
       }
     } catch (err) {
       console.warn("Aviso ao buscar produtos do Supabase, utilizando estado local:", err);
@@ -229,6 +262,7 @@ export const ProductService = {
 
     // 2. Atualizar estado local
     localProductsStore = [newProduct, ...localProductsStore];
+    saveLocalProducts(localProductsStore);
     return delay(clone(newProduct));
   },
 
@@ -285,6 +319,7 @@ export const ProductService = {
     } else {
       localProductsStore.unshift(updatedProduct);
     }
+    saveLocalProducts(localProductsStore);
 
     return delay(clone(updatedProduct));
   },
@@ -300,6 +335,7 @@ export const ProductService = {
     }
 
     localProductsStore = localProductsStore.filter((p) => p.id !== id);
+    saveLocalProducts(localProductsStore);
     return delay(true);
   },
 
@@ -314,6 +350,7 @@ export const ProductService = {
     }
 
     localProductsStore = localProductsStore.filter((p) => !ids.includes(p.id));
+    saveLocalProducts(localProductsStore);
     return delay(true);
   },
 
@@ -328,6 +365,7 @@ export const ProductService = {
     }
 
     localProductsStore = localProductsStore.map((p) => (ids.includes(p.id) ? { ...p, status } : p));
+    saveLocalProducts(localProductsStore);
     return delay(true);
   },
 
