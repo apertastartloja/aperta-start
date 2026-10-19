@@ -680,7 +680,7 @@ export const EmailTemplateService = {
               <tr>
                 <td style="padding: 24px; text-align: center;">
                   <p style="margin: 0 0 12px 0; font-size: 13px; color: #a1a1aa;">Siga a Aperta Start nas redes sociais:</p>
-                  <a href="https://instagram.com/apertastart.oficial" target="_blank" style="display: inline-block; margin: 0 8px; color: #eab308; font-weight: bold; text-decoration: none; font-size: 13px;">Instagram</a>
+                  <a href="https://www.instagram.com/apertastart.loja/" target="_blank" style="display: inline-block; margin: 0 8px; color: #eab308; font-weight: bold; text-decoration: none; font-size: 13px;">Instagram</a>
                   <a href="https://tiktok.com/@apertastart" target="_blank" style="display: inline-block; margin: 0 8px; color: #eab308; font-weight: bold; text-decoration: none; font-size: 13px;">TikTok</a>
                   <a href="https://wa.me/5511987654321" target="_blank" style="display: inline-block; margin: 0 8px; color: #22c55e; font-weight: bold; text-decoration: none; font-size: 13px;">WhatsApp</a>
                 </td>

@@ -59,7 +59,7 @@ const defaultStoreSettings: StoreSettings = {
   gtmId: "GTM-APSTART",
   tiktokPixelId: "",
 
-  instagram: "apertastart.oficial",
+  instagram: "apertastart.loja",
   tiktok: "@apertastart",
   youtube: "apertastart",
   facebook: "apertastartloja",

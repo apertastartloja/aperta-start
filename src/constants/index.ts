@@ -3,6 +3,8 @@ export const APP = {
   tagline: "Acessórios e decoração gamer para elevar seu setup e sua experiência de jogo!",
   supportPhone: "0800 123 4567",
   supportEmail: "apertastart.loja@gmail.com",
+  instagramUrl: "https://www.instagram.com/apertastart.loja/",
+  instagramHandle: "@apertastart.loja",
 } as const;
 
 /** Rotas centralizadas. */

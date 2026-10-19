@@ -1,22 +1,50 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { ShieldCheck, RefreshCw, FileText, ChevronRight, Check } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  ShieldCheck,
+  RefreshCw,
+  FileText,
+  ChevronRight,
+  Check,
+  CreditCard,
+  Truck,
+  Clock,
+} from "lucide-react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Container } from "@/components/common/container";
 import { APP } from "@/constants";
 
+type PolicyTab = "payments" | "shipping" | "exchanges" | "privacy" | "terms";
+
 export const Route = createFileRoute("/politicas")({
+  validateSearch: (search: Record<string, unknown>): { tab?: PolicyTab } => {
+    const validTabs: PolicyTab[] = ["payments", "shipping", "exchanges", "privacy", "terms"];
+    return {
+      tab: validTabs.includes(search.tab as PolicyTab) ? (search.tab as PolicyTab) : undefined,
+    };
+  },
   head: () => ({
     meta: [
-      { title: "Políticas & Termos de Uso — Aperta Start" },
-      { name: "description", content: "Conheça nossas políticas de troca, termos de uso e privacidade em conformidade com o CDC e LGPD." },
+      { title: "Políticas, Pagamentos & Entregas — Aperta Start" },
+      {
+        name: "description",
+        content:
+          "Conheça nossas formas de pagamento, prazos de entrega, políticas de troca e privacidade em conformidade com o CDC e LGPD.",
+      },
     ],
   }),
   component: PoliciesPage,
 });
 
 function PoliciesPage() {
-  const [activeTab, setActiveTab] = useState<"exchanges" | "privacy" | "terms">("exchanges");
+  const search = Route.useSearch();
+  const [activeTab, setActiveTab] = useState<PolicyTab>(search.tab || "exchanges");
+
+  useEffect(() => {
+    if (search.tab) {
+      setActiveTab(search.tab);
+    }
+  }, [search.tab]);
 
   return (
     <MainLayout>
@@ -27,17 +55,17 @@ function PoliciesPage() {
             Início
           </Link>
           <ChevronRight className="mx-2 h-4 w-4 text-muted-foreground/60" />
-          <span className="font-medium text-foreground">Políticas & Termos</span>
+          <span className="font-medium text-foreground">Políticas & Ajuda</span>
         </nav>
 
         {/* Header */}
         <div className="border-b border-border pb-6">
           <span className="text-caption font-bold text-brand uppercase tracking-wider">
-            Transparência & Segurança
+            Transparência & Informações
           </span>
-          <h1 className="text-h1 font-black text-foreground">Políticas & Termos de Uso</h1>
+          <h1 className="text-h1 font-black text-foreground">Políticas, Pagamento & Entrega</h1>
           <p className="mt-1 text-small text-muted-foreground">
-            Tudo o que você precisa saber sobre compras, trocas e privacidade na Aperta Start.
+            Tudo o que você precisa saber sobre compras, pagamentos, prazos de entrega e trocas na Aperta Start.
           </p>
         </div>
 
@@ -47,6 +75,31 @@ function PoliciesPage() {
           <aside className="lg:col-span-3 space-y-2">
             <div className="rounded-2xl border border-border bg-surface p-3 shadow-light space-y-1">
               <button
+                type="button"
+                onClick={() => setActiveTab("payments")}
+                className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-small font-bold transition-all ${
+                  activeTab === "payments"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <CreditCard className="h-4 w-4" />
+                Formas de Pagamento
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("shipping")}
+                className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-small font-bold transition-all ${
+                  activeTab === "shipping"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Truck className="h-4 w-4" />
+                Prazos e Entregas
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveTab("exchanges")}
                 className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-small font-bold transition-all ${
                   activeTab === "exchanges"
@@ -58,6 +111,7 @@ function PoliciesPage() {
                 Trocas e Devoluções
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("privacy")}
                 className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-small font-bold transition-all ${
                   activeTab === "privacy"
@@ -69,6 +123,7 @@ function PoliciesPage() {
                 Política de Privacidade
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("terms")}
                 className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-small font-bold transition-all ${
                   activeTab === "terms"
@@ -85,6 +140,92 @@ function PoliciesPage() {
           {/* Tab Content */}
           <main className="lg:col-span-9">
             <div className="rounded-2xl border border-border bg-surface p-6 sm:p-8 shadow-light space-y-6">
+              {activeTab === "payments" && (
+                <div className="space-y-6 text-small text-muted-foreground leading-relaxed">
+                  <div className="space-y-2">
+                    <h2 className="text-h3 font-bold text-foreground">Formas de Pagamento</h2>
+                    <p>
+                      Compre com total praticidade e segurança na Aperta Start. Trabalhamos com métodos de pagamento ágeis e 100% seguros através da plataforma InfinitePay.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5 space-y-2">
+                      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-base">
+                        <Check className="h-5 w-5" /> PIX (5% de Desconto Imediato)
+                      </div>
+                      <p className="text-small text-muted-foreground">
+                        Ao selecionar PIX no checkout, você ganha 5% de desconto automático no valor dos produtos. O QR Code e a chave Copia e Cola são gerados instantaneamente e a confirmação é imediata.
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5 space-y-2">
+                      <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-base">
+                        <CreditCard className="h-5 w-5" /> Cartão de Crédito em até 12x
+                      </div>
+                      <p className="text-small text-muted-foreground">
+                        Parcele suas compras em até 12x sem juros (ou conforme as condições da bandeira). Aceitamos Visa, Mastercard, Elo, Hipercard e American Express com aprovação em tempo real.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-background p-5 border border-border space-y-3">
+                    <h3 className="text-h4 font-bold text-foreground">Segurança & Criptografia</h3>
+                    <p>
+                      Todos os dados de pagamento são criptografados com certificado SSL (Secure Socket Layer) de 256 bits e processados diretamente pela InfinitePay, em conformidade com o padrão PCI-DSS. A Aperta Start <strong>não armazena</strong> dados sensíveis de cartões em seus servidores.
+                    </p>
+                    <p className="text-caption text-muted-foreground">
+                      * Nota: Para garantir a máxima velocidade de despacho e entrega, não operamos com Boleto Bancário.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "shipping" && (
+                <div className="space-y-6 text-small text-muted-foreground leading-relaxed">
+                  <div className="space-y-2">
+                    <h2 className="text-h3 font-bold text-foreground">Prazos e Formas de Entrega</h2>
+                    <p>
+                      Entregamos para todo o território nacional através dos Correios e das melhores transportadoras parceiras, com código de rastreamento e seguro contra extravio.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-border bg-background p-5 space-y-2">
+                      <div className="flex items-center gap-2 text-brand font-bold text-base">
+                        <Truck className="h-5 w-5" /> Produtos a Pronta Entrega
+                      </div>
+                      <p className="text-small text-muted-foreground">
+                        Postagem expressa em até <strong>24 horas úteis</strong> após a confirmação do pagamento. O prazo de transporte varia conforme a sua cidade e modalidade escolhida (SEDEX ou PAC).
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 p-5 space-y-2">
+                      <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold text-base">
+                        <Clock className="h-5 w-5" /> Produtos Feitos Sob Encomenda
+                      </div>
+                      <p className="text-small text-muted-foreground">
+                        Itens fabricados sob demanda (impressões 3D personalizadas, suportes ou caixas sob encomenda) possuem o prazo de produção informado diretamente na página do produto (normalmente 3 a 5 dias úteis) antes do despacho.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-background p-5 border border-border space-y-3">
+                    <h3 className="text-h4 font-bold text-foreground">Como acompanhar seu pedido</h3>
+                    <p>
+                      Assim que o seu pacote for despachado nos Correios ou na transportadora, você receberá automaticamente o <strong>código de rastreio</strong> por e-mail e poderá acompanhar todo o trajeto em tempo real na seção{" "}
+                      <Link to="/minha-conta" className="text-brand font-bold underline">
+                        Minha Conta &gt; Meus Pedidos
+                      </Link>.
+                    </p>
+                    <p className="text-caption text-muted-foreground">
+                      Dúvidas sobre o status da sua entrega? Fale diretamente com nossa equipe pelo WhatsApp ou pelo e-mail{" "}
+                      <strong>{APP.supportEmail}</strong>.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {activeTab === "exchanges" && (
                 <div className="space-y-4 text-small text-muted-foreground leading-relaxed">
                   <h2 className="text-h3 font-bold text-foreground">Política de Trocas e Devoluções</h2>

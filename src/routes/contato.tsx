@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronRight,
   CheckCircle2,
+  Instagram,
 } from "lucide-react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Container } from "@/components/common/container";
@@ -86,7 +87,7 @@ function ContactPage() {
         </div>
 
         {/* Contact Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="rounded-2xl border border-border bg-surface p-6 text-center space-y-3 shadow-light hover:border-emerald-500/40 transition-all">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
               <MessageCircle className="h-6 w-6" />
@@ -99,7 +100,23 @@ function ContactPage() {
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 text-small font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
             >
-              Iniciar Conversa no WhatsApp <ChevronRight className="h-4 w-4" />
+              Conversar no WhatsApp <ChevronRight className="h-4 w-4" />
+            </a>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-surface p-6 text-center space-y-3 shadow-light hover:border-pink-500/40 transition-all">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-pink-500/10 text-pink-500">
+              <Instagram className="h-6 w-6" />
+            </div>
+            <h3 className="text-h4 font-bold text-foreground">Instagram Oficial</h3>
+            <p className="text-caption text-muted-foreground">Novidades e lançamentos diários.</p>
+            <a
+              href={APP.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-small font-bold text-pink-600 dark:text-pink-400 hover:underline"
+            >
+              {APP.instagramHandle} <ChevronRight className="h-4 w-4" />
             </a>
           </div>
 

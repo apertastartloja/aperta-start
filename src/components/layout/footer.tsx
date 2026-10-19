@@ -4,14 +4,25 @@ import { Logo } from "@/components/common/logo";
 import { Container } from "@/components/common/container";
 import { APP } from "@/constants";
 
-const columns = [
+interface FooterLink {
+  label: string;
+  href: string;
+  search?: Record<string, unknown>;
+}
+
+interface FooterColumn {
+  title: string;
+  links: FooterLink[];
+}
+
+const columns: FooterColumn[] = [
   {
     title: "Institucional",
     links: [
       { label: "Sobre nós", href: "/sobre" },
       { label: "Perguntas frequentes", href: "/contato" },
-      { label: "Política de privacidade", href: "/politicas" },
-      { label: "Trocas e devoluções", href: "/politicas" },
+      { label: "Política de privacidade", href: "/politicas", search: { tab: "privacy" } },
+      { label: "Trocas e devoluções", href: "/politicas", search: { tab: "exchanges" } },
       { label: "Contato", href: "/contato" },
     ],
   },
@@ -20,8 +31,8 @@ const columns = [
     links: [
       { label: "Minha conta", href: "/minha-conta" },
       { label: "Meus pedidos", href: "/minha-conta" },
-      { label: "Formas de pagamento", href: "/checkout" },
-      { label: "Prazo de entrega", href: "/contato" },
+      { label: "Formas de pagamento", href: "/politicas", search: { tab: "payments" } },
+      { label: "Prazo de entrega", href: "/politicas", search: { tab: "shipping" } },
       { label: "Rastreamento", href: "/minha-conta" },
     ],
   },
@@ -47,15 +58,53 @@ export function Footer() {
         <div className="space-y-5">
           <Logo size="lg" variant="light" />
           <p className="text-small max-w-xs text-white/75 leading-relaxed">{APP.tagline}</p>
-          <div className="flex items-center gap-3">
-            {[Instagram, Youtube, Twitch, Facebook].map((SocialIcon, index) => (
-              <span
-                key={index}
-                className="grid size-9 place-items-center rounded-xl bg-white/5 border border-white/10 text-white/80 transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:border-accent hover:scale-105 cursor-pointer shadow-xs"
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              {/* Instagram Oficial */}
+              <a
+                href={APP.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Instagram ${APP.instagramHandle}`}
+                title={`Siga a loja no Instagram ${APP.instagramHandle}`}
+                className="grid size-9 place-items-center rounded-xl bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white transition-all duration-300 hover:scale-110 shadow-xs"
               >
-                <SocialIcon className="size-4" aria-hidden />
+                <Instagram className="size-4" aria-hidden />
+              </a>
+
+              {/* Redes futuras / inativas */}
+              <span
+                className="grid size-9 place-items-center rounded-xl bg-white/5 border border-white/10 text-white/30 cursor-not-allowed shadow-xs"
+                title="Canal em breve"
+              >
+                <Youtube className="size-4" aria-hidden />
               </span>
-            ))}
+              <span
+                className="grid size-9 place-items-center rounded-xl bg-white/5 border border-white/10 text-white/30 cursor-not-allowed shadow-xs"
+                title="Canal em breve"
+              >
+                <Twitch className="size-4" aria-hidden />
+              </span>
+              <span
+                className="grid size-9 place-items-center rounded-xl bg-white/5 border border-white/10 text-white/30 cursor-not-allowed shadow-xs"
+                title="Página em breve"
+              >
+                <Facebook className="size-4" aria-hidden />
+              </span>
+            </div>
+
+            <div>
+              <a
+                href={APP.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-white/80 hover:text-white transition-colors group"
+              >
+                <Instagram className="size-3.5 text-pink-400 group-hover:scale-110 transition-transform" />
+                <span>{APP.instagramHandle}</span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -69,6 +118,7 @@ export function Footer() {
                 <li key={link.label}>
                   <Link
                     to={link.href as any}
+                    search={link.search as any}
                     className="text-small text-white/70 transition-all duration-200 hover:text-white hover:translate-x-1 inline-block"
                   >
                     {link.label}
@@ -93,9 +143,22 @@ export function Footer() {
               </li>
             ))}
           </ul>
-          <p className="text-small flex items-center gap-2 text-white/75 pt-2">
-            <Mail className="size-4 text-accent" aria-hidden /> {APP.supportEmail}
-          </p>
+          <div className="space-y-1.5 pt-2">
+            <p className="text-small flex items-center gap-2 text-white/75">
+              <Mail className="size-4 text-accent shrink-0" aria-hidden /> {APP.supportEmail}
+            </p>
+            <p className="text-small flex items-center gap-2 text-white/75">
+              <Instagram className="size-4 text-pink-400 shrink-0" aria-hidden />
+              <a
+                href={APP.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                {APP.instagramHandle}
+              </a>
+            </p>
+          </div>
         </div>
       </Container>
 

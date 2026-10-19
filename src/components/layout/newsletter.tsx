@@ -78,7 +78,7 @@ export function Newsletter() {
                 </button>
               </form>
 
-              {/* Personagem e prova social integrados no mesmo bloco */}
+              {/* Personagem e chamada para ofertas */}
               <div className="flex items-center gap-3 pt-2">
                 <img
                   src={mascot}
@@ -89,7 +89,7 @@ export function Newsletter() {
                   className="size-12 rounded-full object-cover ring-2 ring-accent/60 shadow-md"
                 />
                 <span className="text-xs text-white/75 font-semibold tracking-wide">
-                  Junte-se a +10.000 apaixonados por setups incríveis!
+                  Cadastre-se e receba ofertas exclusivas da loja!
                 </span>
               </div>
             </div>
