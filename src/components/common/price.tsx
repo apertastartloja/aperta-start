@@ -42,13 +42,12 @@ export function Price({
 }
 
 export function Installments({ total, className }: { total: number; className?: string | undefined }) {
-  const { count, value, interestFree } = bestInstallment(total);
+  const { count, value } = bestInstallment(total);
   if (count <= 1) return null;
 
   return (
     <p className={cn("text-small text-muted-foreground", className)}>
-      {"ou "}{count}{"x de "}{formatCurrency(value)}
-      {interestFree ? "" : ""}
+      {`ou ${count}x de ${formatCurrency(value)}`}
     </p>
   );
 }

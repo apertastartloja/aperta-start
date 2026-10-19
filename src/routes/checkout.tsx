@@ -653,6 +653,11 @@ function CheckoutPage() {
                           <img
                             src={product.images[0]?.url || "/placeholder-product.svg"}
                             alt={product.name}
+                            onError={(e) => {
+                              if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+                                e.currentTarget.src = "/placeholder-product.svg";
+                              }
+                            }}
                             className="h-20 w-20 shrink-0 rounded-xl border border-border bg-background object-contain p-2"
                           />
                           <div className="flex flex-1 flex-col justify-between">

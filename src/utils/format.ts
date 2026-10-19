@@ -1,11 +1,12 @@
 import { CURRENCY, INSTALLMENTS } from "@/constants";
 
 export const formatCurrency = (value: number): string => {
-  const formatted = new Intl.NumberFormat(CURRENCY.locale, {
-    style: "currency",
-    currency: CURRENCY.code,
-  }).format(value);
-  return formatted.replace(/^R\$\s*/, "R$ ").replace(/\u00a0/g, " ");
+  const safeVal = typeof value === "number" && !isNaN(value) ? value : 0;
+  const formattedNum = safeVal.toLocaleString(CURRENCY.locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `R$ ${formattedNum}`;
 };
 
 export const formatNumber = (value: number): string =>

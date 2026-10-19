@@ -386,6 +386,11 @@ function ProdutosListaPage() {
                             <img
                               src={product.images[0]?.url || "/placeholder-product.svg"}
                               alt={product.name}
+                              onError={(e) => {
+                                if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+                                  e.currentTarget.src = "/placeholder-product.svg";
+                                }
+                              }}
                               className="size-12 rounded-xl object-contain bg-background border border-border p-1 shrink-0"
                             />
                             <div className="min-w-0">

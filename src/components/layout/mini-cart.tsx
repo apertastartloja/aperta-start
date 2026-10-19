@@ -131,6 +131,11 @@ export function MiniCart() {
                   <img
                     src={product.images[0]?.url || "/placeholder-product.svg"}
                     alt={product.name}
+                    onError={(e) => {
+                      if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+                        e.currentTarget.src = "/placeholder-product.svg";
+                      }
+                    }}
                     className="h-16 w-16 shrink-0 rounded-xl border border-border bg-background object-contain p-1.5"
                   />
                 ) : (
@@ -146,7 +151,7 @@ export function MiniCart() {
                     </span>
                   </div>
                   <p className="text-caption text-muted-foreground">
-                    Unidade: {formatCurrency(unitPrice)}
+                    {`Unidade: ${formatCurrency(unitPrice)}`}
                   </p>
                   <div className="flex items-center justify-between pt-1">
                     <QuantitySelector
@@ -177,8 +182,13 @@ export function MiniCart() {
               </p>
               <div className="flex items-center gap-3">
                 <img
-                  src={orderBumpProduct.product.images[0]?.url}
+                  src={orderBumpProduct.product.images[0]?.url || "/placeholder-product.svg"}
                   alt={orderBumpProduct.product.name}
+                  onError={(e) => {
+                    if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+                      e.currentTarget.src = "/placeholder-product.svg";
+                    }
+                  }}
                   className="h-14 w-14 shrink-0 rounded-xl border border-border bg-white object-contain p-1"
                 />
                 <div className="flex-1 min-w-0">

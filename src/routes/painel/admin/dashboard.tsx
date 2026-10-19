@@ -145,18 +145,7 @@ function AdminDashboardPage() {
       })
       .sort((a, b) => b.salesCount - a.salesCount);
 
-    if (sortedBySales.length > 0) {
-      return sortedBySales.slice(0, 4);
-    }
-
-    return products.slice(0, 4).map((p) => ({
-      id: p.id,
-      name: p.name,
-      sku: p.sku,
-      price: p.price,
-      image: p.images[0]?.url || "/placeholder-product.svg",
-      salesCount: 0,
-    }));
+    return sortedBySales.slice(0, 5);
   }, [validOrders, products]);
 
   const recentOrders = useMemo(() => {
@@ -348,6 +337,11 @@ function AdminDashboardPage() {
                     <img
                       src={prod.image || "/placeholder-product.svg"}
                       alt={prod.name}
+                      onError={(e) => {
+                        if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+                          e.currentTarget.src = "/placeholder-product.svg";
+                        }
+                      }}
                       className="size-12 rounded-xl object-contain bg-background border border-border p-1 shrink-0"
                     />
                     <div className="min-w-0 flex-1">

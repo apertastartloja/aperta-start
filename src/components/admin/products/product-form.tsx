@@ -33,6 +33,7 @@ import { StorageService } from "@/services/storage.service";
 import type { Product, ProductBadgeType, ProductImage, ProductVariant, ProductSpec, Supplier } from "@/types";
 import { cn } from "@/lib/utils";
 import { RelatedProductsPicker } from "./related-products-picker";
+import { formatCurrency } from "@/utils/format";
 
 interface ProductFormProps {
   initialData?: Product;
@@ -278,7 +279,7 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
         name: name.trim(),
         slug: slug.trim().toLowerCase(),
         sku: sku.trim() || `AS-PROD-${Math.floor(1000 + Math.random() * 9000)}`,
-        description: description.trim() || "Descrição do produto Aperta Start.",
+        description: description.trim(),
         shortDescription: shortDescription.trim() || undefined,
         price: Number(price),
         compareAtPrice: compareAtPrice ? Number(compareAtPrice) : null,
@@ -557,8 +558,13 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
                   )}
                 >
                   <img
-                    src={img.url}
+                    src={img.url || "/placeholder-product.svg"}
                     alt={img.alt}
+                    onError={(e) => {
+                      if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+                        e.currentTarget.src = "/placeholder-product.svg";
+                      }
+                    }}
                     className="h-28 w-full object-contain rounded-xl bg-white/50"
                   />
                   {index === 0 && (
@@ -982,13 +988,18 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
                 return (
                   <div className="flex items-center gap-3 rounded-xl border border-accent/30 bg-accent/5 px-4 py-3">
                     <img
-                      src={selected.images[0]?.url}
+                      src={selected.images[0]?.url || "/placeholder-product.svg"}
                       alt={selected.name}
-                      className="h-10 w-10 rounded-xl object-contain bg-white border border-border"
+                      onError={(e) => {
+                        if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+                          e.currentTarget.src = "/placeholder-product.svg";
+                        }
+                      }}
+                      className="h-10 w-10 rounded-xl object-contain bg-surface border border-border"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-small font-bold text-foreground truncate">{selected.name}</p>
-                      <p className="text-caption text-muted-foreground">R$ {selected.price.toFixed(2).replace(".", ",")}</p>
+                      <p className="text-caption text-muted-foreground">{formatCurrency(selected.price)}</p>
                     </div>
                     <button
                       type="button"
@@ -1015,19 +1026,24 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
                         key={p.id}
                         type="button"
                         onClick={() => { setOrderBumpProductId(p.id); setOrderBumpSearch(""); }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted transition-colors cursor-pointer"
                       >
                         <img
-                          src={p.images[0]?.url}
+                          src={p.images[0]?.url || "/placeholder-product.svg"}
                           alt={p.name}
-                          className="h-9 w-9 shrink-0 rounded-xl object-contain bg-white border border-border"
+                          onError={(e) => {
+                            if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+                              e.currentTarget.src = "/placeholder-product.svg";
+                            }
+                          }}
+                          className="h-9 w-9 shrink-0 rounded-xl object-contain bg-surface border border-border"
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-small font-bold text-foreground truncate">{p.name}</p>
                           <p className="text-caption text-muted-foreground">SKU: {p.sku}</p>
                         </div>
                         <span className="text-small font-bold text-foreground shrink-0">
-                          R$ {p.price.toFixed(2).replace(".", ",")}
+                          {formatCurrency(p.price)}
                         </span>
                       </button>
                     ))}
@@ -1045,11 +1061,12 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
                 <label className="text-caption font-bold text-foreground">Mensagem do Bump</label>
                 <input
                   type="text"
-                  placeholder={
-                    orderBumpProductId && allProducts.find((p) => p.id === orderBumpProductId)
-                      ? `Adicione por apenas +${formatCurrency(allProducts.find((p) => p.id === orderBumpProductId)!.price)}!`
-                      : "Adicione por apenas +R$ ..."
-                  }
+                  placeholder={(() => {
+                    if (!orderBumpProductId) return "Adicione por apenas +R$ ...";
+                    const bumpProd = allProducts.find((p) => p.id === orderBumpProductId);
+                    if (!bumpProd || typeof bumpProd.price !== "number") return "Adicione por apenas +R$ ...";
+                    return `Adicione por apenas +${formatCurrency(bumpProd.price)}!`;
+                  })()}
                   value={orderBumpMessage}
                   onChange={(e) => setOrderBumpMessage(e.target.value)}
                   className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-small text-foreground focus:border-ring focus:outline-none"

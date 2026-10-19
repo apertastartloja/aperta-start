@@ -27,20 +27,19 @@ export function ProductCard({ product, className, compact = false }: ProductCard
       )}
     >
       <div className="relative aspect-square overflow-hidden bg-surface">
-        {cover ? (
-          <img
-            src={cover.url}
-            alt={cover.alt}
-            loading="lazy"
-            width={800}
-            height={800}
-            className="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex size-full items-center justify-center text-muted-foreground">
-            <ImageOff className="size-8" aria-hidden />
-          </div>
-        )}
+        <img
+          src={cover?.url || "/placeholder-product.svg"}
+          alt={cover?.alt || product.name}
+          loading="lazy"
+          width={800}
+          height={800}
+          onError={(e) => {
+            if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+              e.currentTarget.src = "/placeholder-product.svg";
+            }
+          }}
+          className="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+        />
 
         {/* Gradiente sutil de profundidade na foto no hover */}
         <div

@@ -210,8 +210,13 @@ function ProductDetailPage() {
             <div className="sticky top-24 space-y-4">
               <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-surface p-6 shadow-medium transition-all hover:shadow-large">
                 <img
-                  src={currentImage}
+                  src={currentImage || "/placeholder-product.svg"}
                   alt={product.name}
+                  onError={(e) => {
+                    if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+                      e.currentTarget.src = "/placeholder-product.svg";
+                    }
+                  }}
                   className="h-full w-full object-contain object-center transition-transform duration-300 hover:scale-105"
                 />
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
@@ -243,7 +248,16 @@ function ProductDetailPage() {
                         : "border-border opacity-70 hover:opacity-100"
                     }`}
                   >
-                    <img src={img.url} alt={img.alt} className="h-full w-full object-contain" />
+                    <img
+                      src={img.url || "/placeholder-product.svg"}
+                      alt={img.alt}
+                      onError={(e) => {
+                        if (!e.currentTarget.src.endsWith("/placeholder-product.svg")) {
+                          e.currentTarget.src = "/placeholder-product.svg";
+                        }
+                      }}
+                      className="h-full w-full object-contain"
+                    />
                   </button>
                 ))}
               </div>
@@ -296,7 +310,7 @@ function ProductDetailPage() {
               </div>
 
               <p className="text-caption text-muted-foreground">
-                Ou até <strong>12x de {formatCurrency(product.price / 12)}</strong> sem juros no cartão
+                {"Ou até "}<strong>{`12x de ${formatCurrency(product.price / 12)}`}</strong>{" sem juros no cartão"}
               </p>
             </div>
 
