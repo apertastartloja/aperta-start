@@ -116,6 +116,10 @@ function ProdutosListaPage() {
       toast.success("Produto excluído com sucesso!");
       setProductToDelete(null);
     },
+    onError: (err: any) => {
+      toast.error(err?.message || "Erro ao excluir produto.");
+      setProductToDelete(null);
+    },
   });
 
   const bulkDeleteMutation = useMutation({
@@ -125,6 +129,10 @@ function ProdutosListaPage() {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success(`${selectedIds.length} produtos excluídos com sucesso!`);
       setSelectedIds([]);
+      setIsBulkDeleteModalOpen(false);
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Erro ao excluir produtos em lote.");
       setIsBulkDeleteModalOpen(false);
     },
   });
@@ -137,6 +145,9 @@ function ProdutosListaPage() {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success(`Status de ${variables.ids.length} produtos atualizado para ${variables.status}!`);
       setSelectedIds([]);
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Erro ao atualizar status dos produtos.");
     },
   });
 

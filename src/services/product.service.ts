@@ -13,9 +13,7 @@ function getLocalProducts(): Product[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        const existingIds = new Set(parsed.map((p: any) => p.id));
-        const missingSeeds = mockProducts.filter((mp) => !existingIds.has(mp.id));
-        return [...parsed, ...missingSeeds];
+        return parsed;
       }
     }
   } catch (e) {
@@ -105,11 +103,9 @@ export const ProductService = {
             createdAt: item.created_at ?? new Date().toISOString(),
           };
         });
-        const fetchedIds = new Set(fetched.map((p) => p.id));
-        const merged = [...fetched, ...localProductsStore.filter((p) => !fetchedIds.has(p.id))];
-        localProductsStore = merged;
-        saveLocalProducts(merged);
-        return merged;
+        localProductsStore = fetched;
+        saveLocalProducts(fetched);
+        return fetched;
       }
     } catch (err) {
       console.warn("Aviso ao buscar produtos do Supabase, utilizando estado local:", err);
@@ -387,10 +383,12 @@ export const ProductService = {
     try {
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) {
-        console.warn("Erro ao excluir produto no Supabase:", error.message);
+        console.error("Erro ao excluir produto no Supabase:", error.message);
+        throw new Error(`Erro ao excluir produto no Supabase: ${error.message}`);
       }
     } catch (err) {
-      console.warn("Falha de conexão com Supabase ao excluir produto:", err);
+      console.error("Falha ao excluir produto no Supabase:", err);
+      throw err;
     }
 
     localProductsStore = localProductsStore.filter((p) => p.id !== id);
@@ -402,13 +400,16 @@ export const ProductService = {
     try {
       const { error } = await supabase.from("products").delete().in("id", ids);
       if (error) {
-        console.warn("Erro ao excluir múltiplos produtos no Supabase:", error.message);
+        console.error("Erro ao excluir múltiplos produtos no Supabase:", error.message);
+        throw new Error(`Erro ao excluir produtos no Supabase: ${error.message}`);
       }
     } catch (err) {
-      console.warn("Falha ao excluir em lote no Supabase:", err);
+      console.error("Falha ao excluir em lote no Supabase:", err);
+      throw err;
     }
 
-    localProductsStore = localProductsStore.filter((p) => !ids.includes(p.id));
+    const idSet = new Set(ids);
+    localProductsStore = localProductsStore.filter((p) => !idSet.has(p.id));
     saveLocalProducts(localProductsStore);
     return delay(true);
   },
